@@ -4,10 +4,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"reflect"
 	"fmt"
 	"path/filepath"
-	// fiber "github.com/gofiber/fiber/v2"
 	server "github.com/0187773933/MastersClosetTracker/v1/server"
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
 )
@@ -33,6 +31,5 @@ func main() {
 	config := utils.ParseConfig( config_file_path )
 	fmt.Println( config )
 	s = server.New( config )
-	fmt.Println( reflect.TypeOf( s ) )
 	s.Start()
 }
