@@ -22,7 +22,8 @@ func New( context *fiber.Ctx ) ( error ) {
 			Name: "new-user-test" ,
 			Value: "blah blah blah , probably some nacl salsa boxed value" ,
 			Secure: true ,
-			Expires: time.Now().Add( 5 * 365 * 30 * 24 * time.Hour ) , // aka a fucking long time
+			SameSite: "strict" ,
+			Expires: time.Now().AddDate( 10 , 0 , 0 ) , // aka 10 years from now
 		} ,
 	)
 	return context.JSON( fiber.Map{

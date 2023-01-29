@@ -3,14 +3,12 @@ package server
 import (
 	"fmt"
 	"time"
-	// index_sort "github.com/mkmik/argsort"
 	fiber "github.com/gofiber/fiber/v2"
 	fiber_cookie "github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	rate_limiter "github.com/gofiber/fiber/v2/middleware/limiter"
 	// try "github.com/manucorporat/try"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
-	// redis "github.com/0187773933/MastersClosetTracker/v1/redis"
 	user_routes "github.com/0187773933/MastersClosetTracker/v1/server/routes/user"
 	// admin_routes "github.com/0187773933/MastersClosetTracker/v1/server/routes/admin"
 )
@@ -65,6 +63,7 @@ func New( config types.ConfigFile ) ( server Server ) {
 
 func ( s *Server ) SetupRoutes() {
 	user_routes.RegisterRoutes( s.FiberApp , &s.Config )
+	// admin_routes.RegisterRoutes( s.FiberApp , &s.Config )
 }
 
 func ( s *Server ) Start() {
