@@ -4,14 +4,15 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"reflect"
 	"fmt"
 	"path/filepath"
-	fiber "github.com/gofiber/fiber/v2"
+	// fiber "github.com/gofiber/fiber/v2"
 	server "github.com/0187773933/MastersClosetTracker/v1/server"
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
 )
 
-var s *fiber.App
+var s server.Server
 
 func SetupCloseHandler() {
 	c := make( chan os.Signal )
@@ -20,7 +21,7 @@ func SetupCloseHandler() {
 		<-c
 		fmt.Println( "\r- Ctrl+C pressed in Terminal" )
 		fmt.Println( "Shutting Down Master's Closet Tracking Server" )
-		s.Shutdown()
+		s.FiberApp.Shutdown()
 		os.Exit( 0 )
 	}()
 }
@@ -32,6 +33,6 @@ func main() {
 	config := utils.ParseConfig( config_file_path )
 	fmt.Println( config )
 	s = server.New( config )
-	fmt.Printf( "Listening on %s\n" , config.ServerPort )
-	s.Listen( fmt.Sprintf( ":%s" , config.ServerPort ) )
+	fmt.Println( reflect.TypeOf( s ) )
+	s.Start()
 }

@@ -1,5 +1,9 @@
 package types
 
+import (
+	// fiber "github.com/gofiber/fiber/v2"
+)
+
 type RedisConfig struct {
 	Host string `json:"host"`
 	Port string `json:"port"`
@@ -12,7 +16,7 @@ type ConfigFile struct {
 	ServerPort string `json:"server_port"`
 	ServerAPIKey string `json:"server_api_key"`
 	TimeZone string `json:"time_zone"`
-	Redis RedisConfig "json:latitude"
+	Redis RedisConfig "json:redis"
 	IPBlacklist []string "json:ip_blacklist"
 	IPInfoToken string `json:"ip_info_token"`
 }
