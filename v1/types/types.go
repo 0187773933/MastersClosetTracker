@@ -15,6 +15,7 @@ type ConfigFile struct {
 	ServerBaseUrl string `json:"server_base_url"`
 	ServerPort string `json:"server_port"`
 	ServerAPIKey string `json:"server_api_key"`
+	ServerCookieSecret string `json:"server_cookie_secret"`
 	TimeZone string `json:"time_zone"`
 	Redis RedisConfig "json:redis"
 	IPBlacklist []string "json:ip_blacklist"

@@ -5,6 +5,7 @@ import (
 	"time"
 	// index_sort "github.com/mkmik/argsort"
 	fiber "github.com/gofiber/fiber/v2"
+	fiber_cookie "github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	rate_limiter "github.com/gofiber/fiber/v2/middleware/limiter"
 	// try "github.com/manucorporat/try"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
@@ -19,6 +20,7 @@ type Server struct {
 	Config types.ConfigFile `json:"config"`
 }
 
+// https://docs.gofiber.io/api/middleware/encryptcookie/
 func New( config types.ConfigFile ) ( server Server ) {
 
 	server.FiberApp = fiber.New()
@@ -48,6 +50,14 @@ func New( config types.ConfigFile ) ( server Server ) {
 		// Storage: myCustomStorage{}
 		// monkaS
 		// https://github.com/gofiber/fiber/blob/master/middleware/limiter/config.go#L53
+	}))
+	// has to be fucking base64 encoded ??? who does this
+	// whatever , lets let it generate us one and see what it looks like
+	// temp_key := fiber_cookie.GenerateKey()
+	// fmt.Println( temp_key )
+	server.FiberApp.Use( fiber_cookie.New( fiber_cookie.Config{
+		Key: server.Config.ServerCookieSecret ,
+		// Key: temp_key ,
 	}))
 	server.SetupRoutes()
 	return
