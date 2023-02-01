@@ -50,47 +50,6 @@ func SecretBoxDecrypt( key string , encrypted string ) ( result string ) {
 	return
 }
 
-func ChaChaGenerateRandomKey() ( key [32]byte ) {
-	random.Read( key[:] )
-	// fmt.Printf( "%x\n" , key )
-	return
-}
-
-func ChaChaGenerateKey( password string ) ( key [32]byte ) {
-	password_bytes := []byte( password )
-	hashed_password , _ := bcrypt.GenerateFromPassword( password_bytes , ( bcrypt.DefaultCost + 3 ) )
-	copy( key[ : ] , hashed_password[ : 32 ] )
-	// fmt.Printf( "%x\n" , key )
-	return
-}
-
-func ChaChaEncrypt( key string , plain_text string ) ( result string ) {
-	key_hex , _ := hex.DecodeString( key )
-	var key_bytes [32]byte
-	copy( key_bytes[ : ], key_hex )
-	plain_text_bytes := []byte( plain_text )
-	aead , _ := chacha.New( key_bytes[ : ] )
-	nonce := make( []byte , aead.NonceSize() )
-	io.ReadFull( random.Reader , nonce[ : ] )
-	encrypted_bytes := aead.Seal( nil , nonce , plain_text_bytes , nil )
-	encrypted_bytes_with_nonce := append( nonce[:] , encrypted_bytes... )
-	result = base64.StdEncoding.EncodeToString( encrypted_bytes_with_nonce )
-	return
-}
-
-func ChaChaDecrypt( key string , encrypted string ) ( result string ) {
-	key_hex , _ := hex.DecodeString( key )
-	var key_bytes [32]byte
-	copy( key_bytes[ : ], key_hex )
-	encrypted_bytes , _ := base64.StdEncoding.DecodeString( encrypted )
-	aead , _ := chacha.New( key_bytes[ : ] )
-	nonce := make( []byte , aead.NonceSize() )
-	copy( nonce[ : ] , encrypted_bytes[ 0 : aead.NonceSize() ] )
-	decrypted , _ := aead.Open( nil , nonce , encrypted_bytes[ aead.NonceSize() : ] , nil )
-	result = string( decrypted )
-	return
-}
-
 func TestSecretBoxKeyGeneration() {
 	x := SecretBoxGenerateRandomKey()
 	x_hex := hex.EncodeToString( x[ : ] )
@@ -110,10 +69,69 @@ func TestSecretBoxEncryptAndDecrypt() {
 }
 
 
-func TestChaChaEncryptAndDecrypt() {
+func ChaChaGenerateKey( password string ) ( key [32]byte ) {
+	password_bytes := []byte( password )
+	hashed_password , _ := bcrypt.GenerateFromPassword( password_bytes , ( bcrypt.DefaultCost + 3 ) )
+	copy( key[ : ] , hashed_password[ : 32 ] )
+	// fmt.Printf( "%x\n" , key )
+	return
+}
+
+func ChaChaEncryptString( key string , plain_text string ) ( result string ) {
+	key_hex , _ := hex.DecodeString( key )
+	var key_bytes [32]byte
+	copy( key_bytes[ : ], key_hex )
+	plain_text_bytes := []byte( plain_text )
+	aead , _ := chacha.New( key_bytes[ : ] )
+	nonce := make( []byte , aead.NonceSize() )
+	io.ReadFull( random.Reader , nonce[ : ] )
+	encrypted_bytes := aead.Seal( nil , nonce , plain_text_bytes , nil )
+	encrypted_bytes_with_nonce := append( nonce[:] , encrypted_bytes... )
+	result = base64.StdEncoding.EncodeToString( encrypted_bytes_with_nonce )
+	return
+}
+
+func ChaChaDecryptBase64String( key string , encrypted string ) ( result string ) {
+	key_hex , _ := hex.DecodeString( key )
+	var key_bytes [32]byte
+	copy( key_bytes[ : ], key_hex )
+	encrypted_bytes , _ := base64.StdEncoding.DecodeString( encrypted )
+	aead , _ := chacha.New( key_bytes[ : ] )
+	nonce := make( []byte , aead.NonceSize() )
+	copy( nonce[ : ] , encrypted_bytes[ 0 : aead.NonceSize() ] )
+	decrypted , _ := aead.Open( nil , nonce , encrypted_bytes[ aead.NonceSize() : ] , nil )
+	result = string( decrypted )
+	return
+}
+
+func ChaChaEncryptBytes( key string , plain_text_bytes []byte ) ( result []byte ) {
+	key_hex , _ := hex.DecodeString( key )
+	var key_bytes [32]byte
+	copy( key_bytes[ : ], key_hex )
+	aead , _ := chacha.New( key_bytes[ : ] )
+	nonce := make( []byte , aead.NonceSize() )
+	io.ReadFull( random.Reader , nonce[ : ] )
+	encrypted_bytes := aead.Seal( nil , nonce , plain_text_bytes , nil )
+	result = append( nonce[:] , encrypted_bytes... )
+	return
+}
+
+func ChaChaDecryptBytes( key string , encrypted_bytes []byte ) ( result []byte ) {
+	key_hex , _ := hex.DecodeString( key )
+	var key_bytes [32]byte
+	copy( key_bytes[ : ], key_hex )
+	aead , _ := chacha.New( key_bytes[ : ] )
+	nonce := make( []byte , aead.NonceSize() )
+	copy( nonce[ : ] , encrypted_bytes[ 0 : aead.NonceSize() ] )
+	decrypted , _ := aead.Open( nil , nonce , encrypted_bytes[ aead.NonceSize() : ] , nil )
+	result = decrypted
+	return
+}
+
+func Test_ChaChaEncryptDecrypt() {
 	// ChaChaGenerateKey( "2432612431332431436c754a424778736e66796a794b466c32356e794f614836" )
-	x := ChaChaEncrypt( "2432612431332431436c754a424778736e66796a794b466c32356e794f614836" , "wadu wadu wadu" )
-	y := ChaChaDecrypt( "2432612431332431436c754a424778736e66796a794b466c32356e794f614836" , x )
+	x := ChaChaEncryptString( "2432612431332431436c754a424778736e66796a794b466c32356e794f614836" , "wadu wadu wadu" )
+	y := ChaChaDecryptBase64String( "2432612431332431436c754a424778736e66796a794b466c32356e794f614836" , x )
 	fmt.Printf( "%+v\n" , x )
 	fmt.Println( y )
 }
