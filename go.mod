@@ -4,6 +4,12 @@ go 1.16
 
 require (
 	github.com/0187773933/RedisManagerUtils v0.0.0-20201221200850-aecacb38bdeb
+	github.com/boltdb/bolt v1.3.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gofiber/fiber/v2 v2.41.0
+	github.com/makiuchi-d/gozxing v0.1.1
+	github.com/satori/go.uuid v1.2.0
+	github.com/yeqown/go-qrcode/v2 v2.2.1
+	github.com/yeqown/go-qrcode/writer/standard v1.2.1
+	golang.org/x/crypto v0.0.0-20220214200702-86341886e292
 )

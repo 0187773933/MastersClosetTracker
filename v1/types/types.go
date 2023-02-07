@@ -17,6 +17,8 @@ type ConfigFile struct {
 	ServerAPIKey string `json:"server_api_key"`
 	ServerCookieSecret string `json:"server_cookie_secret"`
 	TimeZone string `json:"time_zone"`
+	BoltDBPath string `json:"bolt_db_path"`
+	BoltDBEncryptionKey string `json:"bolt_db_encryption_key"`
 	Redis RedisConfig "json:redis"
 	IPBlacklist []string "json:ip_blacklist"
 	IPInfoToken string `json:"ip_info_token"`
