@@ -8,3 +8,5 @@
 2. Validating Cookie before doing anything
 3. Generating QR Code Stuff
 4. Spreadsheet Export
+5. Front End Website that Watches for QR Scanner Input
+	- https://www.amazon.com/Eyoyo-Handheld-Convenience-Supermarket-Warehouse/dp/B088QV215Y
