@@ -10,6 +10,10 @@ import (
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
 )
 
+// TODO
+// 1.) Admin Routes for Manual Overrides
+// 2.) Validating Cookie before doing anything
+
 var s server.Server
 
 func SetupCloseHandler() {

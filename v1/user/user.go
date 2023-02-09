@@ -81,7 +81,7 @@ func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_
 		viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
 		result = "success"
 	} else {
-		// "user has checked in before , need to compare last check-in date to now"
+		// user has checked in before , need to compare last check-in date to now
 		// only comparing the dates , not the times
 		last_check_in := viewed_user.CheckIns[ len( viewed_user.CheckIns ) - 1 ]
 		cool_off_duration := ( time.Duration( cool_off_days ) * 24 * time.Hour )
