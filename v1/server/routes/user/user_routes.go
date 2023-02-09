@@ -49,7 +49,7 @@ func New( context *fiber.Ctx ) ( error ) {
 	)
 	return context.JSON( fiber.Map{
 		"route": "/user/new" ,
-		"result": "temp" ,
+		"result": new_user ,
 	})
 }
 

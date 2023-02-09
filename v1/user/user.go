@@ -21,7 +21,7 @@ type FailedCheckIn struct {
 	Date string `json:"date"`
 	Time string `json:"time"`
 	Type string `json:"type"`
-	RemainingTime string `json:"remaining_time"`
+	DaysRemaining int `json:"remaining_days"`
 }
 
 type User struct {
@@ -72,58 +72,45 @@ func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_
 		return nil
 	})
 	if viewed_user.UUID == "" { result = "user UUID doesn't exist"; return }
+	var new_check_in CheckIn
+	now := time.Now()
+	new_check_in.Date = now.Format( "02JAN2006" )
+	new_check_in.Time = now.Format( "15:04:05.000" )
 	if len( viewed_user.CheckIns ) < 1 {
-		var new_check_in CheckIn
-		now := time.Now()
-		new_check_in.Date = now.Format( "02JAN2006" )
-		new_check_in.Time = now.Format( "15:04:05.000" )
 		new_check_in.Type = "first"
 		viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
-		viewed_user_byte_object , _ := json.Marshal( viewed_user )
-		viewed_user_byte_object_encrypted := encrypt.ChaChaEncryptBytes( encryption_key , viewed_user_byte_object )
-		db_result := db.Update( func( tx *bolt.Tx ) error {
-			bucket := tx.Bucket( []byte( "users" ) )
-			bucket.Put( []byte( user_uuid ) , viewed_user_byte_object_encrypted )
-			return nil
-		})
-		if db_result != nil { panic( "couldn't write to bolt db ??" ) }
 		result = "success"
-		return
 	} else {
-		fmt.Println( "user has checked in before , need to compare last check-in date to now" )
-		now := time.Now()
-		last_check_in := viewed_user.CheckIns[ len( viewed_user.CheckIns ) - 1 ]
+		// "user has checked in before , need to compare last check-in date to now"
 		// only comparing the dates , not the times
-		// fmt.Println( viewed_user.CheckIns )
+		last_check_in := viewed_user.CheckIns[ len( viewed_user.CheckIns ) - 1 ]
 		cool_off_duration := ( time.Duration( cool_off_days ) * 24 * time.Hour )
 		last_check_in_date , _ := time.Parse( "02JAN2006" , last_check_in.Date )
-		fmt.Println( "last checkin date ===" , last_check_in_date )
 		check_in_date_difference := last_check_in_date.Sub( last_check_in_date )
-		fmt.Println( check_in_date_difference )
 		if check_in_date_difference >= cool_off_duration {
-			fmt.Println( "the user waited long enough before checking in again" )
-			var new_check_in CheckIn
-			new_check_in.Date = now.Format( "02JAN2006" )
-			new_check_in.Time = now.Format( "15:04:05.000" )
+			// "the user waited long enough before checking in again"
 			new_check_in.Type = "new"
-			fmt.Println( len( viewed_user.CheckIns ) )
 			viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
-			fmt.Println( len( viewed_user.CheckIns ) )
-			fmt.Println( viewed_user.CheckIns[ len( viewed_user.CheckIns ) - 1 ] )
-			viewed_user_byte_object , _ := json.Marshal( viewed_user )
-			viewed_user_byte_object_encrypted := encrypt.ChaChaEncryptBytes( encryption_key , viewed_user_byte_object )
-			db_result := db.Update( func( tx *bolt.Tx ) error {
-				bucket := tx.Bucket( []byte( "users" ) )
-				bucket.Put( []byte( user_uuid ) , viewed_user_byte_object_encrypted )
-				return nil
-			})
-			if db_result != nil { panic( "couldn't write to bolt db ??" ) }
 			result = "success"
-			return
 		} else {
 			days_remaining := ( cool_off_days - int( check_in_date_difference / ( 24 * time.Hour ) ) )
 			fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait %d days\n" , days_remaining )
+			var new_failed_check_in FailedCheckIn
+			new_failed_check_in.Date = now.Format( "02JAN2006" )
+			new_failed_check_in.Time = now.Format( "15:04:05.000" )
+			new_failed_check_in.Type = "normal"
+			new_failed_check_in.DaysRemaining = days_remaining
+			viewed_user.FailedCheckIns = append( viewed_user.FailedCheckIns , new_failed_check_in )
+			result = "failed"
 		}
 	}
+	viewed_user_byte_object , _ := json.Marshal( viewed_user )
+	viewed_user_byte_object_encrypted := encrypt.ChaChaEncryptBytes( encryption_key , viewed_user_byte_object )
+	db_result := db.Update( func( tx *bolt.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket.Put( []byte( user_uuid ) , viewed_user_byte_object_encrypted )
+		return nil
+	})
+	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
 	return
 }
