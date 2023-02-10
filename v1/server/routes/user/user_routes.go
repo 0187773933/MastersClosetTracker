@@ -3,11 +3,13 @@ package userroutes
 import (
 	"fmt"
 	"time"
+	net_url "net/url"
 	fiber "github.com/gofiber/fiber/v2"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
 	// bolt "github.com/0187773933/MastersClosetTracker/v1/bolt"
 	bolt_api "github.com/boltdb/bolt"
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
+	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
 )
 
 var GlobalConfig *types.ConfigFile
@@ -26,29 +28,40 @@ var GlobalConfig *types.ConfigFile
 func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	GlobalConfig = config
 	user_route_group := fiber_app.Group( "/user" )
-	user_route_group.Get( "/new" , New )
+	user_route_group.Get( "/new/:username" , New )
 	user_route_group.Get( "/get/:uuid" , GetUser )
 	user_route_group.Get( "/checkin/:uuid" , CheckIn )
 }
 
 // https://docs.gofiber.io/api/ctx#cookie
-// http://localhost:5950/user/new
+// http://localhost:5950/user/new/:username
 func New( context *fiber.Ctx ) ( error ) {
+	// queryParams := c.Query("param")
+	param_username := context.Params( "username" )
+	if param_username == "" {
+		return context.JSON( fiber.Map{
+			"route": "/user/new" ,
+			"result": "failed , no username sent" ,
+		})
+	}
+	username , _ := net_url.QueryUnescape( param_username )
+	fmt.Println( username )
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
-	new_user := user.New( "new-user-test" , db , GlobalConfig.BoltDBEncryptionKey )
+	new_user := user.New( username , db , GlobalConfig.BoltDBEncryptionKey )
 	fmt.Println( new_user )
 	context.Cookie(
 		&fiber.Cookie{
-			Name: "new-user-test" ,
-			Value: "blah blah blah , probably some nacl salsa boxed value" ,
+			Name: "the-masters-closet-user" ,
+			Value: encryption.SecretBoxEncrypt( GlobalConfig.BoltDBEncryptionKey , GlobalConfig.ServerCookieSecretMessage ) ,
 			Secure: true ,
 			SameSite: "strict" ,
 			Expires: time.Now().AddDate( 10 , 0 , 0 ) , // aka 10 years from now
 		} ,
 	)
 	return context.JSON( fiber.Map{
-		"route": "/user/new" ,
+		"route": "/user/new/:username" ,
+		"username": username ,
 		"result": new_user ,
 	})
 }

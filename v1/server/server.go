@@ -10,12 +10,17 @@ import (
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
 	user_routes "github.com/0187773933/MastersClosetTracker/v1/server/routes/user"
-	// admin_routes "github.com/0187773933/MastersClosetTracker/v1/server/routes/admin"
+	admin_routes "github.com/0187773933/MastersClosetTracker/v1/server/routes/admin"
 )
 
 type Server struct {
 	FiberApp *fiber.App `json:"fiber_app"`
 	Config types.ConfigFile `json:"config"`
+}
+
+func request_logging_middleware( context *fiber.Ctx ) ( error ) {
+	fmt.Printf( "%s === %s === %s\n" , context.IP() , context.Method() , context.Path() )
+	return context.Next()
 }
 
 // https://docs.gofiber.io/api/middleware/encryptcookie/
@@ -27,8 +32,10 @@ func New( config types.ConfigFile ) ( server Server ) {
 	ip_addresses := utils.GetLocalIPAddresses()
 	fmt.Println( "Server's IP Addresses === " , ip_addresses )
 	// https://docs.gofiber.io/api/middleware/limiter
+	server.FiberApp.Use( request_logging_middleware )
+	server.FiberApp.Get( "/favicon.ico" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/cdn/favicon.ico" ) } )
 	server.FiberApp.Use( rate_limiter.New( rate_limiter.Config{
-		Max: 2 ,
+		Max: 4 ,
 		Expiration: ( 4 * time.Second ) ,
 		// Next: func( c *fiber.Ctx ) bool {
 		// 	ip := c.IP()
@@ -57,13 +64,14 @@ func New( config types.ConfigFile ) ( server Server ) {
 		Key: server.Config.ServerCookieSecret ,
 		// Key: temp_key ,
 	}))
+	server.FiberApp.Static( "/cdn" , "./v1/server/cdn" )
 	server.SetupRoutes()
 	return
 }
 
 func ( s *Server ) SetupRoutes() {
 	user_routes.RegisterRoutes( s.FiberApp , &s.Config )
-	// admin_routes.RegisterRoutes( s.FiberApp , &s.Config )
+	admin_routes.RegisterRoutes( s.FiberApp , &s.Config )
 }
 
 func ( s *Server ) Start() {

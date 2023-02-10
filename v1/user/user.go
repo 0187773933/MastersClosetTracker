@@ -25,6 +25,7 @@ type FailedCheckIn struct {
 }
 
 type User struct {
+	Username string `json:"username"`
 	UUID string `json:"uuid"`
 	CreatedDate string `json:"created_date"`
 	CreatedTime string `json:"created_time"`
@@ -35,6 +36,7 @@ type User struct {
 func New( username string , db *bolt.DB , encryption_key string ) ( new_user User ) {
 	now := time.Now()
 	new_user_uuid := uuid.NewV4().String()
+	new_user.Username = username
 	new_user.UUID = new_user_uuid
 	new_user.CreatedDate = now.Format( "02JAN2006" )
 	new_user.CreatedTime = now.Format( "15:04:05.000" )
