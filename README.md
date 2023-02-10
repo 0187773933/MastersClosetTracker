@@ -10,3 +10,5 @@
 4. Spreadsheet Export
 5. Front End Website that Watches for QR Scanner Input
 	- https://www.amazon.com/Eyoyo-Handheld-Convenience-Supermarket-Warehouse/dp/B088QV215Y
+6. Edge Cases
+	- User attempts to use a different name ?

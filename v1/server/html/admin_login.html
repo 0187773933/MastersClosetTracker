@@ -1,7 +1,8 @@
 <html>
 	<head>
 		<title>Admin Login</title>
-		<script src="/cdn/bcrypt.min.js" integrity=""></script>
+		<!-- <script src="/cdn/bcrypt.min.js" integrity=""></script> -->
+		<script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js" integrity="sha256-r9S9KZvN5nEN1voCkVbj4RdMSLwAa4qeujL5ZOWSN4M=" crossorigin="anonymous"></script>
 	</head>
 	<body>
 		<form id="form-login" action="/admin/login" onSubmit="return on_submit()" method="post" >

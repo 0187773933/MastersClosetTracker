@@ -64,7 +64,7 @@ func New( config types.ConfigFile ) ( server Server ) {
 		Key: server.Config.ServerCookieSecret ,
 		// Key: temp_key ,
 	}))
-	server.FiberApp.Static( "/cdn" , "./v1/server/cdn" )
+	// server.FiberApp.Static( "/cdn" , "./v1/server/cdn" )
 	server.SetupRoutes()
 	return
 }

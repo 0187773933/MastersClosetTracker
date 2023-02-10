@@ -29,7 +29,6 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	GlobalConfig = config
 	user_route_group := fiber_app.Group( "/user" )
 	user_route_group.Get( "/new/:username" , New )
-	user_route_group.Get( "/get/:uuid" , GetUser )
 	user_route_group.Get( "/checkin/:uuid" , CheckIn )
 }
 
@@ -63,18 +62,6 @@ func New( context *fiber.Ctx ) ( error ) {
 		"route": "/user/new/:username" ,
 		"username": username ,
 		"result": new_user ,
-	})
-}
-
-// http://localhost:5950/user/get/04b5fba6-6d76-42e0-a543-863c3f0c252c
-func GetUser( context *fiber.Ctx ) ( error ) {
-	user_uuid := context.Params( "uuid" )
-	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
-	defer db.Close()
-	viewed_user := user.GetByUUID( user_uuid , db , GlobalConfig.BoltDBEncryptionKey )
-	return context.JSON( fiber.Map{
-		"route": "/user/get/:uuid" ,
-		"result": viewed_user ,
 	})
 }
 
