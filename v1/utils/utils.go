@@ -8,6 +8,7 @@ import (
 	// index_sort "github.com/mkmik/argsort"
 	"sort"
 	"strings"
+	"unicode"
 	"io/ioutil"
 	"encoding/json"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
@@ -82,5 +83,22 @@ func CountUniqueViewsInRecords( records []string ) ( result int ) {
 		}
 	}
 	result = len( ip_map )
+	return
+}
+
+
+func RemoveNonASCII( input string ) ( result string ) {
+	for _ , i := range input {
+		if i > unicode.MaxASCII { continue }
+		result += string( i )
+	}
+	return
+}
+
+const NameSizeLimit = 20
+func SanitizeInputName( input string ) ( result string ) {
+	trimmed := strings.TrimSpace( input )
+    if len( trimmed ) > NameSizeLimit { trimmed = strings.TrimSpace( trimmed[ 0 : NameSizeLimit ] ) }
+	result = RemoveNonASCII( trimmed )
 	return
 }

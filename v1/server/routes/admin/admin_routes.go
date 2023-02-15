@@ -88,6 +88,7 @@ func NewUserSignUpPage( context *fiber.Ctx ) ( error ) {
 	return context.SendFile( "./v1/server/html/admin_new_user.html" )
 }
 
+// http://localhost:5950/admin/user/checkin
 func UserCheckInPage( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 	return context.SendFile( "./v1/server/html/admin_user_checkin.html" )
