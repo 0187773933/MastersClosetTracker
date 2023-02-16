@@ -29,3 +29,4 @@
 	- https://www.amazon.com/Eyoyo-Handheld-Convenience-Supermarket-Warehouse/dp/B088QV215Y
 5. Edge Cases
 	- User attempts to use a different name ? FaceID ?
+6. Fix Docker
