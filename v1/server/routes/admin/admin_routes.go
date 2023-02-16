@@ -35,7 +35,6 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 
 // GET http://localhost:5950/admin/login
 func ServeLoginPage( context *fiber.Ctx ) ( error ) {
-	// context.Set( "Content-Type" , "text/html" )
 	return context.SendFile( "./v1/server/html/admin_login.html" )
 }
 
@@ -143,7 +142,6 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 	new_user := user.New( username , db , GlobalConfig.BoltDBEncryptionKey )
 	fmt.Println( new_user )
 
-
 	return context.Redirect( fmt.Sprintf( "/admin/user/new/handoff/%s" , new_user.UUID ) )
 }
 
@@ -172,7 +170,6 @@ func CheckIfFirstNameLastNameAlreadyExists( context *fiber.Ctx ) ( error ) {
 	})
 }
 
-
 // http://localhost:5950/user/get/04b5fba6-6d76-42e0-a543-863c3f0c252c
 func GetUser( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
@@ -181,7 +178,7 @@ func GetUser( context *fiber.Ctx ) ( error ) {
 	defer db.Close()
 	viewed_user := user.GetByUUID( user_uuid , db , GlobalConfig.BoltDBEncryptionKey )
 	return context.JSON( fiber.Map{
-		"route": "/admin/get/:uuid" ,
+		"route": "/admin/user/get/:uuid" ,
 		"result": viewed_user ,
 	})
 }

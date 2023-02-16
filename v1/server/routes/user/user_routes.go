@@ -39,7 +39,8 @@ func check_if_user_cookie_exists( context *fiber.Ctx ) ( result bool ) {
 func serve_failed_check_in_attempt( context *fiber.Ctx ) ( error ) {
 	// return context.Redirect( "/join" )
 	context.Set( "Content-Type" , "text/html" )
-	return context.SendString( "<h1>check-in failed</h1>" )
+	// return context.SendString( "<h1>check-in failed</h1>" )
+	return context.SendFile( "./v1/server/html/user_check_in_failed.html" )
 }
 
 func LoginFresh( context *fiber.Ctx ) ( error ) {
@@ -54,7 +55,7 @@ func LoginFresh( context *fiber.Ctx ) ( error ) {
 
 	// Manual Check In For First Time Login
 	check_in_result := user.CheckInUser( x_user.UUID , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
-	fmt.Println( check_in_result )
+	// fmt.Println( check_in_result )
 
 	context.Cookie(
 		&fiber.Cookie{
@@ -70,8 +71,8 @@ func LoginFresh( context *fiber.Ctx ) ( error ) {
 	)
 	// return context.Redirect( fmt.Sprintf( "/user/checkin/display/%s" , x_user.UUID ) )
 	// return context.Redirect( fmt.Sprintf( "/user/login/success/%s" , x_user.UUID ) )
-	fmt.Println( "so far so good , redirecting fresh user login to user_login_success.html" )
-	return context.SendFile( "./v1/server/html/user_login_success.html"  )
+	// fmt.Println( "so far so good , redirecting fresh user login to user_login_success.html" )
+	return context.SendFile( "./v1/server/html/user_login_success.html" )
 }
 
 // https://docs.gofiber.io/api/ctx#cookie
@@ -83,14 +84,14 @@ func CheckIn( context *fiber.Ctx ) ( error ) {
 
 	// validate they have a stored user cookie
 	user_cookie := context.Cookies( "the-masters-closet-user" )
-	if user_cookie == "" { return serve_failed_check_in_attempt( context ) }
+	if user_cookie == "" { fmt.Println( "user cookie was blank" ); return serve_failed_check_in_attempt( context ) }
 	user_cookie_value := encryption.SecretBoxDecrypt( GlobalConfig.BoltDBEncryptionKey , user_cookie )
 	x_user := user.GetByUUID( user_cookie_value , db , GlobalConfig.BoltDBEncryptionKey )
-	if x_user.UUID == "" { return serve_failed_check_in_attempt( context ) }
+	if x_user.UUID == "" { fmt.Println( "UUID stored in user cookie was blank" ); return serve_failed_check_in_attempt( context ) }
 
 	return context.Redirect( fmt.Sprintf( "/user/checkin/display/%s" , x_user.UUID ) )
 }
 
 func CheckInDisplay( context *fiber.Ctx ) ( error ) {
-	return context.SendFile( "./v1/server/html/user_check_in.html"  )
+	return context.SendFile( "./v1/server/html/user_check_in.html" )
 }
