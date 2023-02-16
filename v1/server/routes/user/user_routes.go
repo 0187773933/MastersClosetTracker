@@ -16,14 +16,17 @@ import (
 var GlobalConfig *types.ConfigFile
 
 // Onboarding Experience
-// 1. New QR code is generated at signup desk for new user
-// 2. New user scans QR code with their phone
-// 3. Takes them to a silent login page that stores a permanent login cookie.
+// 1. Admin Enters Provide First and Last Name
+// 2. Server Redirects to /admin/user/new/handoff/${new-users-uuid}
+// 3. New user scans Hand-Off QR code with their phone
+// 4. Scanned QR Hand-Off Code takes them to a silent login page that stores a permanent login cookie.
+// 		/user/login/${new-users-uuid}
+// 5. User redirected to /user/checkin/display/${new-users-uuid}
 
 // To Re-Enter
-// 1. They scan a QR code on a poster at the front door or just go to the website.
+// 1. They scan a QR code on a poster at the front door or just go to /checkin
 // 2. If they have a cookie stored it returns a webpage with their unique QR code.
-// 3. Displayed QR code gets scanned and validated
+// 3. Admin Scans and checks-in/validates their QR-Code with stored uuid
 
 func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	GlobalConfig = config
@@ -65,7 +68,7 @@ func Login( context *fiber.Ctx ) ( error ) {
 			Value: encryption.SecretBoxEncrypt( GlobalConfig.BoltDBEncryptionKey , x_user.UUID ) ,
 			Secure: true , // dev
 			Path: "/" , // fucking webkit
-			// Domain: "9686-208-38-225-121.ngrok.io" , // probably should set this for webkit
+			// Domain: "blah.ngrok.io" , // probably should set this for webkit
 			HTTPOnly: true ,
 			SameSite: "Lax" ,
 			Expires: time.Now().AddDate( 10 , 0 , 0 ) , // aka 10 years from now

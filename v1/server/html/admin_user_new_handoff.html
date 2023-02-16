@@ -74,6 +74,8 @@
 			// 	let image_place_holder = document.getElementById( "qrcode-image" );
 			// 	image_place_holder.appendChild( img );
 			// }
+
+			// https://github.com/davidshimjs/qrcodejs
 			function generate_qr_code( uuid ) {
 				let user_qrcode = new QRCode(document.getElementById( "qrcode-image" ) , {
 					text: `http://localhost:5950/user/login/${uuid}` ,
