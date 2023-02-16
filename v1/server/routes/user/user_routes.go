@@ -70,6 +70,7 @@ func LoginFresh( context *fiber.Ctx ) ( error ) {
 	)
 	// return context.Redirect( fmt.Sprintf( "/user/checkin/display/%s" , x_user.UUID ) )
 	// return context.Redirect( fmt.Sprintf( "/user/login/success/%s" , x_user.UUID ) )
+	fmt.Println( "so far so good , redirecting fresh user login to user_login_success.html" )
 	return context.SendFile( "./v1/server/html/user_login_success.html"  )
 }
 
