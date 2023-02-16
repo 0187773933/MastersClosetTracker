@@ -11,7 +11,7 @@
 				<div class="col-sm">
 					<center><h1>Master's Closet - Admin - Create New User</h1></center>
 					<br><br>
-					<form id="new-user-signup" action="/admin/user/new" onSubmit="return on_submit()" method="post">
+					<form id="new-user-signup" action="/admin/user/new" onSubmit="return on_submit( event )" method="post">
 						<div class="form-row">
 							<div class="col">
 								<input type="text" class="form-control" placeholder="First Name" name="first_name">
@@ -28,7 +28,32 @@
 			</div>
 		</div>
 		<script>
-			function on_submit() {
+			function check_if_username_exists() {
+				return new Promise( async function( resolve , reject ) {
+					try {
+						let form = document.getElementById( "new-user-signup" );
+						let first_name = form.elements[ "first_name" ].value;
+						let last_name = form.elements[ "last_name" ].value;
+						let username_exists_url = `/admin/user/check/username?fn=${first_name}&ln=${last_name}`;
+						let username_exists_response = await fetch( username_exists_url , {
+							method: "GET" ,
+							headers: { "Content-Type": "application/json" }
+						});
+						let username_exists = await username_exists_response.json();
+						resolve( username_exists[ "result" ] );
+						return;
+					}
+					catch( error ) { console.log( error ); reject( error ); return; }
+				});
+			}
+			async function on_submit( event ) {
+				event.preventDefault();
+				let username_exists = await check_if_username_exists();
+				if ( username_exists === true ) {
+					alert( "Username Already Exists !!!" );
+					// TODO : add a qr code here so we can have them log in again ?
+					return;
+				}
 				let form = document.getElementById( "new-user-signup" );
 				form.submit();
 			}

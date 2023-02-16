@@ -15,25 +15,14 @@ import (
 
 var GlobalConfig *types.ConfigFile
 
-// Onboarding Experience
-// 1. Admin Enters Provide First and Last Name
-// 2. Server Redirects to /admin/user/new/handoff/${new-users-uuid}
-// 3. New user scans Hand-Off QR code with their phone
-// 4. Scanned QR Hand-Off Code takes them to a silent login page that stores a permanent login cookie.
-// 		/user/login/${new-users-uuid}
-// 5. User redirected to /user/checkin/display/${new-users-uuid}
-
-// To Re-Enter
-// 1. They scan a QR code on a poster at the front door or just go to /checkin
-// 2. If they have a cookie stored it returns a webpage with their unique QR code.
-// 3. Admin Scans and checks-in/validates their QR-Code with stored uuid
 
 func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	GlobalConfig = config
 	fiber_app.Get( "/checkin" , CheckIn )
 	user_route_group := fiber_app.Group( "/user" )
-	user_route_group.Get( "/login/:uuid" , Login )
-	user_route_group.Get( "/checkin/display/:uuid" , Login )
+	user_route_group.Get( "/login/fresh/:uuid" , LoginFresh )
+	// user_route_group.Get( "/login/success/:uuid" , LoginSuccess )
+	user_route_group.Get( "/checkin/display/:uuid" , CheckInDisplay )
 	user_route_group.Get( "/checkin" , CheckIn )
 }
 
@@ -53,7 +42,7 @@ func serve_failed_check_in_attempt( context *fiber.Ctx ) ( error ) {
 	return context.SendString( "<h1>check-in failed</h1>" )
 }
 
-func Login( context *fiber.Ctx ) ( error ) {
+func LoginFresh( context *fiber.Ctx ) ( error ) {
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
 	x_user_uuid := context.Params( "uuid" )
@@ -62,6 +51,11 @@ func Login( context *fiber.Ctx ) ( error ) {
 		context.Set( "Content-Type" , "text/html" )
 		return context.SendString( "<h1>Login Failed</h1>" )
 	}
+
+	// Manual Check In For First Time Login
+	check_in_result := user.CheckInUser( x_user.UUID , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
+	fmt.Println( check_in_result )
+
 	context.Cookie(
 		&fiber.Cookie{
 			Name: "the-masters-closet-user" ,
@@ -74,7 +68,9 @@ func Login( context *fiber.Ctx ) ( error ) {
 			Expires: time.Now().AddDate( 10 , 0 , 0 ) , // aka 10 years from now
 		} ,
 	)
-	return context.Redirect( fmt.Sprintf( "/user/checkin/display/%s" , x_user.UUID ) )
+	// return context.Redirect( fmt.Sprintf( "/user/checkin/display/%s" , x_user.UUID ) )
+	// return context.Redirect( fmt.Sprintf( "/user/login/success/%s" , x_user.UUID ) )
+	return context.SendFile( "./v1/server/html/user_login_success.html"  )
 }
 
 // https://docs.gofiber.io/api/ctx#cookie

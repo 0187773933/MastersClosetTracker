@@ -6,7 +6,6 @@
 3. New user scans Hand-Off QR code with their phone
 4. Scanned QR Hand-Off Code takes them to a silent login page that stores a permanent login cookie.
 	- `/user/login/${new-users-uuid}`
-5. User redirected to `/user/checkin/display/${new-users-uuid}`
 
 ---
 
@@ -23,10 +22,10 @@
 	- User forgot phone
 	- User has new phone
 	- option to text hand-off link if user can't scan qrcode for some reason
-2. Generating QR Code Stuff
-3. Spreadsheet Export
-4. Front End Website that Watches for QR Scanner Input
+2. Add Auto Check-In after hand-off , or at least a button for admin
+2. Spreadsheet Export
+3. Front End Website that Watches for QR Scanner Input
 	- https://www.amazon.com/Eyoyo-Handheld-Convenience-Supermarket-Warehouse/dp/B088QV215Y
-5. Edge Cases
+4. Edge Cases
 	- User attempts to use a different name ? FaceID ?
 6. Fix Docker

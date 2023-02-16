@@ -3,7 +3,7 @@ package adminroutes
 import (
 	"fmt"
 	"time"
-	// net_url "net/url"
+	net_url "net/url"
 	fiber "github.com/gofiber/fiber/v2"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
 	bcrypt "golang.org/x/crypto/bcrypt"
@@ -24,6 +24,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Post( "/login" , HandleLogin )
 	admin_route_group.Get( "/" , AdminPage )
 
+	admin_route_group.Get( "/user/check/username" , CheckIfFirstNameLastNameAlreadyExists )
 	admin_route_group.Get( "/user/new" , NewUserSignUpPage )
 	admin_route_group.Post( "/user/new" , HandleNewUserJoin )
 	admin_route_group.Get( "/user/new/handoff/:uuid" , NewUserSignUpHandOffPage )
@@ -115,6 +116,16 @@ func UserCheckInPage( context *fiber.Ctx ) ( error ) {
 	return context.SendFile( "./v1/server/html/admin_user_checkin.html" )
 }
 
+// weak attempt at sanitizing form input to build a "username"
+func SanitizeUsername( first_name string , last_name string ) ( username string ) {
+	if first_name == "" { first_name = "Not Provided" }
+	if last_name == "" { last_name = "Not Provided" }
+	sanitized_first_name := utils.SanitizeInputName( first_name )
+	sanitized_last_name := utils.SanitizeInputName( last_name )
+	username = fmt.Sprintf( "%s-%s" , sanitized_first_name , sanitized_last_name )
+	return
+}
+
 // https://docs.gofiber.io/api/ctx#cookie
 // http://localhost:5950/admin/new/:username
 func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
@@ -124,14 +135,10 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
 
-	// weak attempt at sanitizing form input to build a "username"
+	// sanitize input
 	uploaded_first_name := context.FormValue( "first_name" )
-	if uploaded_first_name == "" { uploaded_first_name = "Not Provided" }
 	uploaded_last_name := context.FormValue( "last_name" )
-	if uploaded_last_name == "" { uploaded_last_name = "Not Provided" }
-	sanitized_first_name := utils.SanitizeInputName( uploaded_first_name )
-	sanitized_last_name := utils.SanitizeInputName( uploaded_last_name )
-	username := fmt.Sprintf( "%s-%s" , sanitized_first_name , sanitized_last_name )
+	username := SanitizeUsername( uploaded_first_name , uploaded_last_name )
 
 	new_user := user.New( username , db , GlobalConfig.BoltDBEncryptionKey )
 	fmt.Println( new_user )
@@ -143,6 +150,26 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 func NewUserSignUpHandOffPage( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 	return context.SendFile( "./v1/server/html/admin_user_new_handoff.html" )
+}
+
+func CheckIfFirstNameLastNameAlreadyExists( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+
+	// build username
+	uploaded_first_name := context.Query( "fn" )
+	uploaded_last_name := context.Query( "ln" )
+	first_name , _ := net_url.QueryUnescape( uploaded_first_name )
+	last_name , _ := net_url.QueryUnescape( uploaded_last_name )
+	username := SanitizeUsername( first_name , last_name )
+	fmt.Println( username )
+
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+	username_exists := user.UserNameExists( username , db )
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/check/username" ,
+		"result": username_exists ,
+	})
 }
 
 

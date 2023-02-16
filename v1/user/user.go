@@ -43,11 +43,26 @@ func New( username string , db *bolt.DB , encryption_key string ) ( new_user Use
 	new_user_byte_object , _ := json.Marshal( new_user )
 	new_user_byte_object_encrypted := encrypt.ChaChaEncryptBytes( encryption_key , new_user_byte_object )
 	db_result := db.Update( func( tx *bolt.Tx ) error {
-		bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
-		bucket.Put( []byte( new_user_uuid ) , new_user_byte_object_encrypted )
+		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
+		users_bucket.Put( []byte( new_user_uuid ) , new_user_byte_object_encrypted )
+		usernames_bucket , _ := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
+		// something something holographic encryption would be nice here
+		usernames_bucket.Put( []byte( username ) , []byte( "1" ) )
 		return nil
 	})
 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
+	return
+}
+
+func UserNameExists( username string , db *bolt.DB ) ( result bool ) {
+	result = false
+	db.View( func( tx *bolt.Tx ) error {
+		bucket := tx.Bucket( []byte( "usernames" ) )
+		bucket_value := bucket.Get( []byte( username ) )
+		if bucket_value == nil { return nil }
+		result = true
+		return nil
+	})
 	return
 }
 
