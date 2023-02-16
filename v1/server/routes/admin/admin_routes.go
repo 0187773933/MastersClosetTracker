@@ -19,6 +19,7 @@ var GlobalConfig *types.ConfigFile
 func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	GlobalConfig = config
 	admin_route_group := fiber_app.Group( "/admin" )
+	admin_route_group.Get( "/logout" , Logout )
 	admin_route_group.Get( "/login" , ServeLoginPage )
 	admin_route_group.Post( "/login" , HandleLogin )
 	admin_route_group.Get( "/" , AdminPage )
@@ -26,8 +27,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/user/new" , NewUserSignUpPage )
 	admin_route_group.Post( "/user/new" , HandleNewUserJoin )
 	admin_route_group.Get( "/user/new/handoff/:uuid" , NewUserSignUpHandOffPage )
-	// admin_route_group.Get( "/user/new" , NewUserSignUpPage )
-	// admin_route_group.Post( "/user/new" , NewUser )
+
 	admin_route_group.Get( "/user/checkin" , UserCheckInPage )
 	admin_route_group.Get( "/user/get/:uuid" , GetUser )
 }
@@ -41,12 +41,13 @@ func ServeLoginPage( context *fiber.Ctx ) ( error ) {
 func validate_login_credentials( context *fiber.Ctx ) ( result bool ) {
 	result = false
 	uploaded_username := context.FormValue( "username" )
-	if uploaded_username == "" { return }
-	if uploaded_username != GlobalConfig.AdminUsername { return }
+	if uploaded_username == "" { fmt.Println( "username empty" ); return }
+	if uploaded_username != GlobalConfig.AdminUsername { fmt.Println( "username not correct" ); return }
 	uploaded_password := context.FormValue( "password" )
-	if uploaded_password == "" { return }
+	if uploaded_password == "" { fmt.Println( "password empty" ); return }
 	password_matches := bcrypt.CompareHashAndPassword( []byte( uploaded_password ) , []byte( GlobalConfig.AdminPassword ) )
-	if password_matches != nil { return }
+	if password_matches != nil { fmt.Println( "bcrypted password doesn't match" ); return }
+	fmt.Println( "??? hello ??? everything should be fine" )
 	result = true
 	return
 }
@@ -54,6 +55,18 @@ func validate_login_credentials( context *fiber.Ctx ) ( result bool ) {
 func serve_failed_attempt( context *fiber.Ctx ) ( error ) {
 	context.Set( "Content-Type" , "text/html" )
 	return context.SendString( "<h1>no</h1>" )
+}
+
+func Logout( context *fiber.Ctx ) ( error ) {
+	context.Cookie( &fiber.Cookie{
+		Name: "the-masters-closet-admin" ,
+		Value: "" ,
+		Expires: time.Now().Add( -time.Hour ) , // set the expiration to the past
+		HTTPOnly: true ,
+		Secure: true ,
+	})
+	context.Set( "Content-Type" , "text/html" )
+	return context.SendString( "<h1>Logged Out</h1>" )
 }
 
 // POST http://localhost:5950/admin/login
@@ -65,7 +78,10 @@ func HandleLogin( context *fiber.Ctx ) ( error ) {
 			Name: "the-masters-closet-admin" ,
 			Value: encryption.SecretBoxEncrypt( GlobalConfig.BoltDBEncryptionKey , GlobalConfig.ServerCookieAdminSecretMessage ) ,
 			Secure: true ,
-			SameSite: "strict" ,
+			Path: "/" ,
+			// Domain: "blah.ngrok.io" , // probably should set this for webkit
+			HTTPOnly: true ,
+			SameSite: "Lax" ,
 			Expires: time.Now().AddDate( 10 , 0 , 0 ) , // aka 10 years from now
 		} ,
 	)
@@ -75,14 +91,15 @@ func HandleLogin( context *fiber.Ctx ) ( error ) {
 func validate_admin_cookie( context *fiber.Ctx ) ( result bool ) {
 	result = false
 	admin_cookie := context.Cookies( "the-masters-closet-admin" )
-	if admin_cookie == "" { return }
+	if admin_cookie == "" { fmt.Println( "admin cookie was blank" ); return }
 	admin_cookie_value := encryption.SecretBoxDecrypt( GlobalConfig.BoltDBEncryptionKey , admin_cookie )
-	if admin_cookie_value != GlobalConfig.ServerCookieAdminSecretMessage { return }
+	if admin_cookie_value != GlobalConfig.ServerCookieAdminSecretMessage { fmt.Println( "admin cookie secret message was not equal" ); return }
 	result = true
 	return
 }
 
 func AdminPage( context *fiber.Ctx ) ( error ) {
+	fmt.Println( "webkit go brr - 4" )
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 	return context.SendFile( "./v1/server/html/admin.html" )
 }

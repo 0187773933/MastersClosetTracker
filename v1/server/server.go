@@ -33,7 +33,7 @@ func New( config types.ConfigFile ) ( server Server ) {
 	fmt.Println( "Server's IP Addresses === " , ip_addresses )
 	// https://docs.gofiber.io/api/middleware/limiter
 	server.FiberApp.Use( request_logging_middleware )
-	server.FiberApp.Get( "/favicon.ico" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/cdn/favicon.ico" ) } )
+	server.FiberApp.Get( "/favicon.ico" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/favicon.ico" ) } )
 	server.FiberApp.Use( rate_limiter.New( rate_limiter.Config{
 		Max: 4 ,
 		Expiration: ( 4 * time.Second ) ,
@@ -65,6 +65,8 @@ func New( config types.ConfigFile ) ( server Server ) {
 		// Key: temp_key ,
 	}))
 	// server.FiberApp.Static( "/cdn" , "./v1/server/cdn" )
+	// just white-list static stuff
+	server.FiberApp.Get( "/logo.png" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/logo.png" ) } )
 	server.SetupRoutes()
 	return
 }
