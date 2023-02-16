@@ -11,8 +11,8 @@
 ---
 
 ## To Re-Enter
-1. They scan a QR code on a poster at the front door or just go to /checkin
-2. If they have a cookie stored it returns a webpage with their unique QR code.
+1. They scan a QR code on a poster at the front door or just go to `/checkin`
+2. If they have a cookie stored it redirects to `/user/checkin/display/${uuid}`
 3. Admin Scans and checks-in/validates their QR-Code with stored uuid
 
 ---
