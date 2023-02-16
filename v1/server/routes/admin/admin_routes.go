@@ -48,7 +48,6 @@ func validate_login_credentials( context *fiber.Ctx ) ( result bool ) {
 	if uploaded_password == "" { fmt.Println( "password empty" ); return }
 	password_matches := bcrypt.CompareHashAndPassword( []byte( uploaded_password ) , []byte( GlobalConfig.AdminPassword ) )
 	if password_matches != nil { fmt.Println( "bcrypted password doesn't match" ); return }
-	fmt.Println( "??? hello ??? everything should be fine" )
 	result = true
 	return
 }
@@ -100,7 +99,6 @@ func validate_admin_cookie( context *fiber.Ctx ) ( result bool ) {
 }
 
 func AdminPage( context *fiber.Ctx ) ( error ) {
-	fmt.Println( "webkit go brr - 4" )
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 	return context.SendFile( "./v1/server/html/admin.html" )
 }

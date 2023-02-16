@@ -66,6 +66,7 @@ func New( config types.ConfigFile ) ( server Server ) {
 	}))
 	// server.FiberApp.Static( "/cdn" , "./v1/server/cdn" )
 	// just white-list static stuff
+	server.FiberApp.Get( "/" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/html/home.html" ) } )
 	server.FiberApp.Get( "/logo.png" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/logo.png" ) } )
 	server.SetupRoutes()
 	return

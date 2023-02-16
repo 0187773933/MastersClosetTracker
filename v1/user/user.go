@@ -56,8 +56,9 @@ func New( username string , db *bolt.DB , encryption_key string ) ( new_user Use
 
 func UserNameExists( username string , db *bolt.DB ) ( result bool ) {
 	result = false
-	db.View( func( tx *bolt.Tx ) error {
-		bucket := tx.Bucket( []byte( "usernames" ) )
+	db.Update( func( tx *bolt.Tx ) error {
+		bucket , tx_error := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
+		if tx_error != nil { fmt.Println( tx_error ); return nil }
 		bucket_value := bucket.Get( []byte( username ) )
 		if bucket_value == nil { return nil }
 		result = true
