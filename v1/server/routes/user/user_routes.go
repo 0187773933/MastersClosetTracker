@@ -46,6 +46,7 @@ func serve_failed_check_in_attempt( context *fiber.Ctx ) ( error ) {
 func LoginFresh( context *fiber.Ctx ) ( error ) {
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
+
 	x_user_uuid := context.Params( "uuid" )
 	x_user := user.GetByUUID( x_user_uuid , db , GlobalConfig.BoltDBEncryptionKey )
 	if x_user.UUID == "" {
@@ -54,8 +55,7 @@ func LoginFresh( context *fiber.Ctx ) ( error ) {
 	}
 
 	// Manual Check In For First Time Login
-	check_in_result := user.CheckInUser( x_user.UUID , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
-	// fmt.Println( check_in_result )
+	user.CheckInUser( x_user.UUID , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
 
 	context.Cookie(
 		&fiber.Cookie{
@@ -69,9 +69,7 @@ func LoginFresh( context *fiber.Ctx ) ( error ) {
 			Expires: time.Now().AddDate( 10 , 0 , 0 ) , // aka 10 years from now
 		} ,
 	)
-	// return context.Redirect( fmt.Sprintf( "/user/checkin/display/%s" , x_user.UUID ) )
-	// return context.Redirect( fmt.Sprintf( "/user/login/success/%s" , x_user.UUID ) )
-	// fmt.Println( "so far so good , redirecting fresh user login to user_login_success.html" )
+
 	return context.SendFile( "./v1/server/html/user_login_success.html" )
 }
 

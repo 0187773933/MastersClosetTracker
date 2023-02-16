@@ -29,7 +29,8 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Post( "/user/new" , HandleNewUserJoin )
 	admin_route_group.Get( "/user/new/handoff/:uuid" , NewUserSignUpHandOffPage )
 
-	admin_route_group.Get( "/user/checkin" , UserCheckInPage )
+	admin_route_group.Get( "/user/checkin" , CheckInUserPage )
+	admin_route_group.Get( "/user/checkin/:uuid" , UserCheckIn )
 	admin_route_group.Get( "/user/get/:uuid" , GetUser )
 }
 
@@ -109,11 +110,11 @@ func NewUserSignUpPage( context *fiber.Ctx ) ( error ) {
 	return context.SendFile( "./v1/server/html/admin_user_new.html" )
 }
 
-// http://localhost:5950/admin/user/checkin
-func UserCheckInPage( context *fiber.Ctx ) ( error ) {
+func CheckInUserPage( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 	return context.SendFile( "./v1/server/html/admin_user_checkin.html" )
 }
+
 
 // weak attempt at sanitizing form input to build a "username"
 func SanitizeUsername( first_name string , last_name string ) ( username string ) {
@@ -180,5 +181,17 @@ func GetUser( context *fiber.Ctx ) ( error ) {
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/get/:uuid" ,
 		"result": viewed_user ,
+	})
+}
+
+func UserCheckIn( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	user_uuid := context.Params( "uuid" )
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+	check_in_result := user.CheckInUser( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/checkin/:uuid" ,
+		"result": check_in_result ,
 	})
 }

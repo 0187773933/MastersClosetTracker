@@ -78,7 +78,8 @@ func GetByUUID( user_uuid string , db *bolt.DB , encryption_key string ) ( viewe
 	return
 }
 
-func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_off_days int ) ( result string ) {
+func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_off_days int ) ( result bool ) {
+	result = false
 	var viewed_user User
 	db.View( func( tx *bolt.Tx ) error {
 		bucket := tx.Bucket( []byte( "users" ) )
@@ -88,7 +89,7 @@ func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_
 		json.Unmarshal( decrypted_bucket_value , &viewed_user )
 		return nil
 	})
-	if viewed_user.UUID == "" { result = "user UUID doesn't exist"; return }
+	if viewed_user.UUID == "" { fmt.Println( "user UUID doesn't exist" ); result = false; return }
 	var new_check_in CheckIn
 	now := time.Now()
 	new_check_in.Date = now.Format( "02JAN2006" )
@@ -96,7 +97,7 @@ func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_
 	if len( viewed_user.CheckIns ) < 1 {
 		new_check_in.Type = "first"
 		viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
-		result = "success"
+		result = true
 	} else {
 		// user has checked in before , need to compare last check-in date to now
 		// only comparing the dates , not the times
@@ -108,7 +109,7 @@ func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_
 			// "the user waited long enough before checking in again"
 			new_check_in.Type = "new"
 			viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
-			result = "success"
+			result = true
 		} else {
 			days_remaining := ( cool_off_days - int( check_in_date_difference / ( 24 * time.Hour ) ) )
 			fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait %d days\n" , days_remaining )
@@ -118,7 +119,7 @@ func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_
 			new_failed_check_in.Type = "normal"
 			new_failed_check_in.DaysRemaining = days_remaining
 			viewed_user.FailedCheckIns = append( viewed_user.FailedCheckIns , new_failed_check_in )
-			result = "failed"
+			result = false
 		}
 	}
 	viewed_user_byte_object , _ := json.Marshal( viewed_user )

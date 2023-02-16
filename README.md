@@ -22,10 +22,8 @@
 	- User forgot phone
 	- User has new phone
 	- option to text hand-off link if user can't scan qrcode for some reason
-2. Add Auto Check-In after hand-off , or at least a button for admin
-2. Spreadsheet Export
-3. Front End Website that Watches for QR Scanner Input
-	- https://www.amazon.com/Eyoyo-Handheld-Convenience-Supermarket-Warehouse/dp/B088QV215Y
-4. Edge Cases
+2. Add and Fix Time to Re-Checkin
+3. Add Spreadsheet Export
+4. Fix Edge Cases
 	- User attempts to use a different name ? FaceID ?
-6. Fix Docker
+5. Fix Docker

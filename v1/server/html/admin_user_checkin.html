@@ -31,22 +31,43 @@
 			<div class="row">
 				<div class="col-sm">
 					<div class="alert alert-danger" id="checked-in-alert-false">
-						<center>User Checked In Too Recently !!! &nbsp;<a class="btn btn-warning" target="_blank" href="/admin/user/checkin/override">Override</a></center>
+						<center>
+							<a id="override-button" class="btn btn-success" target="_blank" href="/none">Allow</a>
+							&nbsp; User Checked In Too Recently !!! &nbsp;
+							<a id="block-button" class="btn btn-warning" target="_blank" href="/none">Block</a>
+						</center>
 					</div>
 				</div>
 			</div>
 		</div>
 		<script>
-			// 2b59de91-a39e-4808-9666-a423a1aa94dd
+
 			const uuid_v4_regex = /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
 			function is_uuid( str ) { return uuid_v4_regex.test( str ); }
-			function on_check_in_input_change( event ) {
-				const valid_uuid = is_uuid( event.target.value );
-				if ( valid_uuid === false ) { return; }
-				// now we need to query the backend to validate the user has not checked-in too recently
-				// let valid_checked_in = queryBackEndForCheckInStatus( event.target.value );
-				let valid_check_in = true;
-				console.log( `${event.target.value} === ${valid_uuid} === Checked In === ${valid_check_in}` );
+
+			function check_in_uuid( uuid ) {
+				return new Promise( async function( resolve , reject ) {
+					try {
+						let check_in_url = `/admin/user/checkin/${uuid}`;
+						let check_in_response = await fetch( check_in_url , {
+							method: "GET" ,
+							headers: { "Content-Type": "application/json" }
+						});
+						let response_json = await check_in_response.json();
+						let result = response_json[ "result" ];
+						resolve( result );
+						return;
+					}
+					catch( error ) { console.log( error ); reject( error ); return; }
+				});
+			}
+
+			async function check_uuid_input() {
+				const typed_uuid = window.check_in_input.value;
+				const valid_uuid = is_uuid( typed_uuid );
+				if ( valid_uuid === false ) { alert( "Not a Valid UUID !!!" ); return; }
+				let valid_check_in = await check_in_uuid( typed_uuid );
+				console.log( `${typed_uuid} === ${valid_uuid} === Checked In === ${valid_check_in}` );
 				switch ( valid_check_in ) {
 					case true:
 						$( "#checked-in-alert-true" ).slideDown();
@@ -55,20 +76,49 @@
 							$( "#checked-in-alert-true" ).slideUp();
 							$( "#check-in-input" ).val( "" );
 						} , 3000 );
+						window.check_in_input.focus();
 						break;
 					case false:
 						$( "#checked-in-alert-true" ).slideUp();
 						$( "#checked-in-alert-false" ).slideDown();
 						break;
 				}
+
 			}
+
+			function on_override_button_click( event ) {
+				event.preventDefault();
+				alert( "Not Implemented Yet !!!" );
+				// TODO : call backend "/admin/user/checkin/override/${uuid}"
+				$( "#checked-in-alert-false" ).slideUp();
+				window.check_in_input.value = "";
+				window.check_in_input.focus();
+			}
+
+			function on_block_button_click( event ) {
+				event.preventDefault();
+				$( "#checked-in-alert-false" ).slideUp();
+				window.check_in_input.value = "";
+				window.check_in_input.focus();
+			}
+
 			function init() {
 				// $( "#check-in-input" ).focus();
 				window.check_in_input = document.getElementById( "check-in-input" );
 				$( "#checked-in-alert-true" ).slideUp();
 				$( "#checked-in-alert-false" ).slideUp();
+				window.check_in_input.value = "";
 				window.check_in_input.focus();
-				check_in_input.addEventListener( "input" , on_check_in_input_change );
+				// check_in_input.addEventListener( "input" , on_check_in_input_change );
+				check_in_input.addEventListener( "keydown" , ( event ) => {
+					if ( event.keyCode === 13 ) {
+						check_uuid_input( event );
+					}
+				});
+				const block_button = document.getElementById( "block-button" );
+				block_button.addEventListener( "click" , on_block_button_click );
+				const override_button = document.getElementById( "override-button" );
+				override_button.addEventListener( "click" , on_override_button_click );
 			}
 			document.addEventListener( "DOMContentLoaded" , init );
 		</script>
