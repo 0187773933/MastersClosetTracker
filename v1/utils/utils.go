@@ -112,7 +112,7 @@ func WriteAdminUserHandOffHTML( server_base_url string ) {
 	for {
 		line , err := reader.ReadString( '\n' )
 		if err != nil { break }
-		if line_number == 49 { line = "\t\t\tconst QR_CODE_BASE_URL = \"" + server_base_url + "\";\n" }
+		if line_number == 48 { line = "\t\t\tconst QR_CODE_BASE_URL = \"" + server_base_url + "\";\n" }
 		lines = append( lines , line )
 		line_number = line_number + 1
 	}
