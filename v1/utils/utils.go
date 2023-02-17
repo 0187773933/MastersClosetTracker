@@ -2,6 +2,7 @@ package utils
 
 import (
 	"os"
+	"bufio"
 	"time"
 	"net"
 	"fmt"
@@ -86,7 +87,6 @@ func CountUniqueViewsInRecords( records []string ) ( result int ) {
 	return
 }
 
-
 func RemoveNonASCII( input string ) ( result string ) {
 	for _ , i := range input {
 		if i > unicode.MaxASCII { continue }
@@ -101,4 +101,24 @@ func SanitizeInputName( input string ) ( result string ) {
     if len( trimmed ) > NameSizeLimit { trimmed = strings.TrimSpace( trimmed[ 0 : NameSizeLimit ] ) }
 	result = RemoveNonASCII( trimmed )
 	return
+}
+
+func WriteAdminUserHandOffHTML( server_base_url string ) {
+	file , _ := os.OpenFile( "./v1/server/html/admin_user_new_handoff.html" , os.O_RDWR , 0 )
+	defer file.Close()
+	reader := bufio.NewReader( file )
+	line_number := 1
+	var lines []string
+	for {
+		line , err := reader.ReadString( '\n' )
+		if err != nil { break }
+		if line_number == 49 { line = "\t\t\tconst QR_CODE_BASE_URL = \"" + server_base_url + "\";\n" }
+		lines = append( lines , line )
+		line_number = line_number + 1
+	}
+	file.Seek( 0 , 0 )
+	file.Truncate( 0 )
+	for _ , line := range lines {
+		file.WriteString( line )
+	}
 }
