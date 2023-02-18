@@ -38,8 +38,6 @@ func GetLocalIPAddresses() ( ip_addresses []string ) {
 func GetFormattedTimeString() ( result string ) {
 	location , _ := time.LoadLocation( "America/New_York" )
 	time_object := time.Now().In( location )
-	// https://stackoverflow.com/a/51915792
-	// month_name := strings.ToUpper( time_object.Format( "Feb" ) ) // monkaHmm
 	month_name := strings.ToUpper( time_object.Format( "Jan" ) )
 	milliseconds := time_object.Format( ".000" )
 	date_part := fmt.Sprintf( "%02d%s%d" , time_object.Day() , month_name , time_object.Year() )

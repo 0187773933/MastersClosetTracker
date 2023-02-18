@@ -24,9 +24,38 @@ type FailedCheckIn struct {
 	DaysRemaining int `json:"remaining_days"`
 }
 
+type DateOfBirth struct {
+	Month string `json:"month"`
+	Day int `json:"day"`
+	Year int `json:"year"`
+}
+
+type Address struct {
+	StreetNumber string `json:"street_number"`
+	StreetName string `json:"street_name"`
+	AddressTwo string `json:"address_two"`
+	City string `json:"city"`
+	State string `json:"state"`
+	ZipCode string `json:"zipcode"`
+}
+
+type Person struct {
+	FirstName string `json:"first_name"`
+	LastName string `json:"last_name"`
+	MiddleName string `json:"last_name"`
+	Address Address`json:"address"`
+	DateOfBirth DateOfBirth `json:"date_of_birth"`
+	Sex string `json:"sex"`
+	Height string `json:"height"`
+	EyeColor string `json:"eye_color"`
+}
+
 type User struct {
 	Username string `json:"username"`
 	UUID string `json:"uuid"`
+	EmailAddress string `json:"email_address"`
+	Identity Person `json:"identity"`
+	AuthorizedAliases []Person `json:"authorized_aliases"`
 	CreatedDate string `json:"created_date"`
 	CreatedTime string `json:"created_time"`
 	CheckIns []CheckIn `json:"check_ins"`

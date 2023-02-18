@@ -14,28 +14,10 @@
 				</div>
 			</div>
 		</div>
-		<script>
-			// const uuid_v4_regex = /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
-			// function is_uuid( str ) { return uuid_v4_regex.test( str ); }
-			// function get_sent_uuid() {
-			// 	const current_url = window.location.pathname;
-			// 	if ( current_url.indexOf( "/checkin/" ) === -1 ) { return false; }
-			// 	let x_uuid = current_url.split( "/checkin/" );
-			// 	if ( x_uuid.length < 1 ) { return false }
-			// 	x_uuid = x_uuid[ 1 ].trim();
-			// 	if ( x_uuid.length < 1 ) { return false }
-			// 	if ( is_uuid( x_uuid ) === false ) { return false }
-			// 	return x_uuid;
-			// }
-			// function init() {
-			// 	// const search_params = new URLSearchParams( window.location.search )
-			// 	// const user_uuid = search_params.get( "uuid" )
-			// 	// console.log( document.cookie )
-			// 	let sent_uuid = get_sent_uuid();
-			// 	if ( !sent_uuid ) { alert( "Provided UUID Invalid !!!" ); }
-			// 	console.log( sent_uuid );
-			// }
-			// document.addEventListener( "DOMContentLoaded" , init );
+		<script type="text/javascript">
+			setTimeout( function() {
+				window.location.href = "/";
+			} , 2000 );
 		</script>
 	</body>
 </html>

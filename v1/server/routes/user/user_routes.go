@@ -15,7 +15,6 @@ import (
 
 var GlobalConfig *types.ConfigFile
 
-
 func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	GlobalConfig = config
 	fiber_app.Get( "/checkin" , CheckIn )

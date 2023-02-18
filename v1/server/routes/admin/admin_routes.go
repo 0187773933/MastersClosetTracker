@@ -149,6 +149,8 @@ func NewUserSignUpHandOffPage( context *fiber.Ctx ) ( error ) {
 	return context.SendFile( "./v1/server/html/admin_user_new_handoff.html" )
 }
 
+// TODO : this can fail though , what if somebody has the exact same first and last name ????
+// just make them have an email ???
 func CheckIfFirstNameLastNameAlreadyExists( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 

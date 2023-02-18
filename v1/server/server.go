@@ -19,11 +19,13 @@ type Server struct {
 }
 
 func request_logging_middleware( context *fiber.Ctx ) ( error ) {
-	fmt.Printf( "%s === %s === %s\n" , context.IP() , context.Method() , context.Path() )
+	time_string := utils.GetFormattedTimeString()
+	ip_address := context.Get( "x-forwarded-for" )
+	if ip_address == "" { ip_address = context.IP() }
+	fmt.Printf( "%s === %s === %s === %s\n" , time_string , ip_address , context.Method() , context.Path() )
 	return context.Next()
 }
 
-// https://docs.gofiber.io/api/middleware/encryptcookie/
 func New( config types.ConfigFile ) ( server Server ) {
 
 	server.FiberApp = fiber.New()
@@ -56,8 +58,6 @@ func New( config types.ConfigFile ) ( server Server ) {
 		// monkaS
 		// https://github.com/gofiber/fiber/blob/master/middleware/limiter/config.go#L53
 	}))
-	// has to be fucking base64 encoded ??? who does this
-	// whatever , lets let it generate us one and see what it looks like
 	// temp_key := fiber_cookie.GenerateKey()
 	// fmt.Println( temp_key )
 	server.FiberApp.Use( fiber_cookie.New( fiber_cookie.Config{
