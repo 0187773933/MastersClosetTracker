@@ -7,7 +7,7 @@ import (
 	json "encoding/json"
 	// bolt "github.com/0187773933/MastersClosetTracker/v1/bolt"
 	bolt "github.com/boltdb/bolt"
-	uuid "github.com/satori/go.uuid"
+	// uuid "github.com/satori/go.uuid"
 	encrypt "github.com/0187773933/MastersClosetTracker/v1/encryption"
 )
 
@@ -62,26 +62,26 @@ type User struct {
 	FailedCheckIns []FailedCheckIn `json:"failed_check_ins"`
 }
 
-func New( username string , db *bolt.DB , encryption_key string ) ( new_user User ) {
-	now := time.Now()
-	new_user_uuid := uuid.NewV4().String()
-	new_user.Username = username
-	new_user.UUID = new_user_uuid
-	new_user.CreatedDate = now.Format( "02JAN2006" )
-	new_user.CreatedTime = now.Format( "15:04:05.000" )
-	new_user_byte_object , _ := json.Marshal( new_user )
-	new_user_byte_object_encrypted := encrypt.ChaChaEncryptBytes( encryption_key , new_user_byte_object )
-	db_result := db.Update( func( tx *bolt.Tx ) error {
-		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
-		users_bucket.Put( []byte( new_user_uuid ) , new_user_byte_object_encrypted )
-		usernames_bucket , _ := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
-		// something something holographic encryption would be nice here
-		usernames_bucket.Put( []byte( username ) , []byte( "1" ) )
-		return nil
-	})
-	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
-	return
-}
+// func New( username string , db *bolt.DB , encryption_key string ) ( new_user User ) {
+// 	now := time.Now()
+// 	new_user_uuid := uuid.NewV4().String()
+// 	new_user.Username = username
+// 	new_user.UUID = new_user_uuid
+// 	new_user.CreatedDate = now.Format( "02JAN2006" )
+// 	new_user.CreatedTime = now.Format( "15:04:05.000" )
+// 	new_user_byte_object , _ := json.Marshal( new_user )
+// 	new_user_byte_object_encrypted := encrypt.ChaChaEncryptBytes( encryption_key , new_user_byte_object )
+// 	db_result := db.Update( func( tx *bolt.Tx ) error {
+// 		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
+// 		users_bucket.Put( []byte( new_user_uuid ) , new_user_byte_object_encrypted )
+// 		usernames_bucket , _ := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
+// 		// something something holographic encryption would be nice here
+// 		usernames_bucket.Put( []byte( username ) , []byte( "1" ) )
+// 		return nil
+// 	})
+// 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
+// 	return
+// }
 
 func UserNameExists( username string , db *bolt.DB ) ( result bool ) {
 	result = false

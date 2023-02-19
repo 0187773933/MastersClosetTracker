@@ -93,10 +93,10 @@ func RemoveNonASCII( input string ) ( result string ) {
 	return
 }
 
-const NameSizeLimit = 20
-func SanitizeInputName( input string ) ( result string ) {
+const SanitizedStringSizeLimit = 20
+func SanitizeInputString( input string ) ( result string ) {
 	trimmed := strings.TrimSpace( input )
-    if len( trimmed ) > NameSizeLimit { trimmed = strings.TrimSpace( trimmed[ 0 : NameSizeLimit ] ) }
+    if len( trimmed ) > SanitizedStringSizeLimit { trimmed = strings.TrimSpace( trimmed[ 0 : SanitizedStringSizeLimit ] ) }
 	result = RemoveNonASCII( trimmed )
 	return
 }

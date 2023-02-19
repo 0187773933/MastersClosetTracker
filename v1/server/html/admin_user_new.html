@@ -19,24 +19,24 @@
 			<br><br>
 			<div class="row">
 				<center>
-					<form id="new-user-signup">
+					<form id="new-user-signup" action="/admin/user/new" onSubmit="return on_submit( event )" method="post">
 						<!-- Main Required Stuff -->
 						<div class="row g-2 mb-3">
 							<div class="col-md-4">
 								<div class="form-floating">
-									<input id="user_first_name" type="text" class="form-control">
+									<input id="user_first_name" type="text" class="form-control" name="user_first_name">
 									<label for="user_first_name">First Name</label>
 								</div>
 							</div>
 							<div class="col-md-4">
 								<div class="form-floating">
-									<input id="user_middle_name" type="text" class="form-control">
+									<input id="user_middle_name" type="text" class="form-control" name="user_middle_name">
 									<label for="user_middle_name">Middle Name</label>
 								</div>
 							</div>
 							<div class="col-md-4">
 								<div class="form-floating">
-									<input id="user_last_name" type="text" class="form-control">
+									<input id="user_last_name" type="text" class="form-control" name="user_last_name">
 									<label for="user_last_name">Last Name</label>
 								</div>
 							</div>
@@ -45,7 +45,7 @@
 							<center>
 								<div class="col-md-4">
 									<div class="form-floating">
-										<input id="user_email" type="email" class="form-control">
+										<input id="user_email" type="email" class="form-control" name="user_email">
 										<label for="user_email">Email Address</label>
 									</div>
 								</div>
@@ -57,19 +57,19 @@
 						<div class="row g-2 mb-3">
 							<div class="col-md-4">
 								<div class="form-floating">
-									<input id="user_street_number" type="text" class="form-control">
+									<input id="user_street_number" type="text" class="form-control" name="user_street_number">
 									<label for="user_street_number">Street Number</label>
 								</div>
 							</div>
 							<div class="col-md-4">
 								<div class="form-floating">
-									<input id="user_street_name" type="text" class="form-control">
+									<input id="user_street_name" type="text" class="form-control" name="user_street_name">
 									<label for="user_street_name">Street Name</label>
 								</div>
 							</div>
 							<div class="col-md-4">
 								<div class="form-floating">
-									<input id="user_address_two" type="text" class="form-control">
+									<input id="user_address_two" type="text" class="form-control" name="user_street_name">
 									<label for="user_address_two">Address 2</label>
 								</div>
 							</div>
@@ -78,19 +78,19 @@
 						<div class="row g-2 mb-3">
 							<div class="col-md-4">
 								<div class="form-floating">
-									<input id="user_city" type="text" class="form-control">
+									<input id="user_city" type="text" class="form-control" name="user_city">
 									<label for="user_city">City</label>
 								</div>
 							</div>
 							<div class="col-md-4">
 								<div class="form-floating">
-									<input id="user_state" type="text" class="form-control">
+									<input id="user_state" type="text" class="form-control" name="user_state">
 									<label for="user_state">State</label>
 								</div>
 							</div>
 							<div class="col-md-4">
 								<div class="form-floating">
-									<input id="user_zip_code" type="text" class="form-control">
+									<input id="user_zip_code" type="text" class="form-control" name="user_zip_code">
 									<label for="user_zip_code">Zip Code</label>
 								</div>
 							</div>
@@ -101,17 +101,17 @@
 
 							<div class="col-md-4">
 								<div class="form-floating">
-									<input id="user_birth_day" type="number" min="1" max="31" class="form-control">
+									<input id="user_birth_day" type="number" min="1" max="31" class="form-control" name="user_birth_day">
 									<label for="user_birth_day">Birth Day</label>
 								</div>
 							</div>
 							<div class="col-md-4">
 								<div class="form-floating">
-									<select class="form-select" aria-label="Default select example">
+									<select id="user_birth_month" class="form-select" aria-label="Default select example" name="user_birth_month">
 										<option value="JAN">JAN - 1</option>
 										<option value="FEB">FEB - 3</option>
 										<option value="MAR">MAR - 4</option>
-										<option value="ARP">ARP - 2</option>
+										<option value="APR">ARP - 2</option>
 										<option value="MAY">MAY - 5</option>
 										<option value="JUN">JUN - 6</option>
 										<option value="JUL">JUL - 7</option>
@@ -126,7 +126,7 @@
 							</div>
 							<div class="col-md-4">
 								<div class="form-floating">
-									<input id="user_birth_year" type="number" min="1900" max="2100" class="form-control">
+									<input id="user_birth_year" type="number" min="1900" max="2100" class="form-control" name="user_birth_year">
 									<label for="user_birth_year">Birth Year</label>
 								</div>
 							</div>
@@ -152,14 +152,41 @@
 					</form>
 				</center>
 			</div>
+			<div class="row">
+				<col class="col-md-6">
+					<div aria-live="polite" aria-atomic="true" class="bg-body-secondary bd-example-toasts rounded-3">
+						<div class="toast-container p-3 top-0 start-50 translate-middle-x" id="toastPlacement">
+							<div id="user-exists-error" class="toast bg-danger" data-bs-autohide="false">
+								<div class="toast-header">
+									<!-- <img src="..." class="rounded me-2" alt="..."> -->
+									<strong class="me-auto">Error</strong>
+									<!-- <small>11 mins ago</small> -->
+									<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+								</div>
+								<div class="toast-body">
+									User Already Exists !!!
+								</div>
+							</div>
+						</div>
+					</div>
+				</col>
+			</div>
 		</div>
 		<script>
+			function clear_form() {
+				let form = document.getElementById( "new-user-signup" );
+				for ( let i = 0; i < form.elements.length; ++i ) {
+					let element = form.elements[ i ];
+					if ( element.type === "submit" ) { continue; }
+					element.value = '';
+				}
+			}
 			function check_if_username_exists() {
 				return new Promise( async function( resolve , reject ) {
 					try {
 						let form = document.getElementById( "new-user-signup" );
-						let first_name = form.elements[ "first_name" ].value;
-						let last_name = form.elements[ "last_name" ].value;
+						let first_name = form.elements[ "user_first_name" ].value;
+						let last_name = form.elements[ "user_last_name" ].value;
 						let username_exists_url = `/admin/user/check/username?fn=${first_name}&ln=${last_name}`;
 						let username_exists_response = await fetch( username_exists_url , {
 							method: "GET" ,
@@ -178,13 +205,25 @@
 				// TODO : this can fail though , what if somebody has the exact same first and last name ????
 				// just make them have an email ???
 				if ( username_exists === true ) {
-					alert( "Username Already Exists !!!" );
+					console.log( "Username Already Exists !!!!" );
 					// TODO : add a qr code here so we can have them log in again ?
+					// https://getbootstrap.com/docs/5.3/components/toasts/
+					let error_toast_element = document.getElementById( "user-exists-error" );
+					let error_toast = new bootstrap.Toast( error_toast_element );
+					error_toast.show();
 					return;
 				}
 				let form = document.getElementById( "new-user-signup" );
-				form.submit();
+				// form.submit();
+				let form_data = new FormData( form );
+				let post_response = await fetch( "/admin/user/new" , {
+					method: "POST" ,
+					body: form_data
+				});
+				let post_response_json = await post_response.json();
+				console.log( post_response_json );
 			}
+
 			// https://uxsolutions.github.io/bootstrap-datepicker
 			// https://github.com/uxsolutions/bootstrap-datepicker
 			// $( document ).ready( function(){
@@ -200,6 +239,7 @@
 			// 		// }
 			// 	});
 			// })
+			$( document ).ready( clear_form );
 		</script>
 	</body>
 </html>
