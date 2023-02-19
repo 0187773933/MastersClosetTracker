@@ -54,6 +54,7 @@ type User struct {
 	Username string `json:"username"`
 	UUID string `json:"uuid"`
 	EmailAddress string `json:"email_address"`
+	PhoneNumber string `json:"email_address"`
 	Identity Person `json:"identity"`
 	AuthorizedAliases []Person `json:"authorized_aliases"`
 	CreatedDate string `json:"created_date"`
