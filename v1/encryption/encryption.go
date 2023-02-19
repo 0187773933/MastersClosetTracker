@@ -17,6 +17,13 @@ func SecretBoxGenerateRandomKey() ( key [32]byte ) {
 	return
 }
 
+func GenerateRandomString( byte_length int ) ( result string ) {
+	b := make( []byte , byte_length )
+	random.Read( b )
+	result = hex.EncodeToString( b )
+	return
+}
+
 func SecretBoxGenerateKey( password string ) ( key [32]byte ) {
 	password_bytes := []byte( password )
 	hashed_password , _ := bcrypt.GenerateFromPassword( password_bytes , ( bcrypt.DefaultCost + 3 ) )

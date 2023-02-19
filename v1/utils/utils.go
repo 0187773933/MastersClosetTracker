@@ -13,6 +13,8 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
+	fiber_cookie "github.com/gofiber/fiber/v2/middleware/encryptcookie"
+	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
 )
 
 func ParseConfig( file_path string ) ( result types.ConfigFile ) {
@@ -119,4 +121,18 @@ func WriteAdminUserHandOffHTML( server_base_url string ) {
 	for _ , line := range lines {
 		file.WriteString( line )
 	}
+}
+
+func GenerateNewKeys() {
+	fiber_cookie_key := fiber_cookie.GenerateKey()
+	bolt_db_key := encryption.GenerateRandomString( 32 )
+	server_api_key := encryption.GenerateRandomString( 16 )
+	admin_username := encryption.GenerateRandomString( 16 )
+	admin_password := encryption.GenerateRandomString( 16 )
+	fmt.Println( "Generated New Keys :" )
+	fmt.Printf( "\tFiber Cookie Key === %s\n" , fiber_cookie_key )
+	fmt.Printf( "\tBolt DB Key === %s\n" , bolt_db_key )
+	fmt.Printf( "\tServer API Key === %s\n" , server_api_key )
+	fmt.Printf( "\tAdmin Username === %s\n" , admin_username )
+	fmt.Printf( "\tAdmin Password === %s\n\n" , admin_password )
 }

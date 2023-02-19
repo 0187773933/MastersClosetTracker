@@ -25,6 +25,7 @@ func SetupCloseHandler() {
 }
 
 func main() {
+	// utils.GenerateNewKeys()
 	SetupCloseHandler()
 	config_file_path , _ := filepath.Abs( os.Args[ 1 ] )
 	fmt.Println( "Loaded Config File From : %s" , config_file_path )

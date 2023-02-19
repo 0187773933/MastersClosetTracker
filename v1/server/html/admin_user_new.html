@@ -149,7 +149,7 @@
 						</div> -->
 
 						<div class="form-row">
-							<button type="submit" class="btn btn-primary">Sign Up</button>
+							<button id ="submit-button" type="submit" class="btn btn-primary">Sign Up</button>
 						</div>
 
 					</form>
@@ -310,17 +310,9 @@
 				show_user_handoff_modal( result[ "uuid" ] );
 				clear_form();
 
-				// if ( !post_response[ "uuid" ] ) { return; }
-				// let new_user_uuid = post_response_json[ "result" ][ "uuid" ];
-				// console.log( new_user_uuid );
-
-				// TODO = now just show the QR Code as a modal ????
-				// https://getbootstrap.com/docs/5.3/components/modal/
-				// https://getbootstrap.com/docs/5.3/utilities/background/
-				// then clear the form ???
 			}
 			function init() {
-				// clear_form();
+				clear_form();
 			}
 			$( document ).ready( init );
 		</script>

@@ -27,7 +27,6 @@
 4. Fix Edge Cases
 	- User attempts to use a different name ? FaceID ?
 5. Fix User Fields :
-	- Phone Number
 	- Authorized Aliases
 6. Add better user-exists lookup function
 7. Fix Docker
