@@ -221,7 +221,14 @@
 					body: form_data
 				});
 				let post_response_json = await post_response.json();
-				console.log( post_response_json );
+				// TODO = now just show the QR Code as a modal ????
+				if ( !post_response_json[ "result" ] ) { return; }
+				if ( !post_response_json[ "result" ][ "uuid" ] ) { return; }
+				let new_user_uuid = post_response_json[ "result" ][ "uuid" ];
+				console.log( new_user_uuid );
+				// https://getbootstrap.com/docs/5.3/components/modal/
+				// https://getbootstrap.com/docs/5.3/utilities/background/
+				// then clear the form ???
 			}
 
 			// https://uxsolutions.github.io/bootstrap-datepicker
