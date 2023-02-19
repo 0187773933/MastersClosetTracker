@@ -84,7 +84,7 @@ type User struct {
 // 	return
 // }
 
-func UserNameExists( username string , db *bolt.DB ) ( result bool ) {
+func UserNameExists( username string , db *bolt.DB ) ( result bool , uuid string ) {
 	result = false
 	db.Update( func( tx *bolt.Tx ) error {
 		bucket , tx_error := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
@@ -92,6 +92,7 @@ func UserNameExists( username string , db *bolt.DB ) ( result bool ) {
 		bucket_value := bucket.Get( []byte( username ) )
 		if bucket_value == nil { return nil }
 		result = true
+		uuid = string( bucket_value )
 		return nil
 	})
 	return

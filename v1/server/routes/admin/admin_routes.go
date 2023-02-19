@@ -5,7 +5,7 @@ import (
 	"time"
 	"strconv"
 	json "encoding/json"
-	net_url "net/url"
+	// net_url "net/url"
 	fiber "github.com/gofiber/fiber/v2"
 	uuid "github.com/satori/go.uuid"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
@@ -27,7 +27,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Post( "/login" , HandleLogin )
 	admin_route_group.Get( "/" , AdminPage )
 
-	admin_route_group.Get( "/user/check/username" , CheckIfFirstNameLastNameAlreadyExists )
+	// admin_route_group.Get( "/user/check/username" , CheckIfFirstNameLastNameAlreadyExists )
 	admin_route_group.Get( "/user/new" , NewUserSignUpPage )
 	admin_route_group.Post( "/user/new" , HandleNewUserJoin )
 	admin_route_group.Get( "/user/new/handoff/:uuid" , NewUserSignUpHandOffPage )
@@ -132,6 +132,7 @@ func ProcessNewUserForm( context *fiber.Ctx ) ( new_user user.User ) {
 	uploaded_last_name := context.FormValue( "user_last_name" )
 	uploaded_user_middle_name := context.FormValue( "user_middle_name" )
 	uploaded_user_email := context.FormValue( "user_email" )
+	uploaded_phone_number := context.FormValue( "user_phone_number" )
 	uploaded_user_street_number := context.FormValue( "user_street_number" )
 	uploaded_user_street_name := context.FormValue( "user_street_name" )
 	uploaded_user_address_two := context.FormValue( "user_address_two" )
@@ -143,6 +144,7 @@ func ProcessNewUserForm( context *fiber.Ctx ) ( new_user user.User ) {
 	uploaded_user_birth_year := context.FormValue( "user_birth_year" )
 
 	new_user.EmailAddress = utils.SanitizeInputString( uploaded_user_email )
+	new_user.PhoneNumber = utils.SanitizeInputString( uploaded_phone_number )
 	new_user.Identity.FirstName = utils.SanitizeInputString( uploaded_first_name )
 	new_user.Identity.MiddleName = utils.SanitizeInputString( uploaded_user_middle_name )
 	new_user.Identity.LastName = utils.SanitizeInputString( uploaded_last_name )
@@ -160,7 +162,11 @@ func ProcessNewUserForm( context *fiber.Ctx ) ( new_user user.User ) {
 	sanitized_birth_year_int , _ := strconv.Atoi( sanitized_birth_year )
 	new_user.Identity.DateOfBirth.Year = sanitized_birth_year_int
 
-	new_user.Username = fmt.Sprintf( "%s-%s" , new_user.Identity.FirstName , new_user.Identity.LastName )
+	if new_user.Identity.MiddleName != "" {
+		new_user.Username = fmt.Sprintf( "%s-%s-%s" , new_user.Identity.FirstName , new_user.Identity.MiddleName , new_user.Identity.LastName )
+	} else {
+		new_user.Username = fmt.Sprintf( "%s-%s" , new_user.Identity.FirstName , new_user.Identity.LastName )
+	}
 	new_user.UUID = uuid.NewV4().String()
 
 	now := time.Now()
@@ -176,12 +182,30 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 
-	// sanitize input
+	// 1.) Create New User From Uploaded Form Fields
 	new_user := ProcessNewUserForm( context )
 
-	// Store User in DB
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
+
+	// 2.) Early Return if User Already Exists
+	// TODO : Add more sophisticated exists? check
+	username_exists , exists_uuid := user.UserNameExists( new_user.Username , db )
+	if username_exists == true {
+		fmt.Printf( "User Already Exists with Username === %s === %s\n" , new_user.Username , exists_uuid )
+		return context.JSON( fiber.Map{
+			"route": "/admin/user/new" ,
+			"result": fiber.Map{
+				"error": "already exists" ,
+				"uuid": exists_uuid ,
+			} ,
+		})
+	}
+
+	fmt.Println( "New User Created :" )
+	fmt.Println( new_user )
+
+	// 3.) Store User in DB
 	new_user_byte_object , _ := json.Marshal( new_user )
 	new_user_byte_object_encrypted := encryption.ChaChaEncryptBytes( GlobalConfig.BoltDBEncryptionKey , new_user_byte_object )
 	db_result := db.Update( func( tx *bolt_api.Tx ) error {
@@ -189,7 +213,7 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 		users_bucket.Put( []byte( new_user.UUID ) , new_user_byte_object_encrypted )
 		usernames_bucket , _ := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
 		// something something holographic encryption would be nice here
-		usernames_bucket.Put( []byte( new_user.Username ) , []byte( "1" ) )
+		usernames_bucket.Put( []byte( new_user.Username ) , []byte( new_user.UUID ) )
 		return nil
 	})
 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
@@ -206,28 +230,6 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 func NewUserSignUpHandOffPage( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 	return context.SendFile( "./v1/server/html/admin_user_new_handoff.html" )
-}
-
-// TODO : this can fail though , what if somebody has the exact same first and last name ????
-// just make them have an email ???
-func CheckIfFirstNameLastNameAlreadyExists( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
-
-	// build username
-	uploaded_first_name := context.Query( "fn" )
-	uploaded_last_name := context.Query( "ln" )
-	first_name , _ := net_url.QueryUnescape( uploaded_first_name )
-	last_name , _ := net_url.QueryUnescape( uploaded_last_name )
-	username := SanitizeUsername( first_name , last_name )
-	// fmt.Println( username )
-
-	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
-	defer db.Close()
-	username_exists := user.UserNameExists( username , db )
-	return context.JSON( fiber.Map{
-		"route": "/admin/user/check/username" ,
-		"result": username_exists ,
-	})
 }
 
 // http://localhost:5950/user/get/04b5fba6-6d76-42e0-a543-863c3f0c252c

@@ -5,9 +5,7 @@
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-
-<!-- 		<script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js" integrity="sha256-bqVeqGdJ7h/lYPq6xrPv/YGzMEb6dNxlfiTUHSgRCp8=" crossorigin="anonymous"></script>
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker3.min.css" integrity="sha256-FAOaXTpl90/K8cXmSdsskbQN3nKYulhCpPbcFzGTWKI=" crossorigin="anonymous"> -->
+		<script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js" integrity="sha256-xUHvBjJ4hahBW8qN9gceFBibSFUzbe9PNttUvehITzY=" crossorigin="anonymous"></script>
 	</head>
 	<body>
 		<div class="container">
@@ -42,16 +40,21 @@
 							</div>
 						</div>
 						<div class="row g-2 mb-3">
-							<center>
+								<div class="col-md-2"></div>
 								<div class="col-md-4">
 									<div class="form-floating">
 										<input id="user_email" type="email" class="form-control" name="user_email">
 										<label for="user_email">Email Address</label>
 									</div>
 								</div>
-							</center>
+								<div class="col-md-4">
+									<div class="form-floating">
+										<input id="user_phone_number" type="tel" class="form-control" name="user_phone_number">
+										<label for="user_phone_number">Phone Number</label>
+									</div>
+								</div>
+								<div class="col-md-2"></div>
 						</div>
-
 						<br>
 						<!-- Address - Part 1-->
 						<div class="row g-2 mb-3">
@@ -108,18 +111,18 @@
 							<div class="col-md-4">
 								<div class="form-floating">
 									<select id="user_birth_month" class="form-select" aria-label="Default select example" name="user_birth_month">
-										<option value="JAN">JAN - 1</option>
-										<option value="FEB">FEB - 3</option>
-										<option value="MAR">MAR - 4</option>
-										<option value="APR">ARP - 2</option>
-										<option value="MAY">MAY - 5</option>
-										<option value="JUN">JUN - 6</option>
-										<option value="JUL">JUL - 7</option>
-										<option value="AUG">AUG - 8</option>
-										<option value="SEP">SEP - 9</option>
-										<option value="OCT">OCT - 10</option>
-										<option value="NOV">NOV - 11</option>
-										<option value="DEC">DEC - 12</option>
+										<option value="JAN">JAN = 1</option>
+										<option value="FEB">FEB = 2</option>
+										<option value="MAR">MAR = 3</option>
+										<option value="APR">APR = 4</option>
+										<option value="MAY">MAY = 5</option>
+										<option value="JUN">JUN = 6</option>
+										<option value="JUL">JUL = 7</option>
+										<option value="AUG">AUG = 8</option>
+										<option value="SEP">SEP = 9</option>
+										<option value="OCT">OCT = 10</option>
+										<option value="NOV">NOV = 11</option>
+										<option value="DEC">DEC = 12</option>
 									</select>
 									<label for="user_birth_month">Birth Month</label>
 								</div>
@@ -171,8 +174,66 @@
 					</div>
 				</col>
 			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div id="user-exists-error-modal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+						<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" >
+							<div class="modal-dialog">
+								<div class="modal-content bg-danger-subtle">
+									<div class="modal-header">
+										<h5 class="modal-title">User Already Exists !!!</h5>
+										<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									</div>
+									<div class="modal-body">
+										<p>Please Re-Scan this QR Code to Re-Login</p>
+										<center>
+											<div id="user-exists-qr-code"></div>
+										</center>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div id="user-handoff-modal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+						<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" >
+							<div class="modal-dialog">
+								<div class="modal-content bg-success-subtle">
+									<div class="modal-header">
+										<h5 class="modal-title">New User Created</h5>
+										<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									</div>
+									<div class="modal-body">
+										<p>Please Scan this QR Code to Login</p>
+										<center>
+											<div id="user-handoff-qr-code"></div>
+										</center>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 		<script>
+			function add_qr_code( text , element_id ) {
+				let x_element = document.getElementById( element_id );
+				x_element.innerHTML = "";
+				let user_qrcode = new QRCode( x_element , {
+					text: text ,
+					width: 256 ,
+					height: 256 ,
+					colorDark : "#000000" ,
+					colorLight : "#ffffff" ,
+					correctLevel : QRCode.CorrectLevel.H
+				});
+			}
+			// colors
+			// https://getbootstrap.com/docs/5.3/utilities/background/
 			function clear_form() {
 				let form = document.getElementById( "new-user-signup" );
 				for ( let i = 0; i < form.elements.length; ++i ) {
@@ -199,54 +260,69 @@
 					catch( error ) { console.log( error ); reject( error ); return; }
 				});
 			}
+			function show_user_exists_toast() {
+				// https://getbootstrap.com/docs/5.3/components/toasts/
+				let error_toast_element = document.getElementById( "user-exists-error" );
+				let error_toast = new bootstrap.Toast( error_toast_element );
+				error_toast.show();
+			}
+			function show_user_exists_modal( uuid ) {
+				let qr_code_link = `${window.location.protocol}//${window.location.host}/user/login/fresh/${uuid}`;
+				add_qr_code( qr_code_link , "user-exists-qr-code" );
+				let user_exists_modal = new bootstrap.Modal( "#user-exists-error-modal" , {
+					backdrop: "static" ,
+					focus: true ,
+					keyboard: true
+				});
+				user_exists_modal.show();
+			}
+			function show_user_handoff_modal( uuid ) {
+				let qr_code_link = `${window.location.protocol}//${window.location.host}/user/login/fresh/${uuid}`;
+				add_qr_code( qr_code_link , "user-handoff-qr-code" );
+				let user_handoff_modal = new bootstrap.Modal( "#user-handoff-modal" , {
+					backdrop: "static" ,
+					focus: true ,
+					keyboard: true
+				});
+				user_handoff_modal.show();
+			}
+			async function submit_form() {
+				let form = document.getElementById( "new-user-signup" );
+				let form_data = new FormData( form );
+				let form_post_response = await fetch( "/admin/user/new" , { method: "POST" , body: form_data });
+				let form_post_response_json = await form_post_response.json();
+				if ( !form_post_response_json[ "result" ] ) { return false; }
+				return form_post_response_json[ "result" ];
+			}
 			async function on_submit( event ) {
 				event.preventDefault();
-				let username_exists = await check_if_username_exists();
-				// TODO : this can fail though , what if somebody has the exact same first and last name ????
-				// just make them have an email ???
-				if ( username_exists === true ) {
-					console.log( "Username Already Exists !!!!" );
-					// TODO : add a qr code here so we can have them log in again ?
-					// https://getbootstrap.com/docs/5.3/components/toasts/
-					let error_toast_element = document.getElementById( "user-exists-error" );
-					let error_toast = new bootstrap.Toast( error_toast_element );
-					error_toast.show();
+				let result = await submit_form();
+				console.log( result );
+
+				if ( result[ "error" ] ) {
+					if ( result[ "error" ] === "already exists" ) {
+						// show_user_exists_toast();
+						show_user_exists_modal( result[ "uuid" ] );
+					}
 					return;
 				}
-				let form = document.getElementById( "new-user-signup" );
-				// form.submit();
-				let form_data = new FormData( form );
-				let post_response = await fetch( "/admin/user/new" , {
-					method: "POST" ,
-					body: form_data
-				});
-				let post_response_json = await post_response.json();
+
+				show_user_handoff_modal( result[ "uuid" ] );
+				clear_form();
+
+				// if ( !post_response[ "uuid" ] ) { return; }
+				// let new_user_uuid = post_response_json[ "result" ][ "uuid" ];
+				// console.log( new_user_uuid );
+
 				// TODO = now just show the QR Code as a modal ????
-				if ( !post_response_json[ "result" ] ) { return; }
-				if ( !post_response_json[ "result" ][ "uuid" ] ) { return; }
-				let new_user_uuid = post_response_json[ "result" ][ "uuid" ];
-				console.log( new_user_uuid );
 				// https://getbootstrap.com/docs/5.3/components/modal/
 				// https://getbootstrap.com/docs/5.3/utilities/background/
 				// then clear the form ???
 			}
-
-			// https://uxsolutions.github.io/bootstrap-datepicker
-			// https://github.com/uxsolutions/bootstrap-datepicker
-			// $( document ).ready( function(){
-			// 	$( "#user_date_of_birth" ).datepicker({
-			// 		// format: "yyyy-mm-dd" ,
-			// 		format: "ddMyyyy" ,
-			// 		clearBtn: true ,
-			// 		autoclose: true ,
-			// 		daysOfWeekHighlighted: "1,3,5",
-			// 		defaultViewDate: { year: 1973 , month: 3 , day: 7 } ,
-			// 		// beforeShowDay: function( date ) {
-			// 		// 	console.log( date )
-			// 		// }
-			// 	});
-			// })
-			$( document ).ready( clear_form );
+			function init() {
+				// clear_form();
+			}
+			$( document ).ready( init );
 		</script>
 	</body>
 </html>

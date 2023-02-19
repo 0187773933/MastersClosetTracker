@@ -19,10 +19,6 @@ func SetupCloseHandler() {
 		<-c
 		fmt.Println( "\r- Ctrl+C pressed in Terminal" )
 		fmt.Println( "Shutting Down Master's Closet Tracking Server" )
-
-		// Re-Blank HTML Files
-		utils.WriteAdminUserHandOffHTML( "asdf" )
-
 		s.FiberApp.Shutdown()
 		os.Exit( 0 )
 	}()
@@ -34,10 +30,6 @@ func main() {
 	fmt.Println( "Loaded Config File From : %s" , config_file_path )
 	config := utils.ParseConfig( config_file_path )
 	fmt.Println( config )
-
-	// Overwrite Relavent HTML Files with Stuff from Config
-	utils.WriteAdminUserHandOffHTML( config.ServerBaseUrl )
-
 	s = server.New( config )
 	s.Start()
 }

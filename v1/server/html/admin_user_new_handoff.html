@@ -45,10 +45,9 @@
 				return x_uuid;
 			}
 
-			const QR_CODE_BASE_URL = "asdf";
 			function generate_qr_code( uuid ) {
 				let user_qrcode = new QRCode( document.getElementById( "qrcode-image" ) , {
-					text: `${QR_CODE_BASE_URL}/user/login/fresh/${uuid}` ,
+					text: `${window.location.protocol}//${window.location.host}/user/login/fresh/${uuid}` ,
 					width: 256 ,
 					height: 256 ,
 					colorDark : "#000000" ,
