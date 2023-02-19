@@ -17,8 +17,8 @@
 ---
 
 ## TODO
-
-1. Admin Routes for Manual Overrides
+1. Add Admin Manual Override Routes
+	- Override Check-In Too Soon
 	- User forgot phone
 	- User has new phone
 	- option to text hand-off link if user can't scan qrcode for some reason

@@ -1,5 +1,5 @@
 #!/bin/bash
-BinaryName="AnalyticsTracker"
+BinaryName="MastersClosetServer"
 rm -rf ./bin/
 
 # https://stackoverflow.com/questions/25051623/golang-compile-for-all-platforms-in-windows-7-32-bit
@@ -7,8 +7,8 @@ rm -rf ./bin/
 
 declare -a linux_architectures=(
 	"amd64"
-	"arm"
-	"arm64"
+	# "arm"
+	# "arm64"
 )
 declare -a darwin_architectures=(
 	"amd64"
@@ -26,20 +26,20 @@ do
 	GOOS=linux GOARCH=$architecture go build -o bin/linux/$architecture/$BinaryName
 done
 
-for architecture in "${darwin_architectures[@]}"
-do
-	echo "Building Darwin: $architecture"
-	GOOS=darwin GOARCH=$architecture go build -o bin/darwin/$architecture/$BinaryName
-done
+# for architecture in "${darwin_architectures[@]}"
+# do
+# 	echo "Building Darwin: $architecture"
+# 	GOOS=darwin GOARCH=$architecture go build -o bin/darwin/$architecture/$BinaryName
+# done
 
-for architecture in "${windows_architectures[@]}"
-do
-	echo "Building Windows: $architecture"
-	GOOS=windows GOARCH=$architecture go build -o bin/windows/$architecture/$BinaryName.exe
-done
+# for architecture in "${windows_architectures[@]}"
+# do
+# 	echo "Building Windows: $architecture"
+# 	GOOS=windows GOARCH=$architecture go build -o bin/windows/$architecture/$BinaryName.exe
+# done
 
-for architecture in "${web_architectures[@]}"
-do
-	echo "Building Web: $architecture"
-	GOOS=js GOARCH=$architecture go build -o bin/windows/$architecture/$BinaryName.wasm
-done
+# for architecture in "${web_architectures[@]}"
+# do
+# 	echo "Building Web: $architecture"
+# 	GOOS=js GOARCH=$architecture go build -o bin/windows/$architecture/$BinaryName.wasm
+# done
