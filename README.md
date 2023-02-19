@@ -18,14 +18,12 @@
 
 ## TODO
 
-1. Future Proof User Object
-	- at least change new user signup to a post form
-2. Add and Fix Time to Re-Checkin
-3. Admin Routes for Manual Overrides
+1. Admin Routes for Manual Overrides
 	- User forgot phone
 	- User has new phone
 	- option to text hand-off link if user can't scan qrcode for some reason
-4. Add Spreadsheet Export
-5. Fix Edge Cases
+2. Add and Fix Time to Re-Checkin
+3. Add Spreadsheet Export
+4. Fix Edge Cases
 	- User attempts to use a different name ? FaceID ?
-6. Fix Docker
+5. Fix Docker
