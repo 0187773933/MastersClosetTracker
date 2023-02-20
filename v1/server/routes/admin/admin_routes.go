@@ -250,7 +250,8 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	user_uuid := context.Params( "uuid" )
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
-	check_in_result := user.CheckInUser( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
+	check_in_result , time_remaining := user.CheckInUser( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
+	fmt.Println( time_remaining )
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/checkin/:uuid" ,
 		"result": check_in_result ,

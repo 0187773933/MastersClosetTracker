@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	// "reflect"
+	"strings"
 	"time"
 	json "encoding/json"
 	// bolt "github.com/0187773933/MastersClosetTracker/v1/bolt"
@@ -110,8 +111,79 @@ func GetByUUID( user_uuid string , db *bolt.DB , encryption_key string ) ( viewe
 	return
 }
 
-func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_off_days int ) ( result bool ) {
+// non-volitle? / passive checkin
+// just sees if its possible , or if the user is currently timed-out
+// 8e1bb28c-8868-448f-a07e-f0d270b4bbee === should be able to check-in
+// d1e22369-6777-4eff-bf6a-0bf46a343a72
+func CheckInTest( user_uuid string , db *bolt.DB , encryption_key string , cool_off_days int ) ( result bool , time_remaining int ) {
 	result = false
+	time_remaining = -1
+	// 1.) grab the user from the db
+	var viewed_user User
+	db.View( func( tx *bolt.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket_value := bucket.Get( []byte( user_uuid ) )
+		if bucket_value == nil { return nil }
+		decrypted_bucket_value := encrypt.ChaChaDecryptBytes( encryption_key , bucket_value )
+		json.Unmarshal( decrypted_bucket_value , &viewed_user )
+		return nil
+	})
+	if viewed_user.UUID == "" { fmt.Println( "user UUID doesn't exist" ); result = false; return }
+
+	// 2.) Test if Check-In is possible
+	var new_check_in CheckIn
+	now := time.Now()
+	now_time_zone := now.Location()
+	new_check_in.Date = now.Format( "02Jan2006" )
+	new_check_in.Time = now.Format( "15:04:05.000" )
+
+	if len( viewed_user.CheckIns ) < 1 {
+		result = true
+		time_remaining = 0
+	} else {
+		// user has checked in before , need to compare last check-in date to now
+		// only comparing the dates , not the times
+		last_check_in := viewed_user.CheckIns[ len( viewed_user.CheckIns ) - 1 ]
+		last_check_in_date , _ := time.ParseInLocation( "02Jan2006" , last_check_in.Date , now_time_zone )
+		fmt.Println( "Now ===" , now )
+		fmt.Println( "Last ===" , last_check_in_date )
+
+		cool_off_hours := ( 24 * cool_off_days )
+		fmt.Println( "Cooloff Hours ===" , cool_off_hours )
+		cool_off_duration , _ := time.ParseDuration( fmt.Sprintf( "%dh" , cool_off_hours ) )
+		fmt.Println( "Cooloff Duration ===" , cool_off_duration )
+
+		check_in_date_difference := now.Sub( last_check_in_date )
+		fmt.Println( "Difference ===" , check_in_date_difference )
+
+		// Negative Values Mean The User Has Waited Long Enough
+		// Positive Values Mean the User Still has to wait
+		time_remaining_duration := ( cool_off_duration - check_in_date_difference )
+		fmt.Println( "Time Remaining ===" , time_remaining_duration )
+
+		if time_remaining_duration < 0 {
+			// "the user waited long enough before checking in again"
+			result = true
+			time_remaining = 0
+		} else {
+
+			days_remaining := int( time_remaining_duration.Hours() / 24 )
+			time_remaining_string := time_remaining_duration.String()
+			fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait : %d days , or %s" , days_remaining , time_remaining_string )
+
+			result = false
+			time_remaining = int( time_remaining_duration.Milliseconds() )
+		}
+	}
+
+	return
+
+
+}
+
+func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_off_days int ) ( result bool , time_remaining int ) {
+	result = false
+	time_remaining = -1
 	var viewed_user User
 	db.View( func( tx *bolt.Tx ) error {
 		bucket := tx.Bucket( []byte( "users" ) )
@@ -124,34 +196,58 @@ func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_
 	if viewed_user.UUID == "" { fmt.Println( "user UUID doesn't exist" ); result = false; return }
 	var new_check_in CheckIn
 	now := time.Now()
-	new_check_in.Date = now.Format( "02JAN2006" )
+	now_time_zone := now.Location()
+	new_check_in.Date = now.Format( "02Jan2006" )
 	new_check_in.Time = now.Format( "15:04:05.000" )
 	if len( viewed_user.CheckIns ) < 1 {
 		new_check_in.Type = "first"
+		new_check_in.Date = strings.ToUpper( new_check_in.Date )
 		viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
 		result = true
+		time_remaining = 0
 	} else {
 		// user has checked in before , need to compare last check-in date to now
 		// only comparing the dates , not the times
 		last_check_in := viewed_user.CheckIns[ len( viewed_user.CheckIns ) - 1 ]
-		cool_off_duration := ( time.Duration( cool_off_days ) * 24 * time.Hour )
-		last_check_in_date , _ := time.Parse( "02JAN2006" , last_check_in.Date )
-		check_in_date_difference := last_check_in_date.Sub( last_check_in_date )
-		if check_in_date_difference >= cool_off_duration {
+		last_check_in_date , _ := time.ParseInLocation( "02Jan2006" , last_check_in.Date , now_time_zone )
+		fmt.Println( "Now/New ===" , now )
+		fmt.Println( "Last ===" , last_check_in_date )
+
+		cool_off_hours := ( 24 * cool_off_days )
+		fmt.Println( "Cooloff Hours ===" , cool_off_hours )
+		cool_off_duration , _ := time.ParseDuration( fmt.Sprintf( "%dh" , cool_off_hours ) )
+		fmt.Println( "Cooloff Duration ===" , cool_off_duration )
+
+		check_in_date_difference := now.Sub( last_check_in_date )
+		fmt.Println( "Difference ===" , check_in_date_difference )
+
+		// Negative Values Mean The User Has Waited Long Enough
+		// Positive Values Mean the User Still has to wait
+		time_remaining_duration := ( cool_off_duration - check_in_date_difference )
+		fmt.Println( "Time Remaining ===" , time_remaining_duration )
+
+		if time_remaining_duration < 0 {
 			// "the user waited long enough before checking in again"
 			new_check_in.Type = "new"
 			viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
 			result = true
+			time_remaining = 0
 		} else {
-			days_remaining := ( cool_off_days - int( check_in_date_difference / ( 24 * time.Hour ) ) )
-			fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait %d days\n" , days_remaining )
+
+			days_remaining := int( time_remaining_duration.Hours() / 24 )
+
+			time_remaining_string := time_remaining_duration.String()
+			fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait : %d days , or %s" , days_remaining , time_remaining_string )
+
 			var new_failed_check_in FailedCheckIn
-			new_failed_check_in.Date = now.Format( "02JAN2006" )
-			new_failed_check_in.Time = now.Format( "15:04:05.000" )
+			new_failed_check_in.Date = strings.ToUpper( new_check_in.Date )
+			new_failed_check_in.Time = new_check_in.Time
 			new_failed_check_in.Type = "normal"
 			new_failed_check_in.DaysRemaining = days_remaining
 			viewed_user.FailedCheckIns = append( viewed_user.FailedCheckIns , new_failed_check_in )
+
 			result = false
+			time_remaining = int( time_remaining_duration.Milliseconds() )
 		}
 	}
 	viewed_user_byte_object , _ := json.Marshal( viewed_user )

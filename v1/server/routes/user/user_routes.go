@@ -23,6 +23,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	// user_route_group.Get( "/login/success/:uuid" , LoginSuccess )
 	user_route_group.Get( "/checkin/display/:uuid" , CheckInDisplay )
 	user_route_group.Get( "/checkin" , CheckIn )
+	user_route_group.Get( "/checkin/silent/:uuid" , CheckInSilentTest )
 }
 
 func check_if_user_cookie_exists( context *fiber.Ctx ) ( result bool ) {
@@ -72,6 +73,20 @@ func LoginFresh( context *fiber.Ctx ) ( error ) {
 	return context.SendFile( "./v1/server/html/user_login_success.html" )
 }
 
+func CheckInSilentTest( context *fiber.Ctx ) ( error ) {
+	x_user_uuid := context.Params( "uuid" )
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+	check_in_result , seconds_remaining := user.CheckInTest( x_user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
+	return context.JSON( fiber.Map{
+		"route": "/user/checkin/silent/:uuid" ,
+		"result": fiber.Map{
+			"check_in_possible": check_in_result ,
+			"seconds_remaining": seconds_remaining ,
+		} ,
+	})
+}
+
 // https://docs.gofiber.io/api/ctx#cookie
 // http://localhost:5950/user/new/:username
 func CheckIn( context *fiber.Ctx ) ( error ) {
@@ -85,6 +100,8 @@ func CheckIn( context *fiber.Ctx ) ( error ) {
 	user_cookie_value := encryption.SecretBoxDecrypt( GlobalConfig.BoltDBEncryptionKey , user_cookie )
 	x_user := user.GetByUUID( user_cookie_value , db , GlobalConfig.BoltDBEncryptionKey )
 	if x_user.UUID == "" { fmt.Println( "UUID stored in user cookie was blank" ); return serve_failed_check_in_attempt( context ) }
+
+	// TODO : add silent check-in test
 
 	return context.Redirect( fmt.Sprintf( "/user/checkin/display/%s" , x_user.UUID ) )
 }
