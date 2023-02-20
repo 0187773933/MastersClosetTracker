@@ -10,15 +10,15 @@ declare -a linux_architectures=(
 	# "arm"
 	# "arm64"
 )
-declare -a darwin_architectures=(
-	"amd64"
-)
-declare -a windows_architectures=(
-	"amd64"
-)
-declare -a web_architectures=(
-	"wasm"
-)
+# declare -a darwin_architectures=(
+# 	"amd64"
+# )
+# declare -a windows_architectures=(
+# 	"amd64"
+# )
+# declare -a web_architectures=(
+# 	"wasm"
+# )
 
 for architecture in "${linux_architectures[@]}"
 do

@@ -17,16 +17,24 @@
 ---
 
 ## TODO
-1. Add Admin Manual Override Routes
+
+1. Add Signup Fields :
+	- number of people in the party
+	- ages of all people in the party
+2. Add Concept of a "Clothes Balance"
+	- calculated based off party total
+	- give option on check-in to increase or decrease
+	- use printout reciept tickets with qrcode / barcode
+	- Checkout counter scans / verifies reciept to match balance
+3. Add Admin Manual Override Routes
 	- Override Check-In Too Soon
 	- User forgot phone
 	- User has new phone
 	- option to text hand-off link if user can't scan qrcode for some reason
-2. Add and Fix Time to Re-Checkin
-3. Add Spreadsheet Export
-4. Fix Edge Cases
+4. Add Spreadsheet Export
+5. Fix Edge Cases
 	- User attempts to use a different name ? FaceID ?
-5. Fix User Fields :
+6. Fix User Fields :
 	- Authorized Aliases
-6. Add better user-exists lookup function
-7. Fix Docker
+7. Add better user-exists lookup function
+8. Fix Docker
