@@ -175,10 +175,7 @@ func CheckInTest( user_uuid string , db *bolt.DB , encryption_key string , cool_
 			time_remaining = int( time_remaining_duration.Milliseconds() )
 		}
 	}
-
 	return
-
-
 }
 
 func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_off_days int ) ( result bool , time_remaining int ) {
@@ -235,7 +232,6 @@ func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_
 		} else {
 
 			days_remaining := int( time_remaining_duration.Hours() / 24 )
-
 			time_remaining_string := time_remaining_duration.String()
 			fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait : %d days , or %s" , days_remaining , time_remaining_string )
 

@@ -77,12 +77,12 @@ func CheckInSilentTest( context *fiber.Ctx ) ( error ) {
 	x_user_uuid := context.Params( "uuid" )
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
-	check_in_result , seconds_remaining := user.CheckInTest( x_user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
+	check_in_result , milliseconds_remaining := user.CheckInTest( x_user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
 	return context.JSON( fiber.Map{
 		"route": "/user/checkin/silent/:uuid" ,
 		"result": fiber.Map{
 			"check_in_possible": check_in_result ,
-			"seconds_remaining": seconds_remaining ,
+			"milliseconds_remaining": milliseconds_remaining ,
 		} ,
 	})
 }
@@ -101,8 +101,9 @@ func CheckIn( context *fiber.Ctx ) ( error ) {
 	x_user := user.GetByUUID( user_cookie_value , db , GlobalConfig.BoltDBEncryptionKey )
 	if x_user.UUID == "" { fmt.Println( "UUID stored in user cookie was blank" ); return serve_failed_check_in_attempt( context ) }
 
-	// TODO : add silent check-in test
-
+	// TODO : render a different page if the check-in would fail ?
+	check_in_test , time_remaining := user.CheckInUser( x_user.UUID , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
+	fmt.Println( "Pre-Check-In Test Result ===" , check_in_test , "Time Remaining ===" , time_remaining )
 	return context.Redirect( fmt.Sprintf( "/user/checkin/display/%s" , x_user.UUID ) )
 }
 
