@@ -18,9 +18,7 @@
 
 ## TODO
 
-1. Add Signup Fields :
-	- number of people in the party
-	- ages of all people in the party
+1. Implement "Edit" User Page for Admin
 2. Add Concept of a "Clothes Balance"
 	- calculated based off party total
 	- give option on check-in to increase or decrease
@@ -38,5 +36,3 @@
 	- Authorized Aliases
 7. Add better user-exists lookup function
 8. Fix Docker
-9. Favicon ???
-	- https://docs.gofiber.io/api/middleware/favicon
