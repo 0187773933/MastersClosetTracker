@@ -46,6 +46,7 @@ type Person struct {
 	MiddleName string `json:"last_name"`
 	Address Address`json:"address"`
 	DateOfBirth DateOfBirth `json:"date_of_birth"`
+	Age int `json:"age"`
 	Sex string `json:"sex"`
 	Height string `json:"height"`
 	EyeColor string `json:"eye_color"`
@@ -58,6 +59,8 @@ type User struct {
 	PhoneNumber string `json:"email_address"`
 	Identity Person `json:"identity"`
 	AuthorizedAliases []Person `json:"authorized_aliases"`
+	FamilySize int `json:"family_size"`
+	FamilyMembers []Person `json:"family_members"`
 	CreatedDate string `json:"created_date"`
 	CreatedTime string `json:"created_time"`
 	CheckIns []CheckIn `json:"check_ins"`

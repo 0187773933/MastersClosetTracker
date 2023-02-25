@@ -142,6 +142,7 @@ func ProcessNewUserForm( context *fiber.Ctx ) ( new_user user.User ) {
 	uploaded_user_birth_day := context.FormValue( "user_birth_day" )
 	uploaded_user_birth_month := context.FormValue( "user_birth_month" )
 	uploaded_user_birth_year := context.FormValue( "user_birth_year" )
+	uploaded_user_family_size := context.FormValue( "user_family_size" )
 
 	new_user.EmailAddress = utils.SanitizeInputString( uploaded_user_email )
 	new_user.PhoneNumber = utils.SanitizeInputString( uploaded_phone_number )
@@ -154,6 +155,7 @@ func ProcessNewUserForm( context *fiber.Ctx ) ( new_user user.User ) {
 	new_user.Identity.Address.City = utils.SanitizeInputString( uploaded_user_city )
 	new_user.Identity.Address.State = utils.SanitizeInputString( uploaded_user_state )
 	new_user.Identity.Address.ZipCode = utils.SanitizeInputString( uploaded_user_zip_code )
+
 	sanitized_birth_day := utils.SanitizeInputString( uploaded_user_birth_day )
 	sanitized_birth_day_int , _ := strconv.Atoi( sanitized_birth_day )
 	new_user.Identity.DateOfBirth.Day = sanitized_birth_day_int
@@ -161,6 +163,21 @@ func ProcessNewUserForm( context *fiber.Ctx ) ( new_user user.User ) {
 	sanitized_birth_year := utils.SanitizeInputString( uploaded_user_birth_year )
 	sanitized_birth_year_int , _ := strconv.Atoi( sanitized_birth_year )
 	new_user.Identity.DateOfBirth.Year = sanitized_birth_year_int
+
+	sanitized_family_size := utils.SanitizeInputString( uploaded_user_family_size )
+	sanitized_family_size_int , _ := strconv.Atoi( sanitized_family_size )
+	new_user.FamilySize = sanitized_family_size_int
+	if sanitized_family_size_int > 0 {
+		for i := 0; i < sanitized_family_size_int; i++ {
+			uploaded_family_member_age := context.FormValue( fmt.Sprintf( "user_family_member_%d_age" , ( i + 1 ) ) )
+			sanitized_family_member_age := utils.SanitizeInputString( uploaded_family_member_age )
+			family_member_age_int , _ := strconv.Atoi( sanitized_family_member_age )
+			var family_member user.Person
+			family_member.Age = family_member_age_int
+			new_user.FamilyMembers = append( new_user.FamilyMembers , family_member )
+			// fmt.Printf( "Adding Family Member - %d - Age = %d\n" , ( i + 1 ) , family_member_age_int )
+		}
+	}
 
 	if new_user.Identity.MiddleName != "" {
 		new_user.Username = fmt.Sprintf( "%s-%s-%s" , new_user.Identity.FirstName , new_user.Identity.MiddleName , new_user.Identity.LastName )

@@ -38,3 +38,5 @@
 	- Authorized Aliases
 7. Add better user-exists lookup function
 8. Fix Docker
+9. Favicon ???
+	- https://docs.gofiber.io/api/middleware/favicon

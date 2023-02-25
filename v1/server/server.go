@@ -6,6 +6,7 @@ import (
 	fiber "github.com/gofiber/fiber/v2"
 	fiber_cookie "github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	rate_limiter "github.com/gofiber/fiber/v2/middleware/limiter"
+	favicon "github.com/gofiber/fiber/v2/middleware/favicon"
 	// try "github.com/manucorporat/try"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
@@ -35,7 +36,8 @@ func New( config types.ConfigFile ) ( server Server ) {
 	fmt.Println( "Server's IP Addresses === " , ip_addresses )
 	// https://docs.gofiber.io/api/middleware/limiter
 	server.FiberApp.Use( request_logging_middleware )
-	server.FiberApp.Get( "/favicon.ico" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/favicon.ico" ) } )
+	server.FiberApp.Use( favicon.New() )
+	// server.FiberApp.Get( "/favicon.ico" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/favicon.ico" ) } )
 	server.FiberApp.Use( rate_limiter.New( rate_limiter.Config{
 		Max: 4 ,
 		Expiration: ( 4 * time.Second ) ,

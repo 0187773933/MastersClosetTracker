@@ -110,7 +110,7 @@
 							</div>
 							<div class="col-md-4">
 								<div class="form-floating">
-									<select id="user_birth_month" class="form-select" aria-label="Default select example" name="user_birth_month">
+									<select id="user_birth_month" class="form-select" aria-label="User Birth Month" name="user_birth_month">
 										<option value="JAN">JAN = 1</option>
 										<option value="FEB">FEB = 2</option>
 										<option value="MAR">MAR = 3</option>
@@ -147,6 +147,47 @@
 								</div>
 							</center>
 						</div> -->
+
+						<br>
+
+						<div class="row g-2 mb-3">
+							<div class="col-md-5"></div>
+							<div class="col-md-2">
+								<div class="form-floating">
+									<select id="user_family_size" class="form-select" aria-label="User Family Size" name="user_family_size">
+										<option value="0">0</option>
+										<option value="1">1</option>
+										<option value="2">2</option>
+										<option value="3">3</option>
+										<option value="4">4</option>
+										<option value="5">5</option>
+										<option value="6">6</option>
+										<option value="7">7</option>
+										<option value="8">8</option>
+										<option value="9">9</option>
+										<option value="10">10</option>
+										<option value="11">11</option>
+										<option value="12">12</option>
+										<option value="13">13</option>
+										<option value="14">14</option>
+										<option value="15">15</option>
+										<option value="16">16</option>
+										<option value="17">17</option>
+										<option value="18">18</option>
+										<option value="19">19</option>
+										<option value="20">20</option>
+									</select>
+									<label for="user_family_size">Family Size</label>
+								</div>
+							</div>
+							<div class="col-md-5"></div>
+						</div>
+
+						<div id="user_family_members">
+
+						</div>
+
+						<br>
 
 						<div class="form-row">
 							<button id ="submit-button" type="submit" class="btn btn-primary">Sign Up</button>
@@ -311,8 +352,46 @@
 				clear_form();
 
 			}
+			function on_family_size_change( event ) {
+				let family_members_input_area = document.getElementById( "user_family_members" );
+				family_members_input_area.innerHTML = "";
+				let party_size = parseInt( event.target.value );
+				for ( let i = 0; i < party_size; ++i ) {
+					let new_row = document.createElement( "div" );
+					new_row.className = "row g-2";
+
+					let col_1 = document.createElement( "div" );
+					col_1.className = "col-md-4";
+					new_row.appendChild( col_1 );
+
+					let col_2 = document.createElement( "div" );
+					col_2.className = "col-md-4";
+					let input_group = document.createElement( "div" );
+					input_group.className = "input-group";
+					let label = document.createElement( "span" );
+					label.className = "input-group-text";
+					label.setAttribute( "id" , `user_family_member_${(i +1)}` );
+					label.textContent = `Family Member - ${(i + 1)}`;
+					let age_input = document.createElement( "input" );
+					age_input.className = "form-control";
+					age_input.setAttribute( "placeholder" , "Age" );
+					age_input.setAttribute( "type" , "text" );
+					age_input.setAttribute( "name" , `user_family_member_${(i + 1)}_age` );
+					input_group.appendChild( label );
+					input_group.appendChild( age_input );
+					col_2.appendChild( input_group );
+					new_row.appendChild( col_2 );
+
+					let col_3 = document.createElement( "div" );
+					col_3.className = "col-md-4";
+					new_row.appendChild( col_3 );
+
+					family_members_input_area.appendChild( new_row );
+				}
+			}
 			function init() {
 				clear_form();
+				document.getElementById( "user_family_size" ).addEventListener( "change" , on_family_size_change );
 			}
 			$( document ).ready( init );
 		</script>
