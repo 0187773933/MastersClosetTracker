@@ -15,21 +15,33 @@
 			</div>
 			<br><br>
 			<div class="row">
-				<div class="col-sm">
+				<div class="col-md-4"></div>
+				<div class="col-md-4">
 					<div class="form-group d-flex">
 						<input id="check-in-input" type="text" class="form-control flex-grow-1">
 					</div>
 				</div>
+				<div class="col-md-4"></div>
 			</div>
+			<br>
 			<div class="row">
-				<div class="col-sm">
+				<center>
+					<button id ="submit-button" type="submit" class="btn btn-primary">Check In</button>
+				</center>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-md-4"></div>
+				<div class="col-md-4">
 					<div class="alert alert-success" id="checked-in-alert-true">
 						User Checked In !!!
 					</div>
 				</div>
+				<div class="col-md-4"></div>
 			</div>
 			<div class="row">
-				<div class="col-sm">
+				<div class="col-md-3"></div>
+				<div class="col-md-6">
 					<div class="alert alert-danger" id="checked-in-alert-false">
 						<center>
 							<a id="override-button" class="btn btn-success" target="_blank" href="/none">Allow</a>
@@ -38,6 +50,7 @@
 						</center>
 					</div>
 				</div>
+				<div class="col-md-3"></div>
 			</div>
 		</div>
 		<script>
@@ -62,12 +75,45 @@
 				});
 			}
 
+			function search_username( username ) {
+				return new Promise( async function( resolve , reject ) {
+					try {
+						if ( !username ) { resolve( false ); return; }
+						let search_url = `/admin/user/search/username/${username}`;
+						let check_in_response = await fetch( search_url , {
+							method: "GET" ,
+							headers: { "Content-Type": "application/json" }
+						});
+						let response_json = await check_in_response.json();
+						let result = response_json[ "result" ];
+						if ( result === "not found" ) { result = false; }
+						resolve( result );
+						return;
+					}
+					catch( error ) { console.log( error ); resolve( false ); return; }
+				});
+			}
+
 			async function check_uuid_input() {
-				const typed_uuid = window.check_in_input.value;
-				const valid_uuid = is_uuid( typed_uuid );
-				if ( valid_uuid === false ) { alert( "Not a Valid UUID !!!" ); return; }
-				let valid_check_in = await check_in_uuid( typed_uuid );
-				console.log( `${typed_uuid} === ${valid_uuid} === Checked In === ${valid_check_in}` );
+				let typed_input = window.check_in_input.value;
+
+				// Changed to Allow for User Search ?
+				let valid_check_in = false;
+				let valid_uuid = is_uuid( typed_input );
+				if ( valid_uuid === false ) {
+					// alert( "Not a Valid UUID !!!" ); return;
+					let user_uuid = await search_username( typed_input );
+					if ( user_uuid === false ) {
+						// TODO : Present bootstrap popup
+						alert( "Couldn't Find User !!!" );
+						return false;
+					}
+					console.log( "Search Result ===" , user_uuid );
+					// window.check_in_input.value = user_uuid
+					typed_input = user_uuid;
+				}
+				valid_check_in = await check_in_uuid( typed_input );
+				console.log( `${typed_input} === ${valid_uuid} === Checked In === ${valid_check_in}` );
 				switch ( valid_check_in ) {
 					case true:
 						$( "#checked-in-alert-true" ).slideDown();
@@ -119,6 +165,9 @@
 				block_button.addEventListener( "click" , on_block_button_click );
 				const override_button = document.getElementById( "override-button" );
 				override_button.addEventListener( "click" , on_override_button_click );
+
+				const submit_button = document.getElementById( "submit-button" );
+				submit_button.addEventListener( "click" , check_uuid_input );
 			}
 			document.addEventListener( "DOMContentLoaded" , init );
 		</script>

@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"time"
 	"strconv"
+	"strings"
+	"bytes"
 	json "encoding/json"
-	// net_url "net/url"
+	net_url "net/url"
 	fiber "github.com/gofiber/fiber/v2"
 	uuid "github.com/satori/go.uuid"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
@@ -35,6 +37,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/user/checkin" , CheckInUserPage )
 	admin_route_group.Get( "/user/checkin/:uuid" , UserCheckIn )
 	admin_route_group.Get( "/user/get/:uuid" , GetUser )
+	admin_route_group.Get( "/user/search/username/:username" , UserSearch )
 }
 
 // GET http://localhost:5950/admin/login
@@ -272,5 +275,33 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/checkin/:uuid" ,
 		"result": check_in_result ,
+	})
+}
+
+
+func UserSearch( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+
+	username := context.Params( "username" )
+	escaped_username , _ := net_url.QueryUnescape( username )
+	formated_username := strings.Replace( escaped_username , " " , "-" , -1 )
+	formated_username_bytes := []byte( formated_username )
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+
+	found_uuid := "not found"
+	db.View( func( tx *bolt_api.Tx ) error {
+		bucket := tx.Bucket( []byte( "usernames" ) )
+		bucket.ForEach( func( k , v []byte ) error {
+			if bytes.Equal( k , formated_username_bytes ) == false { return nil }
+			found_uuid = string( v )
+			return nil
+		})
+		return nil
+	})
+	fmt.Printf( "Searched : %s || Result === %s\n" , formated_username , found_uuid )
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/search/username/:username" ,
+		"result": found_uuid ,
 	})
 }
