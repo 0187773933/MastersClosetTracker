@@ -67,6 +67,12 @@ type User struct {
 	FailedCheckIns []FailedCheckIn `json:"failed_check_ins"`
 }
 
+type GetUserResult struct {
+	Username string `json:"username"`
+	UUID string `json:"uuid"`
+	LastCheckIn CheckIn `json:"last_check_in"`
+}
+
 // func New( username string , db *bolt.DB , encryption_key string ) ( new_user User ) {
 // 	now := time.Now()
 // 	new_user_uuid := uuid.NewV4().String()

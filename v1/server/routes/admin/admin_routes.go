@@ -29,6 +29,8 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Post( "/login" , HandleLogin )
 	admin_route_group.Get( "/" , AdminPage )
 
+	admin_route_group.Get( "/users" , ViewUsersPage )
+
 	// admin_route_group.Get( "/user/check/username" , CheckIfFirstNameLastNameAlreadyExists )
 	admin_route_group.Get( "/user/new" , NewUserSignUpPage )
 	admin_route_group.Post( "/user/new" , HandleNewUserJoin )
@@ -36,6 +38,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 
 	admin_route_group.Get( "/user/checkin" , CheckInUserPage )
 	admin_route_group.Get( "/user/checkin/:uuid" , UserCheckIn )
+	admin_route_group.Get( "/user/get/all" , GetAllUsers )
 	admin_route_group.Get( "/user/get/:uuid" , GetUser )
 	admin_route_group.Get( "/user/search/username/:username" , UserSearch )
 }
@@ -117,6 +120,11 @@ func NewUserSignUpPage( context *fiber.Ctx ) ( error ) {
 func CheckInUserPage( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 	return context.SendFile( "./v1/server/html/admin_user_checkin.html" )
+}
+
+func ViewUsersPage( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	return context.SendFile( "./v1/server/html/admin_view_users.html" )
 }
 
 
@@ -305,3 +313,35 @@ func UserSearch( context *fiber.Ctx ) ( error ) {
 		"result": found_uuid ,
 	})
 }
+
+func GetAllUsers( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+
+	var result []user.GetUserResult
+	db.View( func( tx *bolt_api.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket.ForEach( func( uuid , value []byte ) error {
+			var viewed_user user.User
+			decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , value )
+			json.Unmarshal( decrypted_bucket_value , &viewed_user )
+			var get_user_result user.GetUserResult
+			get_user_result.Username = viewed_user.Username
+			get_user_result.UUID = viewed_user.UUID
+			if len( viewed_user.CheckIns ) > 0 {
+				get_user_result.LastCheckIn = viewed_user.CheckIns[ len( viewed_user.CheckIns ) - 1 ]
+			}
+			result = append( result , get_user_result )
+			return nil
+		})
+		return nil
+	})
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/get/all" ,
+		"result": result ,
+	})
+}
+
+
