@@ -43,7 +43,7 @@ type Address struct {
 type Person struct {
 	FirstName string `json:"first_name"`
 	LastName string `json:"last_name"`
-	MiddleName string `json:"last_name"`
+	MiddleName string `json:"middle_name"`
 	Address Address`json:"address"`
 	DateOfBirth DateOfBirth `json:"date_of_birth"`
 	Age int `json:"age"`
@@ -56,7 +56,7 @@ type User struct {
 	Username string `json:"username"`
 	UUID string `json:"uuid"`
 	EmailAddress string `json:"email_address"`
-	PhoneNumber string `json:"email_address"`
+	PhoneNumber string `json:"phone_number"`
 	Identity Person `json:"identity"`
 	AuthorizedAliases []Person `json:"authorized_aliases"`
 	FamilySize int `json:"family_size"`
@@ -114,6 +114,7 @@ func GetByUUID( user_uuid string , db *bolt.DB , encryption_key string ) ( viewe
 		bucket_value := bucket.Get( []byte( user_uuid ) )
 		if bucket_value == nil { return nil }
 		decrypted_bucket_value := encrypt.ChaChaDecryptBytes( encryption_key , bucket_value )
+		// fmt.Println( string( decrypted_bucket_value ) )
 		json.Unmarshal( decrypted_bucket_value , &viewed_user )
 		return nil
 	})

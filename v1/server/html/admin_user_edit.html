@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>Master's Closet - Signup</title>
+		<title>Master's Closet - User Edit</title>
 		<link rel="icon" href="">
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
@@ -11,7 +11,7 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-sm">
-					<center><h1>Master's Closet - Admin - Create New User</h1></center>
+					<center><h1>Master's Closet - Admin - Edit User</h1></center>
 				</div>
 			</div>
 			<br><br>
@@ -72,7 +72,7 @@
 							</div>
 							<div class="col-md-4">
 								<div class="form-floating">
-									<input id="user_address_two" type="text" class="form-control" name="user_address_two">
+									<input id="user_address_two" type="text" class="form-control" name="user_street_name">
 									<label for="user_address_two">Address 2</label>
 								</div>
 							</div>
@@ -190,7 +190,7 @@
 						<br>
 
 						<div class="form-row">
-							<button id ="submit-button" type="submit" class="btn btn-primary">Sign Up</button>
+							<button id ="submit-button" type="submit" class="btn btn-success">Save</button>
 						</div>
 
 					</form>
@@ -389,9 +389,60 @@
 					family_members_input_area.appendChild( new_row );
 				}
 			}
-			function init() {
+			function get_user( uuid ) {
+				return new Promise( async function( resolve , reject ) {
+					try {
+						let url = `/admin/user/get/${uuid}`;
+						let response = await fetch( url , {
+							method: "GET" ,
+							headers: { "Content-Type": "application/json" }
+						});
+						let response_json = await response.json();
+						resolve( response_json[ "result" ] );
+						return;
+					}
+					catch( error ) { console.log( error ); resolve( {} ); return; }
+				});
+			}
+			function populate_form( user_info ) {
+				console.log( JSON.stringify( user_info , null , 4 ) );
+				let first_name_element = document.getElementById( "user_first_name" );
+				first_name_element.value = user_info[ "identity" ][ "first_name" ];
+				let middle_name_element = document.getElementById( "user_middle_name" );
+				middle_name_element.value = user_info[ "identity" ][ "middle_name" ];
+				let last_name_element = document.getElementById( "user_last_name" );
+				last_name_element.value = user_info[ "identity" ][ "last_name" ];
+				let email_element = document.getElementById( "user_email" );
+				email_element.value = user_info[ "email_address" ];
+				let phone_number_element = document.getElementById( "user_phone_number" );
+				phone_number_element.value = user_info[ "phone_number" ];
+				let street_number_element = document.getElementById( "user_street_number" );
+				street_number_element.value = user_info[ "identity" ][ "address" ][ "street_number" ];
+				let street_name_element = document.getElementById( "user_street_name" );
+				street_name_element.value = user_info[ "identity" ][ "address" ][ "street_name" ];
+				let address_two_element = document.getElementById( "user_address_two" );
+				address_two_element.value = user_info[ "identity" ][ "address" ][ "address_two" ];
+				let city_element = document.getElementById( "user_city" );
+				city_element.value = user_info[ "identity" ][ "address" ][ "city" ];
+				let state_element = document.getElementById( "user_state" );
+				state_element.value = user_info[ "identity" ][ "address" ][ "state" ];
+				let zip_code_element = document.getElementById( "user_zip_code" );
+				zip_code_element.value = user_info[ "identity" ][ "address" ][ "zipcode" ];
+				let birth_day_element = document.getElementById( "user_birth_day" );
+				birth_day_element.value = user_info[ "identity" ][ "date_of_birth" ][ "day" ];
+				let birth_month_element = document.getElementById( "user_birth_month" );
+				birth_month_element.value = user_info[ "identity" ][ "date_of_birth" ][ "month" ];
+				let birth_year_element = document.getElementById( "user_birth_year" );
+				birth_year_element.value = user_info[ "identity" ][ "date_of_birth" ][ "year" ];
+				let family_size_element = document.getElementById( "user_family_size" );
+				family_size_element.value = user_info[ "family_size" ];
+			}
+			async function init() {
 				clear_form();
 				document.getElementById( "user_family_size" ).addEventListener( "change" , on_family_size_change );
+				let passed_uuid = window.location.pathname.split( "/edit/" )[ 1 ];
+				let user_info = await get_user( passed_uuid );
+				populate_form( user_info );
 			}
 			$( document ).ready( init );
 		</script>
