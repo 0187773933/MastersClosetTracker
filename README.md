@@ -18,21 +18,20 @@
 
 ## TODO
 
-1. Implement "Edit" User Page for Admin
-2. Add Concept of a "Clothes Balance"
+1. Add Concept of a "Clothes Balance"
 	- calculated based off party total
 	- give option on check-in to increase or decrease
 	- use printout reciept tickets with qrcode / barcode
 	- Checkout counter scans / verifies reciept to match balance
-3. Add Admin Manual Override Routes
+2. Add Admin Manual Override Routes
 	- Override Check-In Too Soon
 	- User forgot phone
 	- User has new phone
 	- option to text hand-off link if user can't scan qrcode for some reason
-4. Add Spreadsheet Export
-5. Fix Edge Cases
+3. Add Spreadsheet Export
+4. Fix Edge Cases
 	- User attempts to use a different name ? FaceID ?
-6. Fix User Fields :
+5. Fix User Fields :
 	- Authorized Aliases
-7. Add better user-exists lookup function
-8. Fix Docker
+6. Add better user-exists lookup function
+7. Fix Docker
