@@ -34,6 +34,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	// admin_route_group.Get( "/user/check/username" , CheckIfFirstNameLastNameAlreadyExists )
 	admin_route_group.Get( "/user/new" , NewUserSignUpPage )
 	admin_route_group.Post( "/user/new" , HandleNewUserJoin )
+	admin_route_group.Post( "/user/edit" , HandleUserEdit )
 	admin_route_group.Get( "/user/new/handoff/:uuid" , NewUserSignUpHandOffPage )
 
 	admin_route_group.Get( "/user/checkin" , CheckInUserPage )
@@ -211,8 +212,6 @@ func ProcessNewUserForm( context *fiber.Ctx ) ( new_user user.User ) {
 	return
 }
 
-// https://docs.gofiber.io/api/ctx#cookie
-// http://localhost:5950/admin/new/:username
 func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
@@ -261,6 +260,50 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 		} ,
 	})
 }
+
+func HandleUserEdit( context *fiber.Ctx ) ( error ) {
+
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+
+	// 1.) Create New User From Uploaded Form Fields
+	new_user := ProcessNewUserForm( context )
+	editing_uuid := context.FormValue( "editing_uuid" )
+	new_user.UUID = editing_uuid
+
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+
+	// 2.) Grab Old Username so we can check to make sure it wasn't changed
+	old_user := user.GetByUUID( editing_uuid , db , GlobalConfig.BoltDBEncryptionKey )
+
+	fmt.Println( "Editing User :" )
+	fmt.Println( new_user )
+
+	// 3.) Store User in DB
+	new_user_byte_object , _ := json.Marshal( new_user )
+	new_user_byte_object_encrypted := encryption.ChaChaEncryptBytes( GlobalConfig.BoltDBEncryptionKey , new_user_byte_object )
+	db_result := db.Update( func( tx *bolt_api.Tx ) error {
+		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
+		users_bucket.Put( []byte( new_user.UUID ) , new_user_byte_object_encrypted )
+		usernames_bucket , _ := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
+		// something something holographic encryption would be nice here
+
+		if old_user.Username != new_user.Username {
+			usernames_bucket.Delete( []byte( old_user.Username ) )
+		}
+		usernames_bucket.Put( []byte( new_user.Username ) , []byte( new_user.UUID ) )
+		return nil
+	})
+	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
+
+	//return context.Redirect( fmt.Sprintf( "/admin/user/new/handoff/%s" , new_user.UUID ) )
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/edit" ,
+		"result": "saved" ,
+	})
+}
+
+
 
 func NewUserSignUpHandOffPage( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }

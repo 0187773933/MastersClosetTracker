@@ -17,7 +17,7 @@
 			<br><br>
 			<div class="row">
 				<center>
-					<form id="new-user-signup" action="/admin/user/new" onSubmit="return on_submit( event )" method="post">
+					<form id="user-edit-form" action="/admin/user/edit" onSubmit="return on_submit( event )" method="post">
 						<!-- Main Required Stuff -->
 						<div class="row g-2 mb-3">
 							<div class="col-md-4">
@@ -190,7 +190,7 @@
 						<br>
 
 						<div class="form-row">
-							<button id ="submit-button" type="submit" class="btn btn-success">Save</button>
+							<button id ="save-button" type="submit" class="btn btn-success">Save</button>
 						</div>
 
 					</form>
@@ -215,7 +215,8 @@
 					</div>
 				</col>
 			</div>
-			<div class="row">
+
+			<!-- <div class="row">
 				<div class="col-md-6">
 					<div id="user-exists-error-modal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 						<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" >
@@ -236,29 +237,7 @@
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-6">
-					<div id="user-handoff-modal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-						<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" >
-							<div class="modal-dialog">
-								<div class="modal-content bg-success-subtle">
-									<div class="modal-header">
-										<h5 class="modal-title">New User Created</h5>
-										<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-									</div>
-									<div class="modal-body">
-										<p>Please Scan this QR Code to Login</p>
-										<center>
-											<div id="user-handoff-qr-code"></div>
-										</center>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+			</div> -->
 		</div>
 		<script>
 			function add_qr_code( text , element_id ) {
@@ -276,7 +255,7 @@
 			// colors
 			// https://getbootstrap.com/docs/5.3/utilities/background/
 			function clear_form() {
-				let form = document.getElementById( "new-user-signup" );
+				let form = document.getElementById( "user-edit-form" );
 				for ( let i = 0; i < form.elements.length; ++i ) {
 					let element = form.elements[ i ];
 					if ( element.type === "submit" ) { continue; }
@@ -286,7 +265,7 @@
 			function check_if_username_exists() {
 				return new Promise( async function( resolve , reject ) {
 					try {
-						let form = document.getElementById( "new-user-signup" );
+						let form = document.getElementById( "user-edit-form" );
 						let first_name = form.elements[ "user_first_name" ].value;
 						let last_name = form.elements[ "user_last_name" ].value;
 						let username_exists_url = `/admin/user/check/username?fn=${first_name}&ln=${last_name}`;
@@ -328,9 +307,10 @@
 				user_handoff_modal.show();
 			}
 			async function submit_form() {
-				let form = document.getElementById( "new-user-signup" );
+				let form = document.getElementById( "user-edit-form" );
 				let form_data = new FormData( form );
-				let form_post_response = await fetch( "/admin/user/new" , { method: "POST" , body: form_data });
+				form_data.append( "editing_uuid" , window.passed_uuid );
+				let form_post_response = await fetch( "/admin/user/edit" , { method: "POST" , body: form_data });
 				let form_post_response_json = await form_post_response.json();
 				if ( !form_post_response_json[ "result" ] ) { return false; }
 				return form_post_response_json[ "result" ];
@@ -339,20 +319,10 @@
 				event.preventDefault();
 				let result = await submit_form();
 				console.log( result );
-
-				if ( result[ "error" ] ) {
-					if ( result[ "error" ] === "already exists" ) {
-						// show_user_exists_toast();
-						show_user_exists_modal( result[ "uuid" ] );
-					}
-					return;
-				}
-
-				show_user_handoff_modal( result[ "uuid" ] );
-				clear_form();
-
+				// clear_form();
 			}
 			function on_family_size_change( event ) {
+				console.log( "on_family_size_change() ??" );
 				let family_members_input_area = document.getElementById( "user_family_members" );
 				family_members_input_area.innerHTML = "";
 				let party_size = parseInt( event.target.value );
@@ -377,6 +347,7 @@
 					age_input.setAttribute( "placeholder" , "Age" );
 					age_input.setAttribute( "type" , "text" );
 					age_input.setAttribute( "name" , `user_family_member_${(i + 1)}_age` );
+					age_input.setAttribute( "id" , `user_family_member_${(i + 1)}_age` );
 					input_group.appendChild( label );
 					input_group.appendChild( age_input );
 					col_2.appendChild( input_group );
@@ -406,6 +377,7 @@
 			}
 			function populate_form( user_info ) {
 				console.log( JSON.stringify( user_info , null , 4 ) );
+
 				let first_name_element = document.getElementById( "user_first_name" );
 				first_name_element.value = user_info[ "identity" ][ "first_name" ];
 				let middle_name_element = document.getElementById( "user_middle_name" );
@@ -428,20 +400,38 @@
 				state_element.value = user_info[ "identity" ][ "address" ][ "state" ];
 				let zip_code_element = document.getElementById( "user_zip_code" );
 				zip_code_element.value = user_info[ "identity" ][ "address" ][ "zipcode" ];
-				let birth_day_element = document.getElementById( "user_birth_day" );
-				birth_day_element.value = user_info[ "identity" ][ "date_of_birth" ][ "day" ];
-				let birth_month_element = document.getElementById( "user_birth_month" );
-				birth_month_element.value = user_info[ "identity" ][ "date_of_birth" ][ "month" ];
-				let birth_year_element = document.getElementById( "user_birth_year" );
-				birth_year_element.value = user_info[ "identity" ][ "date_of_birth" ][ "year" ];
-				let family_size_element = document.getElementById( "user_family_size" );
-				family_size_element.value = user_info[ "family_size" ];
+
+				if ( user_info[ "identity" ][ "date_of_birth" ][ "day" ] > 0 ) {
+					let birth_day_element = document.getElementById( "user_birth_day" );
+					birth_day_element.value = user_info[ "identity" ][ "date_of_birth" ][ "day" ];
+				}
+				if ( user_info[ "identity" ][ "date_of_birth" ][ "month" ] !== "" ) {
+					let birth_month_element = document.getElementById( "user_birth_month" );
+					birth_month_element.value = user_info[ "identity" ][ "date_of_birth" ][ "month" ];
+				}
+				if ( user_info[ "identity" ][ "date_of_birth" ][ "year" ] > 0 ) {
+					let birth_year_element = document.getElementById( "user_birth_year" );
+					birth_year_element.value = user_info[ "identity" ][ "date_of_birth" ][ "year" ];
+				}
+
+				if ( user_info[ "family_size" ] > 0 ) {
+					let family_size_element = document.getElementById( "user_family_size" );
+					family_size_element.value = user_info[ "family_size" ];
+					let event = document.createEvent( "Event" );
+					event.initEvent( "change" , true , true );
+					family_size_element.dispatchEvent( event );
+					for ( let i = 0; i < user_info[ "family_members" ].length; ++i ) {
+						let family_member_age_element = document.getElementById( `user_family_member_${(i + 1)}_age` );
+						family_member_age_element.value = user_info[ "family_members" ][ i ][ "age" ];
+					}
+				}
+
 			}
 			async function init() {
 				clear_form();
 				document.getElementById( "user_family_size" ).addEventListener( "change" , on_family_size_change );
-				let passed_uuid = window.location.pathname.split( "/edit/" )[ 1 ];
-				let user_info = await get_user( passed_uuid );
+				window.passed_uuid = window.location.pathname.split( "/edit/" )[ 1 ];
+				let user_info = await get_user( window.passed_uuid );
 				populate_form( user_info );
 			}
 			$( document ).ready( init );
