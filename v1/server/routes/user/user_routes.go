@@ -17,6 +17,7 @@ var GlobalConfig *types.ConfigFile
 
 func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	GlobalConfig = config
+	fiber_app.Get( "/" , RenderHomePage )
 	fiber_app.Get( "/checkin" , CheckIn )
 	user_route_group := fiber_app.Group( "/user" )
 	user_route_group.Get( "/login/fresh/:uuid" , LoginFresh )
@@ -36,12 +37,36 @@ func check_if_user_cookie_exists( context *fiber.Ctx ) ( result bool ) {
 	return
 }
 
+func check_if_admin_cookie_exists( context *fiber.Ctx ) ( result bool ) {
+	result = false
+	admin_cookie := context.Cookies( "the-masters-closet-admin" )
+	if admin_cookie == "" { return }
+	admin_cookie_value := encryption.SecretBoxDecrypt( GlobalConfig.BoltDBEncryptionKey , admin_cookie )
+	if admin_cookie_value != GlobalConfig.ServerCookieAdminSecretMessage { fmt.Println( "admin cookie secret message was not equal" ); return }
+	result = true
+	return
+}
+
 func serve_failed_check_in_attempt( context *fiber.Ctx ) ( error ) {
 	// return context.Redirect( "/join" )
 	context.Set( "Content-Type" , "text/html" )
 	// return context.SendString( "<h1>check-in failed</h1>" )
 	return context.SendFile( "./v1/server/html/user_check_in_failed.html" )
 }
+
+func RenderHomePage( context *fiber.Ctx ) ( error ) {
+	context.Set( "Content-Type" , "text/html" )
+	admin_logged_in := check_if_admin_cookie_exists( context )
+	if admin_logged_in == true {
+		return context.SendFile( "./v1/server/html/admin.html" )
+	}
+	user_logged_in := check_if_user_cookie_exists( context )
+	if user_logged_in == true {
+		return context.SendFile( "./v1/server/html/user_home.html" )
+	}
+	return context.SendFile( "./v1/server/html/home.html" )
+}
+
 
 func LoginFresh( context *fiber.Ctx ) ( error ) {
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
