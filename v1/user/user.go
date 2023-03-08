@@ -25,6 +25,24 @@ type FailedCheckIn struct {
 	DaysRemaining int `json:"remaining_days"`
 }
 
+type BalanceItem struct {
+	Available int `json:"available"`
+	Limit int `json:"limit"`
+}
+
+type GeneralClothes struct {
+	Tops BalanceItem `json:"tops"`
+	Bottoms BalanceItem `json:"bottoms"`
+	Dress BalanceItem `json:"bottoms"`
+}
+
+type Balance struct {
+	General GeneralClothes `json:"general"`
+	Shoes BalanceItem `json:"shoes"`
+	Jacket BalanceItem `json:"jacket"`
+	Accessories BalanceItem `json:"accessories"`
+}
+
 type DateOfBirth struct {
 	Month string `json:"month"`
 	Day int `json:"day"`
@@ -65,6 +83,7 @@ type User struct {
 	CreatedTime string `json:"created_time"`
 	CheckIns []CheckIn `json:"check_ins"`
 	FailedCheckIns []FailedCheckIn `json:"failed_check_ins"`
+	Balance Balance `json:"balance"`
 }
 
 type GetUserResult struct {

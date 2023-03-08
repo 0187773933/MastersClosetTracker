@@ -23,6 +23,7 @@ type ConfigFile struct {
 	TimeZone string `json:"time_zone"`
 	BoltDBPath string `json:"bolt_db_path"`
 	BoltDBEncryptionKey string `json:"bolt_db_encryption_key"`
+	BleveSearchPath string `json:"bleve_search_path"`
 	CheckInCoolOffDays int `json:"check_in_cooloff_days"`
 	Redis RedisConfig "json:redis"
 	IPBlacklist []string "json:ip_blacklist"
@@ -37,4 +38,9 @@ type RedisMultiCommand struct {
 	Command string `json:"type"`
 	Key string `json:"key"`
 	Args string `json:"args"`
+}
+
+type SearchItem struct {
+	UUID string
+	Name string
 }

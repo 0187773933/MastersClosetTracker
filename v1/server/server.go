@@ -69,16 +69,9 @@ func New( config types.ConfigFile ) ( server Server ) {
 	}))
 	// server.FiberApp.Static( "/cdn" , "./v1/server/cdn" )
 	// just white-list static stuff
-	// server.FiberApp.Get( "/" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/html/home.html" ) } )
 	server.FiberApp.Get( "/logo.png" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/logo.png" ) } )
-	server.FiberApp.Get( "/.env" , func( context *fiber.Ctx ) ( error ) { return context.SendString( "fuck off" ) } )
-	server.FiberApp.Get( "/robots.txt" , func( context *fiber.Ctx ) ( error ) { return context.SendString( "fuck off" ) } )
-	server.FiberApp.Get( "/humans.txt" , func( context *fiber.Ctx ) ( error ) { return context.SendString( "fuck off" ) } )
-	server.FiberApp.Get( "/ads.txt" , func( context *fiber.Ctx ) ( error ) { return context.SendString( "fuck off" ) } )
-	server.FiberApp.Get( "/humans2.txt" , func( context *fiber.Ctx ) ( error ) { return context.SendString( "fuck off" ) } )
-	server.FiberApp.Get( "/sitemap.xml" , func( context *fiber.Ctx ) ( error ) { return context.SendString( "fuck off" ) } )
 	server.SetupRoutes()
-	// server.FiberApp.Get( "/*" , func( context *fiber.Ctx ) ( error ) { return context.SendString( "fuck off" ) } )
+	server.FiberApp.Get( "/*" , func( context *fiber.Ctx ) ( error ) { return context.Redirect( "/" ) } )
 	return
 }
 

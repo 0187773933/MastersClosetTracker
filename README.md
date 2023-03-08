@@ -34,4 +34,5 @@
 5. Fix User Fields :
 	- Authorized Aliases
 6. Add better user-exists lookup function
+	- aka fix username
 7. Fix Docker

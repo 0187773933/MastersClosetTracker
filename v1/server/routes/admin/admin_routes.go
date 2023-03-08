@@ -17,6 +17,7 @@ import (
 	bolt_api "github.com/boltdb/bolt"
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
 	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
+	bleve "github.com/blevesearch/bleve/v2"
 )
 
 var GlobalConfig *types.ConfigFile
@@ -44,6 +45,8 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/user/search/username/:username" , UserSearch )
 	admin_route_group.Get( "/user/edit/:uuid" , EditUserPage )
 	admin_route_group.Get( "/user/delete/:uuid" , DeleteUser )
+
+	admin_route_group.Get( "/user/search/username/fuzzy/:username" , UserSearchFuzzy )
 }
 
 // GET http://localhost:5950/admin/login
@@ -252,6 +255,15 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 	})
 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
 
+	// 4.) Update User Bleve Search Index
+	search_index , _ := bleve.Open( GlobalConfig.BleveSearchPath )
+	defer search_index.Close()
+	new_search_item := types.SearchItem{
+		UUID: new_user.UUID ,
+		Name: strings.ReplaceAll( new_user.Username , "-" , " " ) ,
+	}
+	search_index.Index( new_user.UUID , new_search_item )
+
 	//return context.Redirect( fmt.Sprintf( "/admin/user/new/handoff/%s" , new_user.UUID ) )
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/new" ,
@@ -290,6 +302,13 @@ func HandleUserEdit( context *fiber.Ctx ) ( error ) {
 
 		if old_user.Username != new_user.Username {
 			usernames_bucket.Delete( []byte( old_user.Username ) )
+			search_index , _ := bleve.Open( GlobalConfig.BleveSearchPath )
+			defer search_index.Close()
+			edited_search_item := types.SearchItem{
+				UUID: new_user.UUID ,
+				Name: strings.ReplaceAll( new_user.Username , "-" , " " ) ,
+			}
+			search_index.Index( new_user.UUID , edited_search_item )
 		}
 		usernames_bucket.Put( []byte( new_user.Username ) , []byte( new_user.UUID ) )
 		return nil
@@ -380,6 +399,41 @@ func UserSearch( context *fiber.Ctx ) ( error ) {
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/search/username/:username" ,
 		"result": found_uuid ,
+	})
+}
+
+func UserSearchFuzzy( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+
+	username := context.Params( "username" )
+	escaped_username , _ := net_url.QueryUnescape( username )
+
+	search_index , _ := bleve.Open( GlobalConfig.BleveSearchPath )
+	defer search_index.Close()
+	query := bleve.NewFuzzyQuery( escaped_username )
+	query.Fuzziness = 2
+	search_request := bleve.NewSearchRequest( query )
+	search_results , _ := search_index.Search( search_request )
+
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+
+	var search_results_users []user.User
+	db.View( func( tx *bolt_api.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		for _ , hit := range search_results.Hits {
+			x_user := bucket.Get( []byte( hit.ID ) )
+			var viewed_user user.User
+			decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , x_user )
+			json.Unmarshal( decrypted_bucket_value , &viewed_user )
+			search_results_users = append( search_results_users , viewed_user )
+		}
+		return nil
+	})
+
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/search/username/fuzzy/:username" ,
+		"result": search_results_users ,
 	})
 }
 
