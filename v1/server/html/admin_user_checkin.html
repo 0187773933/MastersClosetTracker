@@ -26,8 +26,28 @@
 			<br>
 			<div class="row">
 				<center>
-					<button id ="submit-button" type="submit" class="btn btn-primary">Check In</button>
+					<button id="submit-button" type="submit" class="btn btn-primary">Check In</button>
 				</center>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-md-2"></div>
+				<div class="col-md-8">
+					<div class="table-responsive-sm">
+						<table id="user-search-table" class="table table-hover table-striped-columns">
+							<thead>
+								<tr>
+									<th scope="col">#</th>
+									<th scope="col">Username</th>
+									<th scope="col">UUID</th>
+									<th scope="col">Select</th>
+								</tr>
+							</thead>
+							<tbody id="user-search-table-body"></tbody>
+						</table>
+					</div>
+				</div>
+				<div class="col-md-2"></div>
 			</div>
 			<br>
 			<div class="row">
@@ -94,6 +114,63 @@
 				});
 			}
 
+			function fuzzy_search_username( username ) {
+				return new Promise( async function( resolve , reject ) {
+					try {
+						if ( !username ) { resolve( false ); return; }
+						let search_url = `/admin/user/search/username/fuzzy/${username}`;
+						let check_in_response = await fetch( search_url , {
+							method: "GET" ,
+							headers: { "Content-Type": "application/json" }
+						});
+						let response_json = await check_in_response.json();
+						let result = response_json[ "result" ];
+						resolve( result );
+						return;
+					}
+					catch( error ) { console.log( error ); resolve( false ); return; }
+				});
+			}
+
+			function populate_user_search_table( users ) {
+				$( "#user-search-table" ).show();
+				let table_body_element = document.getElementById( "user-search-table-body" );
+				table_body_element.innerHTML = "";
+				for ( let i = 0; i < users.length; ++i ) {
+					let _tr = document.createElement( "tr" );
+
+					let user_number = document.createElement( "th" );
+					user_number.setAttribute( "scope" , "row" );
+					user_number.textContent = `${(i + 1)}`;
+					_tr.appendChild( user_number );
+
+					let username = document.createElement( "td" );
+					username.textContent = users[ i ][ "username" ];
+					_tr.appendChild( username );
+
+					let uuid_holder = document.createElement( "td" );
+					let uuid_text = document.createElement( "span" );
+					uuid_text.textContent = users[ i ][ "uuid" ];
+					uuid_text.innerHTML += "&nbsp;&nbsp;"
+					uuid_holder.appendChild( uuid_text );
+					_tr.appendChild( uuid_holder );
+
+					let select_button_holder = document.createElement( "td" );
+					let select_button = document.createElement( "button" );
+					select_button.textContent = "Select"
+					select_button.className = "btn btn-success btn-sm";
+					select_button.onclick = function() {
+						window.check_in_input.value = users[ i ][ "uuid" ];
+						$( "#user-search-table" ).hide();
+						check_uuid_input();
+					};
+					select_button_holder.appendChild( select_button );
+					_tr.appendChild( select_button_holder );
+
+					table_body_element.appendChild( _tr );
+				}
+			}
+
 			async function check_uuid_input() {
 				let typed_input = window.check_in_input.value;
 
@@ -101,18 +178,30 @@
 				let valid_check_in = false;
 				let valid_uuid = is_uuid( typed_input );
 				if ( valid_uuid === false ) {
-					// alert( "Not a Valid UUID !!!" ); return;
-					let user_uuid = await search_username( typed_input );
-					if ( user_uuid === false ) {
+					// Basic Search
+					// let user_uuid = await search_username( typed_input );
+					// if ( user_uuid === false ) {
+					// 	// TODO : Present bootstrap popup
+					// 	alert( "Couldn't Find User !!!" );
+					// 	return false;
+					// }
+					// console.log( "Search Result ===" , user_uuid );
+					// typed_input = user_uuid;
+
+					// Advanced Funny Search
+					let results = await fuzzy_search_username( typed_input );
+					if ( results.length < 1 ) {
 						// TODO : Present bootstrap popup
 						alert( "Couldn't Find User !!!" );
 						return false;
 					}
-					console.log( "Search Result ===" , user_uuid );
-					// window.check_in_input.value = user_uuid
-					typed_input = user_uuid;
+					populate_user_search_table( results );
+					return;
 				}
+
 				valid_check_in = await check_in_uuid( typed_input );
+				// TODO : Add a new form here to validate / edit balance
+
 				console.log( `${typed_input} === ${valid_uuid} === Checked In === ${valid_check_in}` );
 				switch ( valid_check_in ) {
 					case true:
@@ -150,6 +239,7 @@
 
 			function init() {
 				// $( "#check-in-input" ).focus();
+				$( "#user-search-table" ).hide();
 				window.check_in_input = document.getElementById( "check-in-input" );
 				$( "#checked-in-alert-true" ).slideUp();
 				$( "#checked-in-alert-false" ).slideUp();

@@ -412,6 +412,7 @@ func UserSearchFuzzy( context *fiber.Ctx ) ( error ) {
 	defer search_index.Close()
 	query := bleve.NewFuzzyQuery( escaped_username )
 	query.Fuzziness = 2
+	// query.Fuzziness = 1
 	search_request := bleve.NewSearchRequest( query )
 	search_results , _ := search_index.Search( search_request )
 

@@ -28,6 +28,7 @@ type FailedCheckIn struct {
 type BalanceItem struct {
 	Available int `json:"available"`
 	Limit int `json:"limit"`
+	Used int `json:"used"`
 }
 
 type GeneralClothes struct {

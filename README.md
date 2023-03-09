@@ -18,8 +18,8 @@
 
 ## TODO
 
-1. Add Concept of a "Clothes Balance"
-	- calculated based off party total
+1. Fix "Clothes Balance"
+	- calculate based off party total
 	- give option on check-in to increase or decrease
 	- use printout reciept tickets with qrcode / barcode
 	- Checkout counter scans / verifies reciept to match balance
