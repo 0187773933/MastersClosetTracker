@@ -174,10 +174,11 @@
 			async function check_uuid_input() {
 				let typed_input = window.check_in_input.value;
 
-				// Changed to Allow for User Search ?
+				// If its not a UUID , try to see if we get any search results
 				let valid_check_in = false;
 				let valid_uuid = is_uuid( typed_input );
 				if ( valid_uuid === false ) {
+
 					// Basic Search
 					// let user_uuid = await search_username( typed_input );
 					// if ( user_uuid === false ) {
@@ -188,7 +189,7 @@
 					// console.log( "Search Result ===" , user_uuid );
 					// typed_input = user_uuid;
 
-					// Advanced Funny Search
+					// Advanced Fuzzy Search
 					let results = await fuzzy_search_username( typed_input );
 					if ( results.length < 1 ) {
 						// TODO : Present bootstrap popup
@@ -201,6 +202,9 @@
 
 				valid_check_in = await check_in_uuid( typed_input );
 				// TODO : Add a new form here to validate / edit balance
+				// so , probably change the above function to user.CheckInTest() version ,
+				// and then if available , populate a balance form
+				// and then finally submit a check in
 
 				console.log( `${typed_input} === ${valid_uuid} === Checked In === ${valid_check_in}` );
 				switch ( valid_check_in ) {
