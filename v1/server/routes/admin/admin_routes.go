@@ -42,6 +42,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/user/checkin/:uuid" , UserCheckIn )
 	admin_route_group.Get( "/user/get/all" , GetAllUsers )
 	admin_route_group.Get( "/user/get/:uuid" , GetUser )
+	admin_route_group.Get( "/user/get/barcode/:barcode" , GetUserViaBarcode )
 	admin_route_group.Get( "/user/search/username/:username" , UserSearch )
 	admin_route_group.Get( "/user/edit/:uuid" , EditUserPage )
 	admin_route_group.Get( "/user/delete/:uuid" , DeleteUser )
@@ -165,6 +166,7 @@ func ProcessNewUserForm( context *fiber.Ctx ) ( new_user user.User ) {
 	uploaded_user_birth_month := context.FormValue( "user_birth_month" )
 	uploaded_user_birth_year := context.FormValue( "user_birth_year" )
 	uploaded_user_family_size := context.FormValue( "user_family_size" )
+	uploaded_total_barcodes := context.FormValue( "total_barcodes" )
 
 	new_user.EmailAddress = utils.SanitizeInputString( uploaded_user_email )
 	new_user.PhoneNumber = utils.SanitizeInputString( uploaded_phone_number )
@@ -185,6 +187,16 @@ func ProcessNewUserForm( context *fiber.Ctx ) ( new_user user.User ) {
 	sanitized_birth_year := utils.SanitizeInputString( uploaded_user_birth_year )
 	sanitized_birth_year_int , _ := strconv.Atoi( sanitized_birth_year )
 	new_user.Identity.DateOfBirth.Year = sanitized_birth_year_int
+
+	sanitized_total_barcodes := utils.SanitizeInputString( uploaded_total_barcodes )
+	sanitized_total_barcodes_int , _ := strconv.Atoi( sanitized_total_barcodes )
+	if sanitized_total_barcodes_int > 0 {
+		for i := 0; i < sanitized_total_barcodes_int; i++ {
+			uploaded_barcode := context.FormValue( fmt.Sprintf( "user_barcode_%d" , ( i + 1 ) ) )
+			sanitized_barcode := utils.SanitizeInputString( uploaded_barcode )
+			new_user.Barcodes = append( new_user.Barcodes , sanitized_barcode )
+		}
+	}
 
 	sanitized_family_size := utils.SanitizeInputString( uploaded_user_family_size )
 	sanitized_family_size_int , _ := strconv.Atoi( sanitized_family_size )
@@ -242,6 +254,8 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 	fmt.Println( "New User Created :" )
 	fmt.Println( new_user )
 
+	// we just need a way to map multiple barcodes --> uuid
+
 	// 3.) Store User in DB
 	new_user_byte_object , _ := json.Marshal( new_user )
 	new_user_byte_object_encrypted := encryption.ChaChaEncryptBytes( GlobalConfig.BoltDBEncryptionKey , new_user_byte_object )
@@ -251,6 +265,11 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 		usernames_bucket , _ := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
 		// something something holographic encryption would be nice here
 		usernames_bucket.Put( []byte( new_user.Username ) , []byte( new_user.UUID ) )
+
+		barcodes_bucket , _ := tx.CreateBucketIfNotExists( []byte( "barcodes" ) )
+		for i := 0; i < len( new_user.Barcodes ); i++ {
+			barcodes_bucket.Put( []byte( new_user.Barcodes[ i ] ) , []byte( new_user.UUID ) )
+		}
 		return nil
 	})
 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
@@ -311,6 +330,14 @@ func HandleUserEdit( context *fiber.Ctx ) ( error ) {
 			search_index.Index( new_user.UUID , edited_search_item )
 		}
 		usernames_bucket.Put( []byte( new_user.Username ) , []byte( new_user.UUID ) )
+
+		barcodes_bucket , _ := tx.CreateBucketIfNotExists( []byte( "barcodes" ) )
+		for i := 0; i < len( new_user.Barcodes ); i++ {
+			barcodes_bucket.Put( []byte( new_user.Barcodes[ i ] ) , []byte( new_user.UUID ) )
+			// TODO , handle what happens if we remove a barcode from a user
+			// Not really that big of a problem , since this just updates the barcode for the right uuid anyway
+		}
+
 		return nil
 	})
 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
@@ -468,4 +495,23 @@ func GetAllUsers( context *fiber.Ctx ) ( error ) {
 	})
 }
 
-
+func GetUserViaBarcode( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+	barcode := context.Params( "barcode" )
+	var viewed_user user.User
+	db.View( func( tx *bolt_api.Tx ) error {
+		barcode_bucket := tx.Bucket( []byte( "barcodes" ) )
+		x_uuid := barcode_bucket.Get( []byte( barcode ) )
+		user_bucket := tx.Bucket( []byte( "users" ) )
+		x_user := user_bucket.Get( []byte( x_uuid ) )
+		decrypted_user := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , x_user )
+		json.Unmarshal( decrypted_user , &viewed_user )
+		return nil
+	})
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/get/barcode" ,
+		"result": viewed_user ,
+	})
+}

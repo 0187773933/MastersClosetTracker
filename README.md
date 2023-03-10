@@ -23,16 +23,17 @@
 	- give option on check-in to increase or decrease
 	- use printout reciept tickets with qrcode / barcode
 	- Checkout counter scans / verifies reciept to match balance
-2. Add Admin Manual Override Routes
+2. Add option for adding additional barcodes to a user's account
+3. Add Admin Manual Override Routes
 	- Override Check-In Too Soon
 	- User forgot phone
 	- User has new phone
 	- option to text hand-off link if user can't scan qrcode for some reason
-3. Add Spreadsheet Export
-4. Fix Edge Cases
+4. Add Spreadsheet Export
+5. Fix Edge Cases
 	- User attempts to use a different name ? FaceID ?
-5. Fix User Fields :
+6. Fix User Fields :
 	- Authorized Aliases
-6. Add better user-exists lookup function
+7. Add better user-exists lookup function
 	- aka fix username
-7. Fix Docker
+8. Fix Docker

@@ -48,6 +48,15 @@ func GetFormattedTimeString() ( result string ) {
 	return
 }
 
+func IsStringInArray( target string , array []string ) ( bool ) {
+	for _ , value := range array {
+		if value == target {
+			return true
+		}
+	}
+	return false
+}
+
 type Slice struct {
 	sort.IntSlice
 	indexes []int
@@ -95,7 +104,7 @@ func RemoveNonASCII( input string ) ( result string ) {
 	return
 }
 
-const SanitizedStringSizeLimit = 20
+const SanitizedStringSizeLimit = 100
 func SanitizeInputString( input string ) ( result string ) {
 	trimmed := strings.TrimSpace( input )
     if len( trimmed ) > SanitizedStringSizeLimit { trimmed = strings.TrimSpace( trimmed[ 0 : SanitizedStringSizeLimit ] ) }

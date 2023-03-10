@@ -74,6 +74,7 @@ type Person struct {
 type User struct {
 	Username string `json:"username"`
 	UUID string `json:"uuid"`
+	Barcodes []string `json:"barcodes"`
 	EmailAddress string `json:"email_address"`
 	PhoneNumber string `json:"phone_number"`
 	Identity Person `json:"identity"`
