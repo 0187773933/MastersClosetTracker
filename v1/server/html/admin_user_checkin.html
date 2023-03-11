@@ -15,13 +15,13 @@
 			</div>
 			<br><br>
 			<div class="row">
-				<div class="col-md-4"></div>
-				<div class="col-md-4">
+				<div class="col-md-2"></div>
+				<div class="col-md-8">
 					<div class="form-group d-flex">
 						<input id="check-in-input" type="text" class="form-control flex-grow-1">
 					</div>
 				</div>
-				<div class="col-md-4"></div>
+				<div class="col-md-2"></div>
 			</div>
 			<br>
 			<div class="row">
@@ -31,8 +31,8 @@
 			</div>
 			<br>
 			<div class="row">
-				<div class="col-md-2"></div>
-				<div class="col-md-8">
+				<div class="col-md-1"></div>
+				<div class="col-md-10">
 					<div class="table-responsive-sm">
 						<table id="user-search-table" class="table table-hover table-striped-columns">
 							<thead>
@@ -45,20 +45,24 @@
 							</thead>
 							<tbody id="user-search-table-body"></tbody>
 						</table>
-						<table id="user-balance-table" class="table table-hover table-striped-columns">
-							<thead>
-								<tr>
-									<th scope="col">Item</th>
-									<th scope="col">Available</th>
-									<th scope="col">Limit</th>
-									<th scope="col">Total Used</th>
-								</tr>
-							</thead>
-							<tbody id="user-balance-table-body"></tbody>
-						</table>
+						<div id="user-balance-table" >
+							<center><h2 id="active-username"></h2></center>
+							<br>
+							<table class="table table-hover table-striped-columns">
+								<thead>
+									<tr>
+										<th scope="col">Item</th>
+										<th scope="col">Available</th>
+										<th scope="col">Limit</th>
+										<th scope="col">Total Used</th>
+									</tr>
+								</thead>
+								<tbody id="user-balance-table-body"></tbody>
+							</table>
+						</div>
 					</div>
 				</div>
-				<div class="col-md-2"></div>
+				<div class="col-md-1"></div>
 			</div>
 			<br>
 			<div class="row">
@@ -208,7 +212,8 @@
 					select_button.onclick = function() {
 						window.check_in_input.value = users[ i ][ "uuid" ];
 						$( "#user-search-table" ).hide();
-						check_uuid_input();
+						// check_uuid_input();
+						search_input();
 					};
 					select_button_holder.appendChild( select_button );
 					_tr.appendChild( select_button_holder );
@@ -296,7 +301,9 @@
 
 
 			async function search_input( event ) {
-				event.preventDefault();
+				if ( event ) { event.preventDefault(); }
+				$( "#user-search-table" ).hide();
+				$( "#user-balance-table" ).hide();
 				let typed_input = window.check_in_input.value;
 
 				let valid_uuid = is_uuid( typed_input );
@@ -316,6 +323,11 @@
 
 					// Advanced Fuzzy Search
 					let results = await fuzzy_search_username( typed_input );
+					if ( !results ) {
+						// TODO : Present bootstrap popup
+						alert( "Couldn't Find User !!!" );
+						return false;
+					}
 					if ( results.length < 1 ) {
 						// TODO : Present bootstrap popup
 						alert( "Couldn't Find User !!!" );
@@ -342,15 +354,14 @@
 				// 	console.log( "time remaining ===" , check_in_test[ "time_remaining" ] );
 				// 	return;
 				// }
-
+				$( "#active-username" ).text( check_in_test[ "name_string" ] );
 				populate_user_balance_table( check_in_test[ "balance" ] )
 			}
 
 			async function check_uuid_input( event ) {
-				event.preventDefault();
+				if ( event ) { event.preventDefault(); }
+				let typed_input = window.check_in_input.value;
 				let valid_check_in = await check_in_uuid( typed_input );
-
-
 				console.log( `${typed_input} === ${valid_uuid} === Checked In === ${valid_check_in}` );
 				switch ( valid_check_in[ "result" ] ) {
 					case true:
@@ -367,7 +378,6 @@
 						$( "#checked-in-alert-false" ).slideDown();
 						break;
 				}
-
 			}
 
 			function on_override_button_click( event ) {

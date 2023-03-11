@@ -183,7 +183,7 @@ func RefillBalance( user_uuid string , db *bolt.DB , encryption_key string , bal
 // just sees if its possible , or if the user is currently timed-out
 // 8e1bb28c-8868-448f-a07e-f0d270b4bbee === should be able to check-in
 // d1e22369-6777-4eff-bf6a-0bf46a343a72
-func CheckInTest( user_uuid string , db *bolt.DB , encryption_key string , cool_off_days int ) ( result bool , time_remaining int , balance Balance ) {
+func CheckInTest( user_uuid string , db *bolt.DB , encryption_key string , cool_off_days int ) ( result bool , time_remaining int , balance Balance , name_string string ) {
 	result = false
 	time_remaining = -1
 	// 1.) grab the user from the db
@@ -244,6 +244,8 @@ func CheckInTest( user_uuid string , db *bolt.DB , encryption_key string , cool_
 		}
 	}
 	balance = viewed_user.Balance
+	name_string = fmt.Sprintf( "%s %s %s" , viewed_user.Identity.FirstName , viewed_user.Identity.MiddleName , viewed_user.Identity.LastName )
+	name_string = strings.Join( strings.Fields( name_string ) , " " )
 	return
 }
 

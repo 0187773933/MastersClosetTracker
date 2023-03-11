@@ -407,7 +407,7 @@ func UserCheckInTest( context *fiber.Ctx ) ( error ) {
 	user_uuid := context.Params( "uuid" )
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
-	check_in_test_result , time_remaining , balance := user.CheckInTest( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
+	check_in_test_result , time_remaining , balance , name_string := user.CheckInTest( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
 
 	// idk where else to put this
 	// only other option is maybe on the new user create form
@@ -420,6 +420,7 @@ func UserCheckInTest( context *fiber.Ctx ) ( error ) {
 		"result": check_in_test_result ,
 		"time_remaining": time_remaining ,
 		"balance": balance ,
+		"name_string": name_string ,
 	})
 }
 
@@ -459,10 +460,22 @@ func UserSearchFuzzy( context *fiber.Ctx ) ( error ) {
 
 	search_index , _ := bleve.Open( GlobalConfig.BleveSearchPath )
 	defer search_index.Close()
-	query := bleve.NewFuzzyQuery( escaped_username )
-	query.Fuzziness = 2
-	// query.Fuzziness = 1
-	search_request := bleve.NewSearchRequest( query )
+
+	// Only works for single words
+	// query := bleve.NewFuzzyQuery( escaped_username )
+	// query.Fuzziness = 2
+	// // query.Fuzziness = 1
+	// search_request := bleve.NewSearchRequest( query )
+	// search_results , _ := search_index.Search( search_request )
+
+	words := strings.Fields( escaped_username )
+	boolean_query := bleve.NewBooleanQuery()
+	for _, word := range words {
+		q := bleve.NewFuzzyQuery( word )
+		q.Fuzziness = 2
+		boolean_query.AddMust( q )
+	}
+	search_request := bleve.NewSearchRequest( boolean_query )
 	search_results , _ := search_index.Search( search_request )
 
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
@@ -480,7 +493,6 @@ func UserSearchFuzzy( context *fiber.Ctx ) ( error ) {
 		}
 		return nil
 	})
-
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/search/username/fuzzy/:username" ,
 		"result": search_results_users ,
