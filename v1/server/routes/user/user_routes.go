@@ -102,12 +102,13 @@ func CheckInSilentTest( context *fiber.Ctx ) ( error ) {
 	x_user_uuid := context.Params( "uuid" )
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
-	check_in_result , milliseconds_remaining := user.CheckInTest( x_user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
+	check_in_result , milliseconds_remaining , balance := user.CheckInTest( x_user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
 	return context.JSON( fiber.Map{
 		"route": "/user/checkin/silent/:uuid" ,
 		"result": fiber.Map{
 			"check_in_possible": check_in_result ,
 			"milliseconds_remaining": milliseconds_remaining ,
+			"balance": balance ,
 		} ,
 	})
 }

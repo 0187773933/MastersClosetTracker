@@ -10,6 +10,7 @@ import (
 	bolt "github.com/boltdb/bolt"
 	// uuid "github.com/satori/go.uuid"
 	encrypt "github.com/0187773933/MastersClosetTracker/v1/encryption"
+	types "github.com/0187773933/MastersClosetTracker/v1/types"
 )
 
 type CheckIn struct {
@@ -32,15 +33,17 @@ type BalanceItem struct {
 }
 
 type GeneralClothes struct {
+	Total int `json:"total"`
+	Available int `json:"available"`
 	Tops BalanceItem `json:"tops"`
 	Bottoms BalanceItem `json:"bottoms"`
-	Dress BalanceItem `json:"bottoms"`
+	Dresses BalanceItem `json:"dresses"`
 }
 
 type Balance struct {
 	General GeneralClothes `json:"general"`
 	Shoes BalanceItem `json:"shoes"`
-	Jacket BalanceItem `json:"jacket"`
+	Jackets BalanceItem `json:"jacketes"`
 	Accessories BalanceItem `json:"accessories"`
 }
 
@@ -142,11 +145,45 @@ func GetByUUID( user_uuid string , db *bolt.DB , encryption_key string ) ( viewe
 	return
 }
 
+func RefillBalance( user_uuid string , db *bolt.DB , encryption_key string , balance_config types.BalanceConfig ) ( new_balance Balance ) {
+	var viewed_user User
+	db.Update( func( tx *bolt.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket_value := bucket.Get( []byte( user_uuid ) )
+		if bucket_value == nil { return nil }
+		decrypted_bucket_value := encrypt.ChaChaDecryptBytes( encryption_key , bucket_value )
+		json.Unmarshal( decrypted_bucket_value , &viewed_user )
+
+		viewed_user.Balance.General.Total = balance_config.General.Total
+		viewed_user.Balance.General.Available = balance_config.General.Total
+		viewed_user.Balance.General.Tops.Limit = balance_config.General.Tops
+		viewed_user.Balance.General.Tops.Available = balance_config.General.Tops
+		viewed_user.Balance.General.Bottoms.Limit = balance_config.General.Bottoms
+		viewed_user.Balance.General.Bottoms.Available = balance_config.General.Bottoms
+		viewed_user.Balance.General.Dresses.Limit = balance_config.General.Dresses
+		viewed_user.Balance.General.Dresses.Available = balance_config.General.Dresses
+		viewed_user.Balance.Shoes.Limit = balance_config.Shoes
+		viewed_user.Balance.Shoes.Available = balance_config.Shoes
+		viewed_user.Balance.Jackets.Limit = balance_config.Jackets
+		viewed_user.Balance.Jackets.Available = balance_config.Jackets
+		viewed_user.Balance.Accessories.Limit = balance_config.Accessories
+		viewed_user.Balance.Accessories.Available = balance_config.Accessories
+
+		viewed_user_byte_object , _ := json.Marshal( viewed_user )
+		viewed_user_byte_object_encrypted := encrypt.ChaChaEncryptBytes( encryption_key , viewed_user_byte_object )
+		bucket.Put( []byte( user_uuid ) , viewed_user_byte_object_encrypted )
+		return nil
+	})
+	new_balance = viewed_user.Balance
+	return
+}
+
+
 // non-volitle? / passive checkin
 // just sees if its possible , or if the user is currently timed-out
 // 8e1bb28c-8868-448f-a07e-f0d270b4bbee === should be able to check-in
 // d1e22369-6777-4eff-bf6a-0bf46a343a72
-func CheckInTest( user_uuid string , db *bolt.DB , encryption_key string , cool_off_days int ) ( result bool , time_remaining int ) {
+func CheckInTest( user_uuid string , db *bolt.DB , encryption_key string , cool_off_days int ) ( result bool , time_remaining int , balance Balance ) {
 	result = false
 	time_remaining = -1
 	// 1.) grab the user from the db
@@ -206,6 +243,7 @@ func CheckInTest( user_uuid string , db *bolt.DB , encryption_key string , cool_
 			time_remaining = int( time_remaining_duration.Milliseconds() )
 		}
 	}
+	balance = viewed_user.Balance
 	return
 }
 

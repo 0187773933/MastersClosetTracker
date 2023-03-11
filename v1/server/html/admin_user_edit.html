@@ -324,6 +324,7 @@
 				let form_data = new FormData( form );
 				form_data.append( "editing_uuid" , window.passed_uuid );
 				let total_barcodes = document.querySelectorAll( ".user-barcode" ).length;
+				form_data.append( "total_barcodes" , total_barcodes );
 				let form_post_response = await fetch( "/admin/user/edit" , { method: "POST" , body: form_data });
 				let form_post_response_json = await form_post_response.json();
 				if ( !form_post_response_json[ "result" ] ) { return false; }

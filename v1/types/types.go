@@ -11,6 +11,20 @@ type RedisConfig struct {
 	Password string "json:password"
 }
 
+type BalanceGeneral struct {
+	Total int `json:"total"`
+	Tops int `json:"tops"`
+	Bottoms int `json:"bottoms"`
+	Dresses int `json:"dresses"`
+}
+
+type BalanceConfig struct {
+	General BalanceGeneral `json:"general"`
+	Shoes int `json:"shoes"`
+	Jackets int `json:"jackets"`
+	Accessories int `json:"accessories"`
+}
+
 type ConfigFile struct {
 	ServerBaseUrl string `json:"server_base_url"`
 	ServerPort string `json:"server_port"`
@@ -28,6 +42,7 @@ type ConfigFile struct {
 	Redis RedisConfig "json:redis"
 	IPBlacklist []string "json:ip_blacklist"
 	IPInfoToken string `json:"ip_info_token"`
+	Balance BalanceConfig `json:"balance"`
 }
 
 type AListResponse struct {

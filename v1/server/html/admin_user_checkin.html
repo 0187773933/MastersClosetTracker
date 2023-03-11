@@ -26,7 +26,7 @@
 			<br>
 			<div class="row">
 				<center>
-					<button id="submit-button" type="submit" class="btn btn-primary">Check In</button>
+					<button id="search-button" type="submit" class="btn btn-primary">Search</button>
 				</center>
 			</div>
 			<br>
@@ -77,6 +77,8 @@
 
 			const uuid_v4_regex = /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
 			function is_uuid( str ) { return uuid_v4_regex.test( str ); }
+			const barcode_regex = /^\d+$/;
+			function is_barcode( str ) { return barcode_regex.test( str ); }
 
 			function check_in_uuid( uuid ) {
 				return new Promise( async function( resolve , reject ) {
@@ -89,6 +91,39 @@
 						let response_json = await check_in_response.json();
 						let result = response_json[ "result" ];
 						resolve( result );
+						return;
+					}
+					catch( error ) { console.log( error ); reject( error ); return; }
+				});
+			}
+
+			function check_in_uuid_test( uuid ) {
+				return new Promise( async function( resolve , reject ) {
+					try {
+						let check_in_url = `/admin/user/checkin/test/${uuid}`;
+						let check_in_response = await fetch( check_in_url , {
+							method: "GET" ,
+							headers: { "Content-Type": "application/json" }
+						});
+						let response_json = await check_in_response.json();
+						resolve( response_json );
+						return;
+					}
+					catch( error ) { console.log( error ); reject( error ); return; }
+				});
+			}
+
+			function get_uuid_from_barcode( barcode ) {
+				return new Promise( async function( resolve , reject ) {
+					try {
+						let check_in_url = `/admin/user/get/barcode/${barcode}`;
+						let check_in_response = await fetch( check_in_url , {
+							method: "GET" ,
+							headers: { "Content-Type": "application/json" }
+						});
+						let response_json = await check_in_response.json();
+						let result = response_json[ "result" ];
+						resolve( result[ "uuid" ] );
 						return;
 					}
 					catch( error ) { console.log( error ); reject( error ); return; }
@@ -171,13 +206,14 @@
 				}
 			}
 
-			async function check_uuid_input() {
+			async function search_input( event ) {
+				event.preventDefault();
 				let typed_input = window.check_in_input.value;
 
-				// If its not a UUID , try to see if we get any search results
-				let valid_check_in = false;
 				let valid_uuid = is_uuid( typed_input );
-				if ( valid_uuid === false ) {
+				let valid_barcode = is_barcode( typed_input );
+
+				if ( valid_uuid === false && valid_barcode === false ) {
 
 					// Basic Search
 					// let user_uuid = await search_username( typed_input );
@@ -200,14 +236,31 @@
 					return;
 				}
 
-				valid_check_in = await check_in_uuid( typed_input );
+				if ( valid_uuid === false && valid_barcode === true ) {
+					typed_input = await get_uuid_from_barcode( typed_input );
+					valid_uuid = is_uuid( typed_input );
+				}
+
+				let check_in_test = await check_in_uuid_test( typed_input );
+				console.log( check_in_test );
 				// TODO : Add a new form here to validate / edit balance
 				// so , probably change the above function to user.CheckInTest() version ,
 				// and then if available , populate a balance form
 				// and then finally submit a check in
+				if ( check_in_test[ "result" ] === false ) {
+					console.log( "the check failed" );
+					console.log( "time remaining ===" , check_in_test[ "time_remaining" ] );
+					return;
+				}
+			}
+
+			async function check_uuid_input( event ) {
+				event.preventDefault();
+				let valid_check_in = await check_in_uuid( typed_input );
+
 
 				console.log( `${typed_input} === ${valid_uuid} === Checked In === ${valid_check_in}` );
-				switch ( valid_check_in ) {
+				switch ( valid_check_in[ "result" ] ) {
 					case true:
 						$( "#checked-in-alert-true" ).slideDown();
 						$( "#checked-in-alert-false" ).slideUp();
@@ -252,7 +305,8 @@
 				// check_in_input.addEventListener( "input" , on_check_in_input_change );
 				check_in_input.addEventListener( "keydown" , ( event ) => {
 					if ( event.keyCode === 13 ) {
-						check_uuid_input( event );
+						// check_uuid_input( event );
+						search_input( event );
 					}
 				});
 				const block_button = document.getElementById( "block-button" );
@@ -260,8 +314,8 @@
 				const override_button = document.getElementById( "override-button" );
 				override_button.addEventListener( "click" , on_override_button_click );
 
-				const submit_button = document.getElementById( "submit-button" );
-				submit_button.addEventListener( "click" , check_uuid_input );
+				const search_button = document.getElementById( "search-button" );
+				search_button.addEventListener( "click" , search_input );
 			}
 			document.addEventListener( "DOMContentLoaded" , init );
 		</script>

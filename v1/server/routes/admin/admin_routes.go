@@ -40,6 +40,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 
 	admin_route_group.Get( "/user/checkin" , CheckInUserPage )
 	admin_route_group.Get( "/user/checkin/:uuid" , UserCheckIn )
+	admin_route_group.Get( "/user/checkin/test/:uuid" , UserCheckInTest )
 	admin_route_group.Get( "/user/get/all" , GetAllUsers )
 	admin_route_group.Get( "/user/get/:uuid" , GetUser )
 	admin_route_group.Get( "/user/get/barcode/:barcode" , GetUserViaBarcode )
@@ -394,10 +395,31 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
 	check_in_result , time_remaining := user.CheckInUser( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
-	fmt.Println( time_remaining )
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/checkin/:uuid" ,
 		"result": check_in_result ,
+		"time_remaining": time_remaining ,
+	})
+}
+
+func UserCheckInTest( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	user_uuid := context.Params( "uuid" )
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+	check_in_test_result , time_remaining , balance := user.CheckInTest( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
+
+	// idk where else to put this
+	// only other option is maybe on the new user create form
+	if check_in_test_result == true {
+		balance = user.RefillBalance( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.Balance )
+	}
+
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/checkin/test/:uuid" ,
+		"result": check_in_test_result ,
+		"time_remaining": time_remaining ,
+		"balance": balance ,
 	})
 }
 
