@@ -45,6 +45,17 @@
 							</thead>
 							<tbody id="user-search-table-body"></tbody>
 						</table>
+						<table id="user-balance-table" class="table table-hover table-striped-columns">
+							<thead>
+								<tr>
+									<th scope="col">Item</th>
+									<th scope="col">Available</th>
+									<th scope="col">Limit</th>
+									<th scope="col">Total Used</th>
+								</tr>
+							</thead>
+							<tbody id="user-balance-table-body"></tbody>
+						</table>
 					</div>
 				</div>
 				<div class="col-md-2"></div>
@@ -206,6 +217,84 @@
 				}
 			}
 
+			function _add_balance_row( table_body_element , name , available , limit , used ) {
+				let _tr = document.createElement( "tr" );
+				let item = document.createElement( "th" );
+				item.textContent = name;
+				_tr.appendChild( item );
+				let _available = document.createElement( "td" );
+				let available_input = document.createElement( "input" );
+				available_input.setAttribute( "type" , "text" );
+				available_input.className = "form-control";
+				available_input.value = available;
+				available_input.setAttribute( "id" , `balance_${name.toLowerCase()}_available` );
+				_available.appendChild( available_input );
+				_tr.appendChild( _available );
+				let _limit = document.createElement( "td" );
+				let limit_input = document.createElement( "input" );
+				limit_input.setAttribute( "type" , "text" );
+				limit_input.className = "form-control";
+				limit_input.value = limit;
+				limit_input.setAttribute( "id" , `balance_${name.toLowerCase()}_limit` );
+				_limit.appendChild( limit_input );
+				_tr.appendChild( _limit );
+				let _used = document.createElement( "td" );
+				let used_input = document.createElement( "input" );
+				used_input.setAttribute( "type" , "text" );
+				used_input.className = "form-control";
+				used_input.value = used;
+				used_input.setAttribute( "id" , `balance_${name.toLowerCase()}_used` );
+				_used.appendChild( used_input );
+				_tr.appendChild( _used );
+				table_body_element.appendChild( _tr );
+			}
+
+			// could just switch to multiple inputs ?
+			// https://getbootstrap.com/docs/5.3/forms/input-group/#multiple-inputs
+			function populate_user_balance_table( balance ) {
+				$( "#user-balance-table" ).show();
+				let table_body_element = document.getElementById( "user-balance-table-body" );
+				table_body_element.innerHTML = "";
+
+				_add_balance_row( table_body_element , "Tops" ,
+					balance[ "general" ][ "tops" ][ "available" ] ,
+					balance[ "general" ][ "tops" ][ "limit" ] ,
+					balance[ "general" ][ "tops" ][ "used" ] ,
+				);
+
+				_add_balance_row( table_body_element , "Bottoms" ,
+					balance[ "general" ][ "bottoms" ][ "available" ] ,
+					balance[ "general" ][ "bottoms" ][ "limit" ] ,
+					balance[ "general" ][ "bottoms" ][ "used" ] ,
+				);
+
+				_add_balance_row( table_body_element , "Dresses" ,
+					balance[ "general" ][ "dresses" ][ "available" ] ,
+					balance[ "general" ][ "dresses" ][ "limit" ] ,
+					balance[ "general" ][ "dresses" ][ "used" ] ,
+				);
+
+				_add_balance_row( table_body_element , "Shoes" ,
+					balance[ "shoes" ][ "available" ] ,
+					balance[ "shoes" ][ "limit" ] ,
+					balance[ "shoes" ][ "used" ] ,
+				);
+
+				_add_balance_row( table_body_element , "Jackets" ,
+					balance[ "jackets" ][ "available" ] ,
+					balance[ "jackets" ][ "limit" ] ,
+					balance[ "jackets" ][ "used" ] ,
+				);
+
+				_add_balance_row( table_body_element , "Accessories" ,
+					balance[ "accessories" ][ "available" ] ,
+					balance[ "accessories" ][ "limit" ] ,
+					balance[ "accessories" ][ "used" ] ,
+				);
+
+			}
+
+
 			async function search_input( event ) {
 				event.preventDefault();
 				let typed_input = window.check_in_input.value;
@@ -247,11 +336,14 @@
 				// so , probably change the above function to user.CheckInTest() version ,
 				// and then if available , populate a balance form
 				// and then finally submit a check in
-				if ( check_in_test[ "result" ] === false ) {
-					console.log( "the check failed" );
-					console.log( "time remaining ===" , check_in_test[ "time_remaining" ] );
-					return;
-				}
+
+				// if ( check_in_test[ "result" ] === false ) {
+				// 	console.log( "the check failed" );
+				// 	console.log( "time remaining ===" , check_in_test[ "time_remaining" ] );
+				// 	return;
+				// }
+
+				populate_user_balance_table( check_in_test[ "balance" ] )
 			}
 
 			async function check_uuid_input( event ) {
@@ -297,6 +389,7 @@
 			function init() {
 				// $( "#check-in-input" ).focus();
 				$( "#user-search-table" ).hide();
+				$( "#user-balance-table" ).hide();
 				window.check_in_input = document.getElementById( "check-in-input" );
 				$( "#checked-in-alert-true" ).slideUp();
 				$( "#checked-in-alert-false" ).slideUp();

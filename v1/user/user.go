@@ -43,7 +43,7 @@ type GeneralClothes struct {
 type Balance struct {
 	General GeneralClothes `json:"general"`
 	Shoes BalanceItem `json:"shoes"`
-	Jackets BalanceItem `json:"jacketes"`
+	Jackets BalanceItem `json:"jackets"`
 	Accessories BalanceItem `json:"accessories"`
 }
 
