@@ -25,6 +25,14 @@ type BalanceConfig struct {
 	Accessories int `json:"accessories"`
 }
 
+type PrinterConfig struct {
+	PageWidth float64 `json:"page_width"`
+	PageHeight float64 `json:"page_height"`
+	FontName string `json:"font_name"`
+	PrinterName string `json:"printer_name"`
+	LogoFilePath string `json:"logo_file_path"`
+}
+
 type ConfigFile struct {
 	ServerBaseUrl string `json:"server_base_url"`
 	ServerPort string `json:"server_port"`
@@ -43,6 +51,7 @@ type ConfigFile struct {
 	IPBlacklist []string "json:ip_blacklist"
 	IPInfoToken string `json:"ip_info_token"`
 	Balance BalanceConfig `json:"balance"`
+	Printer PrinterConfig `json:"printer"`
 }
 
 type AListResponse struct {

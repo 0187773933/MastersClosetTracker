@@ -18,6 +18,7 @@ import (
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
 	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
 	bleve "github.com/blevesearch/bleve/v2"
+	printer "github.com/0187773933/MastersClosetTracker/v1/printer"
 )
 
 var GlobalConfig *types.ConfigFile
@@ -49,6 +50,8 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/user/delete/:uuid" , DeleteUser )
 
 	admin_route_group.Get( "/user/search/username/fuzzy/:username" , UserSearchFuzzy )
+
+	admin_route_group.Get( "/print-test" , PrintTest )
 }
 
 // GET http://localhost:5950/admin/login
@@ -547,5 +550,21 @@ func GetUserViaBarcode( context *fiber.Ctx ) ( error ) {
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/get/barcode" ,
 		"result": viewed_user ,
+	})
+}
+
+func PrintTest( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	printer.PrintTicket( GlobalConfig.Printer , printer.PrintJob{
+		FamilySize: 5 ,
+		TotalClothingItems: 23 ,
+		Shoes: 1 ,
+		Accessories: 2 ,
+		Seasonal: 1 ,
+		FamilyName: "Cerbus" ,
+	})
+	return context.JSON( fiber.Map{
+		"route": "/admin/print-test" ,
+		"result": "success" ,
 	})
 }

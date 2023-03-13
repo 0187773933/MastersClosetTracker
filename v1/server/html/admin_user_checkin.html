@@ -31,6 +31,29 @@
 			</div>
 			<br>
 			<div class="row">
+				<div class="col-md-4"></div>
+				<div class="col-md-4">
+					<div class="alert alert-success" id="checked-in-alert-true">
+						<center>Allowed to Check In !!!</center>
+					</div>
+				</div>
+				<div class="col-md-4"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-3"></div>
+				<div class="col-md-6">
+					<div class="alert alert-danger" id="checked-in-alert-false">
+						<center>
+							<a id="override-button" class="btn btn-success" target="_blank" href="/none">Allow</a>
+							&nbsp; Checked In Too Recently !!! &nbsp;
+							<a id="block-button" class="btn btn-warning" target="_blank" href="/none">Block</a>
+						</center>
+					</div>
+				</div>
+				<div class="col-md-3"></div>
+			</div>
+			<br>
+			<div class="row">
 				<div class="col-md-1"></div>
 				<div class="col-md-10">
 					<div class="table-responsive-sm">
@@ -45,10 +68,13 @@
 							</thead>
 							<tbody id="user-search-table-body"></tbody>
 						</table>
-						<div id="user-balance-table" >
-							<center><h2 id="active-username"></h2></center>
+						<div id="user-balance-table-row" >
+							<center>
+								<h2 id="active-username"></h2>
+								<h3 id="active-username-time"></h3>
+							</center>
 							<br>
-							<table class="table table-hover table-striped-columns">
+							<table id="user-balance-table" class="table table-hover table-striped-columns">
 								<thead>
 									<tr>
 										<th scope="col">Item</th>
@@ -64,28 +90,10 @@
 				</div>
 				<div class="col-md-1"></div>
 			</div>
-			<br>
-			<div class="row">
-				<div class="col-md-4"></div>
-				<div class="col-md-4">
-					<div class="alert alert-success" id="checked-in-alert-true">
-						User Checked In !!!
-					</div>
-				</div>
-				<div class="col-md-4"></div>
-			</div>
-			<div class="row">
-				<div class="col-md-3"></div>
-				<div class="col-md-6">
-					<div class="alert alert-danger" id="checked-in-alert-false">
-						<center>
-							<a id="override-button" class="btn btn-success" target="_blank" href="/none">Allow</a>
-							&nbsp; User Checked In Too Recently !!! &nbsp;
-							<a id="block-button" class="btn btn-warning" target="_blank" href="/none">Block</a>
-						</center>
-					</div>
-				</div>
-				<div class="col-md-3"></div>
+			<div class="row" id="check-in-button-row">
+				<center>
+					<button id="check-in-button" type="submit" class="btn btn-success" onclick="check_in_uuid_input(event)">Check In</button>
+				</center>
 			</div>
 		</div>
 		<script>
@@ -94,6 +102,19 @@
 			function is_uuid( str ) { return uuid_v4_regex.test( str ); }
 			const barcode_regex = /^\d+$/;
 			function is_barcode( str ) { return barcode_regex.test( str ); }
+
+			function convert_milliseconds_to_time_string( milliseconds ) {
+				let seconds = Math.floor( milliseconds / 1000 );
+				let minutes = Math.floor( seconds / 60 );
+				let hours = Math.floor( minutes / 60 );
+				let days = Math.floor( hours / 24 );
+				hours %= 24;
+				minutes %= 60;
+				seconds %= 60;
+
+				let time_string = `${days} days , ${hours} hours , ${minutes} minutes , and ${seconds} seconds`;
+				return time_string;
+			}
 
 			function check_in_uuid( uuid ) {
 				return new Promise( async function( resolve , reject ) {
@@ -212,7 +233,7 @@
 					select_button.onclick = function() {
 						window.check_in_input.value = users[ i ][ "uuid" ];
 						$( "#user-search-table" ).hide();
-						// check_uuid_input();
+						// check_in_uuid_input();
 						search_input();
 					};
 					select_button_holder.appendChild( select_button );
@@ -257,7 +278,7 @@
 			// could just switch to multiple inputs ?
 			// https://getbootstrap.com/docs/5.3/forms/input-group/#multiple-inputs
 			function populate_user_balance_table( balance ) {
-				$( "#user-balance-table" ).show();
+				$( "#user-balance-table-row" ).show();
 				let table_body_element = document.getElementById( "user-balance-table-body" );
 				table_body_element.innerHTML = "";
 
@@ -303,7 +324,11 @@
 			async function search_input( event ) {
 				if ( event ) { event.preventDefault(); }
 				$( "#user-search-table" ).hide();
-				$( "#user-balance-table" ).hide();
+				$( "#user-balance-table-row" ).hide();
+				$( "#checked-in-alert-true" ).slideUp();
+				$( "#checked-in-alert-false" ).slideUp();
+				$( "#checked-in-alert-false" ).slideUp();
+				$( "#check-in-button-row" ).hide();
 				let typed_input = window.check_in_input.value;
 
 				let valid_uuid = is_uuid( typed_input );
@@ -344,40 +369,44 @@
 
 				let check_in_test = await check_in_uuid_test( typed_input );
 				console.log( check_in_test );
-				// TODO : Add a new form here to validate / edit balance
-				// so , probably change the above function to user.CheckInTest() version ,
-				// and then if available , populate a balance form
-				// and then finally submit a check in
 
-				// if ( check_in_test[ "result" ] === false ) {
-				// 	console.log( "the check failed" );
-				// 	console.log( "time remaining ===" , check_in_test[ "time_remaining" ] );
-				// 	return;
-				// }
-				$( "#active-username" ).text( check_in_test[ "name_string" ] );
-				populate_user_balance_table( check_in_test[ "balance" ] )
-			}
+				populate_user_balance_table( check_in_test[ "balance" ] );
 
-			async function check_uuid_input( event ) {
-				if ( event ) { event.preventDefault(); }
-				let typed_input = window.check_in_input.value;
-				let valid_check_in = await check_in_uuid( typed_input );
-				console.log( `${typed_input} === ${valid_uuid} === Checked In === ${valid_check_in}` );
-				switch ( valid_check_in[ "result" ] ) {
+				$( "#check-in-button-row" ).show();
+				switch ( check_in_test[ "result" ] ) {
 					case true:
+						$( "#active-username" ).text( check_in_test[ "name_string" ] );
+						$( "#active-username-time" ).text( "" );
+						$( "#user-balance-table" ).removeClass( "table-danger" );
+						$( "#user-balance-table" ).addClass( "table-success" );
 						$( "#checked-in-alert-true" ).slideDown();
 						$( "#checked-in-alert-false" ).slideUp();
-						setTimeout( function() {
-							$( "#checked-in-alert-true" ).slideUp();
-							$( "#check-in-input" ).val( "" );
-						} , 3000 );
+						// setTimeout( function() {
+						// 	$( "#checked-in-alert-true" ).slideUp();
+						// 	// $( "#check-in-input" ).val( "" );
+						// } , 3000 );
 						window.check_in_input.focus();
 						break;
 					case false:
+						let time_remaining_string = convert_milliseconds_to_time_string( check_in_test[ "time_remaining" ] );
+						$( "#active-username" ).text( check_in_test[ "name_string" ] );
+						$( "#active-username-time" ).text( `Needs to wait ${time_remaining_string}` );
+						$( "#user-balance-table" ).removeClass( "table-success" );
+						$( "#user-balance-table" ).addClass( "table-danger" );
 						$( "#checked-in-alert-true" ).slideUp();
 						$( "#checked-in-alert-false" ).slideDown();
 						break;
 				}
+
+
+			}
+
+			async function check_in_uuid_input( event ) {
+				if ( event ) { event.preventDefault(); }
+				let typed_input = window.check_in_input.value;
+				let valid_check_in = await check_in_uuid( typed_input );
+				console.log( `${typed_input} === Checked In === ${valid_check_in}` );
+
 			}
 
 			function on_override_button_click( event ) {
@@ -392,6 +421,9 @@
 			function on_block_button_click( event ) {
 				event.preventDefault();
 				$( "#checked-in-alert-false" ).slideUp();
+				$( "#user-search-table" ).hide();
+				$( "#user-balance-table-row" ).hide();
+				$( "#check-in-button-row" ).hide();
 				window.check_in_input.value = "";
 				window.check_in_input.focus();
 			}
@@ -399,7 +431,8 @@
 			function init() {
 				// $( "#check-in-input" ).focus();
 				$( "#user-search-table" ).hide();
-				$( "#user-balance-table" ).hide();
+				$( "#user-balance-table-row" ).hide();
+				$( "#check-in-button-row" ).hide();
 				window.check_in_input = document.getElementById( "check-in-input" );
 				$( "#checked-in-alert-true" ).slideUp();
 				$( "#checked-in-alert-false" ).slideUp();
@@ -408,7 +441,7 @@
 				// check_in_input.addEventListener( "input" , on_check_in_input_change );
 				check_in_input.addEventListener( "keydown" , ( event ) => {
 					if ( event.keyCode === 13 ) {
-						// check_uuid_input( event );
+						// check_in_uuid_input( event );
 						search_input( event );
 					}
 				});
