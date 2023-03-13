@@ -32,6 +32,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/" , AdminPage )
 
 	admin_route_group.Get( "/users" , ViewUsersPage )
+	admin_route_group.Get( "/checkins" , ViewCheckInsPage )
 
 	// admin_route_group.Get( "/user/check/username" , CheckIfFirstNameLastNameAlreadyExists )
 	admin_route_group.Get( "/user/new" , NewUserSignUpPage )
@@ -40,9 +41,10 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/user/new/handoff/:uuid" , NewUserSignUpHandOffPage )
 
 	admin_route_group.Get( "/user/checkin" , CheckInUserPage )
-	admin_route_group.Get( "/user/checkin/:uuid" , UserCheckIn )
+	admin_route_group.Post( "/user/checkin/:uuid" , UserCheckIn )
 	admin_route_group.Get( "/user/checkin/test/:uuid" , UserCheckInTest )
 	admin_route_group.Get( "/user/get/all" , GetAllUsers )
+	admin_route_group.Get( "/user/get/all/checkins" , GetAllCheckIns )
 	admin_route_group.Get( "/user/get/:uuid" , GetUser )
 	admin_route_group.Get( "/user/get/barcode/:barcode" , GetUserViaBarcode )
 	admin_route_group.Get( "/user/search/username/:username" , UserSearch )
@@ -136,6 +138,11 @@ func CheckInUserPage( context *fiber.Ctx ) ( error ) {
 func ViewUsersPage( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 	return context.SendFile( "./v1/server/html/admin_view_users.html" )
+}
+
+func ViewCheckInsPage( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	return context.SendFile( "./v1/server/html/admin_view_total_checkins.html" )
 }
 
 func EditUserPage( context *fiber.Ctx ) ( error ) {
@@ -376,6 +383,11 @@ func GetUser( context *fiber.Ctx ) ( error ) {
 func DeleteUser( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 	user_uuid := context.Params( "uuid" )
+
+	search_index , _ := bleve.Open( GlobalConfig.BleveSearchPath )
+	defer search_index.Close()
+	search_index.Delete( user_uuid )
+
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
 	viewed_user := user.GetByUUID( user_uuid , db , GlobalConfig.BoltDBEncryptionKey )
@@ -392,30 +404,112 @@ func DeleteUser( context *fiber.Ctx ) ( error ) {
 	})
 }
 
+func parse_form_value_as_int( context *fiber.Ctx , form_key string ) ( result int ) {
+	result = -1
+	uploaded := context.FormValue( form_key )
+	sanitized := utils.SanitizeInputString( uploaded )
+	parsed_int , _ := strconv.Atoi( sanitized )
+	result = parsed_int
+	return
+}
+
+// We changed this to a POST Form , so now we have to parse it
 func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
-	user_uuid := context.Params( "uuid" )
+
+	// 1.) Prep
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
-	check_in_result , time_remaining := user.CheckInUser( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
+
+	uploaded_uuid := context.FormValue( "balance_tops_available" )
+	x_uuid := utils.SanitizeInputString( uploaded_uuid )
+
+	// 2.) Grab the User
+	var viewed_user user.User
+	db.View( func( tx *bolt_api.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket_value := bucket.Get( []byte( x_uuid ) )
+		if bucket_value == nil { return nil }
+		decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , bucket_value )
+		json.Unmarshal( decrypted_bucket_value , &viewed_user )
+		return nil
+	})
+
+	// 3.) Create a New Forced Check In
+	var new_check_in user.CheckIn
+	now := time.Now()
+	// now_time_zone := now.Location()
+	new_check_in.Date = now.Format( "02Jan2006" )
+	new_check_in.Time = now.Format( "15:04:05.000" )
+	new_check_in.Type = "forced"
+	new_check_in.Date = strings.ToUpper( new_check_in.Date )
+	viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
+
+	// 4.) Update the Balance
+	viewed_user.Balance.General.Tops.Available = parse_form_value_as_int( context , "balance_tops_available" )
+	viewed_user.Balance.General.Tops.Limit = parse_form_value_as_int( context , "balance_tops_limit" )
+	viewed_user.Balance.General.Tops.Used = parse_form_value_as_int( context , "balance_tops_used" )
+
+	viewed_user.Balance.General.Bottoms.Available = parse_form_value_as_int( context , "balance_bottoms_available" )
+	viewed_user.Balance.General.Bottoms.Limit = parse_form_value_as_int( context , "balance_bottoms_limit" )
+	viewed_user.Balance.General.Bottoms.Used = parse_form_value_as_int( context , "balance_bottoms_used" )
+
+	viewed_user.Balance.General.Dresses.Available = parse_form_value_as_int( context , "balance_dresses_available" )
+	viewed_user.Balance.General.Dresses.Limit = parse_form_value_as_int( context , "balance_dresses_limit" )
+	viewed_user.Balance.General.Dresses.Used = parse_form_value_as_int( context , "balance_dresses_used" )
+
+	viewed_user.Balance.Shoes.Available = parse_form_value_as_int( context , "balance_shoes_available" )
+	viewed_user.Balance.Shoes.Limit = parse_form_value_as_int( context , "balance_shoes_limit" )
+	viewed_user.Balance.Shoes.Used = parse_form_value_as_int( context , "balance_shoes_used" )
+
+	viewed_user.Balance.Seasonals.Available = parse_form_value_as_int( context , "balance_seasonals_available" )
+	viewed_user.Balance.Seasonals.Limit = parse_form_value_as_int( context , "balance_seasonals_limit" )
+	viewed_user.Balance.Seasonals.Used = parse_form_value_as_int( context , "balance_seasonals_used" )
+
+	viewed_user.Balance.Accessories.Available = parse_form_value_as_int( context , "balance_accessories_available" )
+	viewed_user.Balance.Accessories.Limit = parse_form_value_as_int( context , "balance_accessories_limit" )
+	viewed_user.Balance.Accessories.Used = parse_form_value_as_int( context , "balance_accessories_used" )
+
+	// 5.) Re-Save the User
+	viewed_user_byte_object , _ := json.Marshal( viewed_user )
+	viewed_user_byte_object_encrypted := encryption.ChaChaEncryptBytes( GlobalConfig.BoltDBEncryptionKey , viewed_user_byte_object )
+	db_result := db.Update( func( tx *bolt_api.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket.Put( []byte( x_uuid ) , viewed_user_byte_object_encrypted )
+		return nil
+	})
+	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
+
+	// 6.) Print Ticket
+	// TODO !!!!! Where Barcode Numbers ??????
+	// printer.PrintTicket( GlobalConfig.Printer , printer.PrintJob{
+	// 	FamilySize: 5 ,
+	// 	TotalClothingItems: 23 ,
+	// 	Shoes: 1 ,
+	// 	Accessories: 2 ,
+	// 	Seasonal: 1 ,
+	// 	FamilyName: "Cerbus" ,
+	// })
+
+	// 7.) Return Result
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/checkin/:uuid" ,
-		"result": check_in_result ,
-		"time_remaining": time_remaining ,
+		"result": true ,
 	})
 }
 
 func UserCheckInTest( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 	user_uuid := context.Params( "uuid" )
+
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
-	check_in_test_result , time_remaining , balance , name_string := user.CheckInTest( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
+	check_in_test_result , time_remaining , balance , name_string , family_size := user.CheckInTest( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
 
 	// idk where else to put this
 	// only other option is maybe on the new user create form
 	if check_in_test_result == true {
-		balance = user.RefillBalance( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.Balance )
+		balance = user.RefillBalance( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.Balance , family_size )
 	}
 
 	return context.JSON( fiber.Map{
@@ -424,6 +518,7 @@ func UserCheckInTest( context *fiber.Ctx ) ( error ) {
 		"time_remaining": time_remaining ,
 		"balance": balance ,
 		"name_string": name_string ,
+		"family_size": family_size ,
 	})
 }
 
@@ -489,6 +584,7 @@ func UserSearchFuzzy( context *fiber.Ctx ) ( error ) {
 		bucket := tx.Bucket( []byte( "users" ) )
 		for _ , hit := range search_results.Hits {
 			x_user := bucket.Get( []byte( hit.ID ) )
+			if x_user == nil { continue } // so this is needed because we didn't delete search indexes when deleting a user
 			var viewed_user user.User
 			decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , x_user )
 			json.Unmarshal( decrypted_bucket_value , &viewed_user )
@@ -522,6 +618,33 @@ func GetAllUsers( context *fiber.Ctx ) ( error ) {
 				get_user_result.LastCheckIn = viewed_user.CheckIns[ len( viewed_user.CheckIns ) - 1 ]
 			}
 			result = append( result , get_user_result )
+			return nil
+		})
+		return nil
+	})
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/get/all" ,
+		"result": result ,
+	})
+}
+
+
+func GetAllCheckIns( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+
+	var result [][]user.CheckIn
+	db.View( func( tx *bolt_api.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket.ForEach( func( uuid , value []byte ) error {
+			var viewed_user user.User
+			decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , value )
+			json.Unmarshal( decrypted_bucket_value , &viewed_user )
+			if len( viewed_user.CheckIns ) > 0 {
+				result = append( result , viewed_user.CheckIns )
+			}
 			return nil
 		})
 		return nil

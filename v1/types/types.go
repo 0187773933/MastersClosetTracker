@@ -21,7 +21,7 @@ type BalanceGeneral struct {
 type BalanceConfig struct {
 	General BalanceGeneral `json:"general"`
 	Shoes int `json:"shoes"`
-	Jackets int `json:"jackets"`
+	Seasonals int `json:"seasonals"`
 	Accessories int `json:"accessories"`
 }
 

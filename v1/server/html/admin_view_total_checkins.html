@@ -1,0 +1,97 @@
+<html>
+	<head>
+		<title>Master's Closet - Total Checkins</title>
+		<link rel="icon" href="">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js" integrity="sha256-xUHvBjJ4hahBW8qN9gceFBibSFUzbe9PNttUvehITzY=" crossorigin="anonymous"></script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-sm">
+					<center><h1>Master's Closet - Admin - View Total Checkins</h1></center>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="table-responsive-sm">
+					<table id="check-in-table" class="table table-hover table-striped-columns">
+						<thead>
+							<tr>
+								<th scope="col">Date</th>
+								<th scope="col">Total Checkins</th>
+							</tr>
+						</thead>
+						<tbody id="check-in-table-body"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<script>
+			function get_all_checkins() {
+				return new Promise( async function( resolve , reject ) {
+					try {
+						let check_in_response = await fetch( "/admin/user/get/all/checkins" , {
+							method: "GET" ,
+							headers: { "Content-Type": "application/json" }
+						});
+						let response_json = await check_in_response.json();
+						let result = response_json[ "result" ];
+						resolve( result );
+						return;
+					}
+					catch( error ) { console.log( error ); resolve( false ); return; }
+				});
+			}
+
+			function parse_checkin_data( checkin ) {
+				let dates = {};
+				for ( let i = 0; i < window.checkins.length; ++i ) { // Loop Through Each User
+					for ( let j = 0; j < window.checkins[ i ].length; ++j ) { // Loop Through Each User's Check-Ins
+						let date_string = window.checkins[ i ][ j ].date;
+						let date = new Date( Date.parse( date_string.replace( /(\d{2})(\w{3})(\d{4})/ , "$2 $1, $3" ) ) );
+						if ( !dates[ date_string ] ) { dates[ date_string ] = { "date_obj": date , "times": [] }; }
+						dates[ date_string ][ "times" ].push( window.checkins[ i ][ j ].time );
+					}
+				}
+				let date_array = Object.entries( dates );
+				// let sorted_dates = date_array.sort( ( a , b ) => ( a[ 1 ].date_obj.getTime() - b[ 1 ].date_obj.getTime() ) );
+				let sorted_dates = date_array.sort( ( a , b ) => ( b[ 1 ].date_obj.getTime() - a[ 1 ].date_obj.getTime() ) );
+				window.check_in_dates = sorted_dates;
+			}
+
+			function populate_table() {
+				let table_body_element = document.getElementById( "check-in-table-body" );
+				for ( let i = 0; i < window.check_in_dates.length; ++i ) {
+					let _tr = document.createElement( "tr" );
+
+					let date_string = document.createElement( "td" );
+					date_string.textContent = window.check_in_dates[ i ][ 0 ];
+					_tr.appendChild( date_string );
+
+					let total_checkins_for_date = window.check_in_dates[ i ][ 1 ].times.length;
+					let total_checkins = document.createElement( "td" );
+					total_checkins.textContent = total_checkins_for_date;
+					_tr.appendChild( total_checkins );
+					table_body_element.appendChild( _tr );
+				}
+			}
+			function print_duration( start , stop ) {
+				let duration = ( stop - start );
+				console.log( `get_all_checkins() took : ${duration} milliseconds` );
+			}
+			async function init() {
+				let start = new Date();
+				window.checkins = await get_all_checkins();
+				let stop = new Date();
+				print_duration( start , stop );
+				parse_checkin_data();
+				populate_table();
+			}
+			$( document ).ready( init );
+		</script>
+	</body>
+</html>
