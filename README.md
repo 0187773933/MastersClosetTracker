@@ -23,16 +23,17 @@
 	- give option on check-in to increase or decrease
 	- use printout reciept tickets with qrcode / barcode
 	- Checkout counter scans / verifies reciept to match balance
-2. Just let a barcode check-in a user. Avoids an extra call
+2. Add running daily total screen
+3. Just let a barcode check-in a user. Avoids an extra call
 	- GET /admin/user/get/barcode/:barcode
 	- GET /admin/user/checkin/test/:uuid
 	- GET /admin/user/checkin/:uuid
-3. Add Admin Manual Override Routes
+4. Add Admin Manual Override Routes
 	- Override Check-In Too Soon
 	- User forgot phone
 	- User has new phone
 	- option to text hand-off link if user can't scan qrcode for some reason
-4. Add Spreadsheet Export
-5. Fix User Fields :
+5. Add Spreadsheet Export
+6. Fix User Fields :
 	- Authorized Aliases
-6. Fix Docker
+7. Fix Docker
