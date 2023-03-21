@@ -47,8 +47,8 @@ type ConfigFile struct {
 	BoltDBEncryptionKey string `json:"bolt_db_encryption_key"`
 	BleveSearchPath string `json:"bleve_search_path"`
 	CheckInCoolOffDays int `json:"check_in_cooloff_days"`
-	Redis RedisConfig "json:redis"
-	IPBlacklist []string "json:ip_blacklist"
+	Redis RedisConfig `json:"redis"`
+	IPBlacklist []string `json:"ip_blacklist"`
 	IPInfoToken string `json:"ip_info_token"`
 	Balance BalanceConfig `json:"balance"`
 	Printer PrinterConfig `json:"printer"`

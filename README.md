@@ -37,3 +37,5 @@
 6. Fix User Fields :
 	- Authorized Aliases
 7. Fix Docker
+8. Why aren't we using any of the built-in time functions ?
+	- `time.Now().After(lastFetched.Add(CachePeriod))` ?
