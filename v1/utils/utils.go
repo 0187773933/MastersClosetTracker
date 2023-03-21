@@ -8,11 +8,13 @@ import (
 	"fmt"
 	// index_sort "github.com/mkmik/argsort"
 	"sort"
+	"strconv"
 	"strings"
 	"unicode"
 	"io/ioutil"
 	"encoding/json"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
+	fiber "github.com/gofiber/fiber/v2"
 	fiber_cookie "github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
 )
@@ -112,6 +114,15 @@ func SanitizeInputString( input string ) ( result string ) {
 	return
 }
 
+func ParseFormValueAsInt( context *fiber.Ctx , form_key string ) ( result int ) {
+	result = -1
+	uploaded := context.FormValue( form_key )
+	sanitized := SanitizeInputString( uploaded )
+	parsed_int , _ := strconv.Atoi( sanitized )
+	result = parsed_int
+	return
+}
+
 func WriteAdminUserHandOffHTML( server_base_url string ) {
 	file , _ := os.OpenFile( "./v1/server/html/admin_user_new_handoff.html" , os.O_RDWR , 0 )
 	defer file.Close()
@@ -145,3 +156,4 @@ func GenerateNewKeys() {
 	fmt.Printf( "\tAdmin Username === %s\n" , admin_username )
 	fmt.Printf( "\tAdmin Password === %s\n\n" , admin_password )
 }
+

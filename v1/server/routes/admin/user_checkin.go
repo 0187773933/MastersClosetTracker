@@ -1,6 +1,7 @@
 package adminroutes
 
 import (
+	"fmt"
 	"time"
 	"strings"
 	json "encoding/json"
@@ -9,7 +10,29 @@ import (
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
 	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
+	printer "github.com/0187773933/MastersClosetTracker/v1/printer"
 )
+
+type CheckInBalanceForm struct {
+	TopsAvailable int `json:"balance_tops_available"`
+	TopsLimit int `json:"balance_tops_limit"`
+	TopsUsed int `json:"balance_tops_used"`
+	BottomsAvailable int `json:"balance_bottoms_available"`
+	BottomsLimit int `json:"balance_bottoms_limit"`
+	BottomsUsed int `json:"balance_bottoms_used"`
+	DressesAvailable int `json:"balance_dresses_available"`
+	DressesLimit int `json:"balance_dresses_limit"`
+	DressesUsed int `json:"balance_dresses_used"`
+	ShoesAvailable int `json:"balance_shoes_available"`
+	ShoesLimit int `json:"balance_shoes_limit"`
+	ShoesUsed int `json:"balance_shoes_used"`
+	SeasonalsAvailable int `json:"balance_seasonals_available"`
+	SeasonalsLimit int `json:"balance_seasonals_limit"`
+	SeasonalsUsed int `json:"balance_seasonals_used"`
+	AccessoriesAvailable int `json:"balance_accessories_available"`
+	AccessoriesLimit int `json:"balance_accessories_limit"`
+	AccessoriesUsed int `json:"balance_accessories_used"`
+}
 
 // We changed this to a POST Form , so now we have to parse it
 func UserCheckIn( context *fiber.Ctx ) ( error ) {
@@ -19,7 +42,7 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
 
-	uploaded_uuid := context.FormValue( "balance_tops_available" )
+	uploaded_uuid := context.Params( "uuid" )
 	x_uuid := utils.SanitizeInputString( uploaded_uuid )
 
 	// 2.) Grab the User
@@ -43,30 +66,37 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	new_check_in.Date = strings.ToUpper( new_check_in.Date )
 	viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
 
+
 	// 4.) Update the Balance
-	viewed_user.Balance.General.Tops.Available = parse_form_value_as_int( context , "balance_tops_available" )
-	viewed_user.Balance.General.Tops.Limit = parse_form_value_as_int( context , "balance_tops_limit" )
-	viewed_user.Balance.General.Tops.Used = parse_form_value_as_int( context , "balance_tops_used" )
+	var balance_form CheckInBalanceForm
+	json.Unmarshal( []byte( context.Body() ), &balance_form )
+	fmt.Println( balance_form )
+	viewed_user.Balance.General.Tops.Available = balance_form.TopsAvailable
+	viewed_user.Balance.General.Tops.Limit = balance_form.TopsLimit
+	viewed_user.Balance.General.Tops.Used = balance_form.TopsUsed
 
-	viewed_user.Balance.General.Bottoms.Available = parse_form_value_as_int( context , "balance_bottoms_available" )
-	viewed_user.Balance.General.Bottoms.Limit = parse_form_value_as_int( context , "balance_bottoms_limit" )
-	viewed_user.Balance.General.Bottoms.Used = parse_form_value_as_int( context , "balance_bottoms_used" )
+	viewed_user.Balance.General.Bottoms.Available = balance_form.BottomsAvailable
+	viewed_user.Balance.General.Bottoms.Limit = balance_form.BottomsLimit
+	viewed_user.Balance.General.Bottoms.Used = balance_form.BottomsUsed
 
-	viewed_user.Balance.General.Dresses.Available = parse_form_value_as_int( context , "balance_dresses_available" )
-	viewed_user.Balance.General.Dresses.Limit = parse_form_value_as_int( context , "balance_dresses_limit" )
-	viewed_user.Balance.General.Dresses.Used = parse_form_value_as_int( context , "balance_dresses_used" )
+	viewed_user.Balance.General.Dresses.Available = balance_form.DressesAvailable
+	viewed_user.Balance.General.Dresses.Limit = balance_form.DressesLimit
+	viewed_user.Balance.General.Dresses.Used = balance_form.DressesUsed
 
-	viewed_user.Balance.Shoes.Available = parse_form_value_as_int( context , "balance_shoes_available" )
-	viewed_user.Balance.Shoes.Limit = parse_form_value_as_int( context , "balance_shoes_limit" )
-	viewed_user.Balance.Shoes.Used = parse_form_value_as_int( context , "balance_shoes_used" )
+	viewed_user.Balance.Shoes.Available = balance_form.ShoesAvailable
+	viewed_user.Balance.Shoes.Limit = balance_form.ShoesLimit
+	viewed_user.Balance.Shoes.Used = balance_form.ShoesUsed
 
-	viewed_user.Balance.Seasonals.Available = parse_form_value_as_int( context , "balance_seasonals_available" )
-	viewed_user.Balance.Seasonals.Limit = parse_form_value_as_int( context , "balance_seasonals_limit" )
-	viewed_user.Balance.Seasonals.Used = parse_form_value_as_int( context , "balance_seasonals_used" )
+	viewed_user.Balance.Seasonals.Available = balance_form.SeasonalsAvailable
+	viewed_user.Balance.Seasonals.Limit = balance_form.SeasonalsLimit
+	viewed_user.Balance.Seasonals.Used = balance_form.SeasonalsUsed
 
-	viewed_user.Balance.Accessories.Available = parse_form_value_as_int( context , "balance_accessories_available" )
-	viewed_user.Balance.Accessories.Limit = parse_form_value_as_int( context , "balance_accessories_limit" )
-	viewed_user.Balance.Accessories.Used = parse_form_value_as_int( context , "balance_accessories_used" )
+	viewed_user.Balance.Accessories.Available = balance_form.AccessoriesAvailable
+	viewed_user.Balance.Accessories.Limit = balance_form.AccessoriesLimit
+	viewed_user.Balance.Accessories.Used = balance_form.AccessoriesUsed
+
+	fmt.Println( "Checking In With Balance :" )
+	fmt.Println( viewed_user.Balance )
 
 	// 5.) Re-Save the User
 	viewed_user_byte_object , _ := json.Marshal( viewed_user )
@@ -79,15 +109,19 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
 
 	// 6.) Print Ticket
-	// TODO !!!!! Where Barcode Numbers ??????
-	// printer.PrintTicket( GlobalConfig.Printer , printer.PrintJob{
-	// 	FamilySize: 5 ,
-	// 	TotalClothingItems: 23 ,
-	// 	Shoes: 1 ,
-	// 	Accessories: 2 ,
-	// 	Seasonal: 1 ,
-	// 	FamilyName: "Cerbus" ,
-	// })
+	user.FormatUsername( &viewed_user ) // TODO , DB Fix
+	total_clothing_items := ( balance_form.TopsAvailable + balance_form.BottomsAvailable + balance_form.DressesAvailable )
+	print_job := printer.PrintJob{
+		FamilySize: viewed_user.FamilySize ,
+		TotalClothingItems: total_clothing_items ,
+		Shoes: balance_form.ShoesAvailable ,
+		Accessories: balance_form.AccessoriesAvailable ,
+		Seasonal: balance_form.SeasonalsAvailable ,
+		FamilyName: viewed_user.NameString ,
+	}
+	fmt.Println( "Printing :" )
+	fmt.Println( print_job )
+	printer.PrintTicket( GlobalConfig.Printer , print_job )
 
 	// 7.) Return Result
 	return context.JSON( fiber.Map{

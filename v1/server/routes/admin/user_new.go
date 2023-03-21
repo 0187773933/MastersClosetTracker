@@ -81,11 +81,8 @@ func ProcessNewUserForm( context *fiber.Ctx ) ( new_user user.User ) {
 		}
 	}
 
-	if new_user.Identity.MiddleName != "" {
-		new_user.Username = fmt.Sprintf( "%s-%s-%s" , new_user.Identity.FirstName , new_user.Identity.MiddleName , new_user.Identity.LastName )
-	} else {
-		new_user.Username = fmt.Sprintf( "%s-%s" , new_user.Identity.FirstName , new_user.Identity.LastName )
-	}
+	user.FormatUsername( &new_user )
+
 	new_user.UUID = uuid.NewV4().String()
 
 	now := time.Now()

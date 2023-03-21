@@ -3,7 +3,6 @@ package adminroutes
 import (
 	"fmt"
 	"strings"
-	"strconv"
 	fiber "github.com/gofiber/fiber/v2"
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
 	printer "github.com/0187773933/MastersClosetTracker/v1/printer"
@@ -16,15 +15,6 @@ func SanitizeUsername( first_name string , last_name string ) ( username string 
 	sanitized_first_name := utils.SanitizeInputString( first_name )
 	sanitized_last_name := utils.SanitizeInputString( last_name )
 	username = fmt.Sprintf( "%s-%s" , sanitized_first_name , sanitized_last_name )
-	return
-}
-
-func parse_form_value_as_int( context *fiber.Ctx , form_key string ) ( result int ) {
-	result = -1
-	uploaded := context.FormValue( form_key )
-	sanitized := utils.SanitizeInputString( uploaded )
-	parsed_int , _ := strconv.Atoi( sanitized )
-	result = parsed_int
 	return
 }
 

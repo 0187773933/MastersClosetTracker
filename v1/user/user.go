@@ -76,6 +76,7 @@ type Person struct {
 
 type User struct {
 	Username string `json:"username"`
+	NameString string `json:"name_string"`
 	UUID string `json:"uuid"`
 	Barcodes []string `json:"barcodes"`
 	EmailAddress string `json:"email_address"`
@@ -117,6 +118,55 @@ type GetUserResult struct {
 // 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
 // 	return
 // }
+
+func FormatUsername( x_user *User ) {
+	// username := fmt.Sprintf( "%s-%s-%s" , x_user.Identity.FirstName , x_user.Identity.MiddleName , x_user.Identity.LastName )
+	// username = strings.Join( strings.Fields( username ) , " " )
+	// namestring := fmt.Sprintf( "%s %s %s" , x_user.Identity.FirstName , x_user.Identity.MiddleName , x_user.Identity.LastName )
+	// namestring = strings.Join( strings.Fields( namestring ) , " " )
+	// x_user.Username = username
+	// x_user.NameString = namestring
+	var username_format string
+	var name_string_format string
+	var username_parts []interface{}
+	if x_user.Identity.FirstName != "" && x_user.Identity.MiddleName != "" && x_user.Identity.LastName != "" {
+		username_format = "%s-%s-%s"
+		name_string_format = "%s %s %s"
+		username_parts = []interface{}{x_user.Identity.FirstName, x_user.Identity.MiddleName, x_user.Identity.LastName}
+	} else if x_user.Identity.FirstName != "" && x_user.Identity.MiddleName != "" {
+		username_format = "%s-%s"
+		name_string_format = "%s %s"
+		username_parts = []interface{}{x_user.Identity.FirstName, x_user.Identity.MiddleName}
+	} else if x_user.Identity.FirstName != "" && x_user.Identity.LastName != "" {
+		username_format = "%s-%s"
+		name_string_format = "%s %s"
+		username_parts = []interface{}{x_user.Identity.FirstName, x_user.Identity.LastName}
+	} else if x_user.Identity.MiddleName != "" && x_user.Identity.LastName != "" {
+		username_format = "%s-%s"
+		name_string_format = "%s %s"
+		username_parts = []interface{}{x_user.Identity.MiddleName, x_user.Identity.LastName}
+	} else if x_user.Identity.FirstName != "" {
+		username_format = "%s"
+		name_string_format = "%s"
+		username_parts = []interface{}{x_user.Identity.FirstName}
+	} else if x_user.Identity.MiddleName != "" {
+		username_format = "%s"
+		name_string_format = "%s"
+		username_parts = []interface{}{x_user.Identity.MiddleName}
+	} else if x_user.Identity.LastName != "" {
+		username_format = "%s"
+		name_string_format = "%s"
+		username_parts = []interface{}{x_user.Identity.LastName}
+	} else {
+		username_format = ""
+		name_string_format = ""
+		username_parts = []interface{}{}
+	}
+	if username_format != "" {
+		x_user.Username = fmt.Sprintf( username_format , username_parts... )
+		x_user.NameString = fmt.Sprintf( name_string_format , username_parts... )
+	}
+}
 
 func UserNameExists( username string , db *bolt.DB ) ( result bool , uuid string ) {
 	result = false
@@ -244,8 +294,8 @@ func CheckInTest( user_uuid string , db *bolt.DB , encryption_key string , cool_
 		}
 	}
 	balance = viewed_user.Balance
-	name_string = fmt.Sprintf( "%s %s %s" , viewed_user.Identity.FirstName , viewed_user.Identity.MiddleName , viewed_user.Identity.LastName )
-	name_string = strings.Join( strings.Fields( name_string ) , " " )
+	FormatUsername( &viewed_user ) // eventually not needed , could write a db fix
+	name_string = viewed_user.NameString
 	family_size = 1
 	if viewed_user.FamilySize > 0 {
 		family_size = viewed_user.FamilySize

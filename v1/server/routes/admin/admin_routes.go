@@ -22,7 +22,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group := fiber_app.Group( "/admin" )
 
 	// HTML UI Pages
-	admin_route_group.Get( "/login" , ServeLoginPage )  // 1
+	admin_route_group.Get( "/login" , ServeLoginPage )
 	for url , _ := range ui_html_pages {
 		admin_route_group.Get( url , ServeAuthenticatedPage )
 	}

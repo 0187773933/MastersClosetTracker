@@ -121,10 +121,11 @@
 			function check_in_uuid( uuid , balance_form_data ) {
 				return new Promise( async function( resolve , reject ) {
 					try {
+						let json_balance_form_data = JSON.stringify( balance_form_data );
 						let check_in_url = `/admin/user/checkin/${uuid}`;
 						let check_in_response = await fetch( check_in_url , {
 							method: "POST" ,
-							body: { balance_form_data }
+							body: json_balance_form_data
 						});
 						let response_json = await check_in_response.json();
 						let result = response_json[ "result" ];
@@ -404,19 +405,17 @@
 			}
 
 			async function check_in_uuid_input( event ) {
-				console.log( event );
 				if ( event ) { event.preventDefault(); }
 				let typed_input = window.check_in_input.value;
 
 				let balance_table = document.getElementById( "user-balance-table-body" );
 				let balance_inputs = balance_table.querySelectorAll( "input" );
 
-				let balance_form = new FormData();
-				balance_form.append( "uuid" , typed_input );
+				let form_data = { "uuid": typed_input };
 				for ( let i = 0; i < balance_inputs.length; ++i ) {
-					balance_form.append( balance_inputs[ i ].id , balance_inputs[ i ].value );
+					form_data[ balance_inputs[ i ].id ] = parseInt( balance_inputs[ i ].value );
 				}
-				let valid_check_in = await check_in_uuid( typed_input , balance_form );
+				let valid_check_in = await check_in_uuid( typed_input , form_data );
 				console.log( `${typed_input} === Checked In === ${valid_check_in}` );
 			}
 
