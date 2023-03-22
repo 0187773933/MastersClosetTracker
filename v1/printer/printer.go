@@ -54,6 +54,7 @@ type PrintJob struct {
 	Accessories int `json:"accessories"`
 	Seasonal int `json:"seasonal"`
 	FamilyName string `json:"family_name"`
+	BarcodeNumber string `json:"barcode_number"`
 }
 
 func add_centered_text( pdf *gofpdf.Fpdf , text string , font_name string , font_size float64 , at_page_height float64 ) {

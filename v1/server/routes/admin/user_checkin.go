@@ -110,14 +110,21 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 
 	// 6.) Print Ticket
 	user.FormatUsername( &viewed_user ) // TODO , DB Fix
-	total_clothing_items := ( balance_form.TopsAvailable + balance_form.BottomsAvailable + balance_form.DressesAvailable )
+	// TODO : clarify calculation ????
+	// total_clothing_items := ( balance_form.TopsAvailable + balance_form.BottomsAvailable + balance_form.DressesAvailable )
+	total_clothing_items := ( balance_form.TopsAvailable + balance_form.ShoesAvailable + balance_form.SeasonalsAvailable + balance_form.AccessoriesAvailable )
+	family_size := viewed_user.FamilySize
+	if family_size < 1 { family_size = 1 } // this is what happens when you don't just use sql
+	barcode_number := ""
+	if len( viewed_user.Barcodes ) > 0 { barcode_number = viewed_user.Barcodes[ 0 ] }
 	print_job := printer.PrintJob{
-		FamilySize: viewed_user.FamilySize ,
+		FamilySize: family_size ,
 		TotalClothingItems: total_clothing_items ,
 		Shoes: balance_form.ShoesAvailable ,
 		Accessories: balance_form.AccessoriesAvailable ,
 		Seasonal: balance_form.SeasonalsAvailable ,
 		FamilyName: viewed_user.NameString ,
+		BarcodeNumber: barcode_number ,
 	}
 	fmt.Println( "Printing :" )
 	fmt.Println( print_job )
