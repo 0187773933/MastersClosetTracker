@@ -27,6 +27,7 @@
 			<div class="row">
 				<center>
 					<button id="search-button" type="submit" class="btn btn-primary">Search</button>
+					<button id="edit-user-button" type="submit" class="btn btn-success">Edit User</button>
 				</center>
 			</div>
 			<br>
@@ -274,6 +275,7 @@
 				used_input.className = "form-control";
 				used_input.value = used;
 				used_input.setAttribute( "id" , `balance_${name.toLowerCase()}_used` );
+				used_input.setAttribute( "readonly" , "" );
 				_used.appendChild( used_input );
 				_tr.appendChild( _used );
 				table_body_element.appendChild( _tr );
@@ -323,7 +325,7 @@
 				);
 
 			}
-
+			// http://localhost:5950/admin/user/edit/001393f1-0d0f-4b19-a690-f5bfceb28415
 
 			async function search_input( event ) {
 				if ( event ) { event.preventDefault(); }
@@ -418,37 +420,39 @@
 				}
 				let valid_check_in = await check_in_uuid( typed_input , form_data );
 				console.log( `${typed_input} === Checked In === ${valid_check_in}` );
+
+				reset_search_form();
 			}
 
-			function on_override_button_click( event ) {
-				event.preventDefault();
-				alert( "Not Implemented Yet !!!" );
-				// TODO : call backend "/admin/user/checkin/override/${uuid}"
-				$( "#checked-in-alert-false" ).slideUp();
-				window.check_in_input.value = "";
-				window.check_in_input.focus();
-			}
+			// function on_override_button_click( event ) {
+			// 	event.preventDefault();
+			// 	alert( "Not Implemented Yet !!!" );
+			// 	// TODO : call backend "/admin/user/checkin/override/${uuid}"
+			// 	$( "#checked-in-alert-false" ).slideUp();
+			// 	window.check_in_input.value = "";
+			// 	window.check_in_input.focus();
+			// }
 
 			function on_block_button_click( event ) {
 				event.preventDefault();
-				$( "#checked-in-alert-false" ).slideUp();
+				reset_search_form();
+			}
+
+			function reset_search_form() {
+				$( "#edit-user-button" ).hide();
 				$( "#user-search-table" ).hide();
+				// $( "#check-in-input" ).focus();
 				$( "#user-balance-table-row" ).hide();
 				$( "#check-in-button-row" ).hide();
+				$( "#checked-in-alert-true" ).slideUp();
+				$( "#checked-in-alert-false" ).slideUp();
+				window.check_in_input = document.getElementById( "check-in-input" );
 				window.check_in_input.value = "";
 				window.check_in_input.focus();
 			}
 
 			function init() {
-				// $( "#check-in-input" ).focus();
-				$( "#user-search-table" ).hide();
-				$( "#user-balance-table-row" ).hide();
-				$( "#check-in-button-row" ).hide();
-				window.check_in_input = document.getElementById( "check-in-input" );
-				$( "#checked-in-alert-true" ).slideUp();
-				$( "#checked-in-alert-false" ).slideUp();
-				window.check_in_input.value = "";
-				window.check_in_input.focus();
+				reset_search_form();
 				// check_in_input.addEventListener( "input" , on_check_in_input_change );
 				check_in_input.addEventListener( "keydown" , ( event ) => {
 					if ( event.keyCode === 13 ) {

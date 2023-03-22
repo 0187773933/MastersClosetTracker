@@ -39,3 +39,5 @@
 7. Fix Docker
 8. Why aren't we using any of the built-in time functions ?
 	- `time.Now().After(lastFetched.Add(CachePeriod))` ?
+9. Add DB bucket for key=${uuid}_username , value=Username
+	- keeps only uuids as keys

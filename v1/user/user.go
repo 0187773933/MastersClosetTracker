@@ -294,7 +294,6 @@ func CheckInTest( user_uuid string , db *bolt.DB , encryption_key string , cool_
 		}
 	}
 	balance = viewed_user.Balance
-	FormatUsername( &viewed_user ) // eventually not needed , could write a db fix
 	name_string = viewed_user.NameString
 	family_size = 1
 	if viewed_user.FamilySize > 0 {

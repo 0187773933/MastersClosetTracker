@@ -42,10 +42,9 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
 
+	// 2.) Grab the User
 	uploaded_uuid := context.Params( "uuid" )
 	x_uuid := utils.SanitizeInputString( uploaded_uuid )
-
-	// 2.) Grab the User
 	var viewed_user user.User
 	db.View( func( tx *bolt_api.Tx ) error {
 		bucket := tx.Bucket( []byte( "users" ) )
@@ -65,7 +64,6 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	new_check_in.Type = "forced"
 	new_check_in.Date = strings.ToUpper( new_check_in.Date )
 	viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
-
 
 	// 4.) Update the Balance
 	var balance_form CheckInBalanceForm
@@ -109,7 +107,6 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
 
 	// 6.) Print Ticket
-	user.FormatUsername( &viewed_user ) // TODO , DB Fix
 	// TODO : clarify calculation ????
 	// total_clothing_items := ( balance_form.TopsAvailable + balance_form.BottomsAvailable + balance_form.DressesAvailable )
 	total_clothing_items := ( balance_form.TopsAvailable + balance_form.ShoesAvailable + balance_form.SeasonalsAvailable + balance_form.AccessoriesAvailable )
@@ -117,13 +114,15 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	if family_size < 1 { family_size = 1 } // this is what happens when you don't just use sql
 	barcode_number := ""
 	if len( viewed_user.Barcodes ) > 0 { barcode_number = viewed_user.Barcodes[ 0 ] }
+	family_name := viewed_user.NameString
+	// if len( family_name ) > 20 ? // TODO : Find max length of family string
 	print_job := printer.PrintJob{
 		FamilySize: family_size ,
 		TotalClothingItems: total_clothing_items ,
 		Shoes: balance_form.ShoesAvailable ,
 		Accessories: balance_form.AccessoriesAvailable ,
 		Seasonal: balance_form.SeasonalsAvailable ,
-		FamilyName: viewed_user.NameString ,
+		FamilyName: family_name ,
 		BarcodeNumber: barcode_number ,
 	}
 	fmt.Println( "Printing :" )
