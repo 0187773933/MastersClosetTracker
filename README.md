@@ -18,26 +18,20 @@
 
 ## TODO
 
-1. Fix "Clothes Balance"
-	- calculate based off party total
-	- give option on check-in to increase or decrease
-	- use printout reciept tickets with qrcode / barcode
-	- Checkout counter scans / verifies reciept to match balance
-2. Add running daily total screen
-3. Just let a barcode check-in a user. Avoids an extra call
+1. Just let a barcode check-in a user. Avoids an extra call
 	- GET /admin/user/get/barcode/:barcode
 	- GET /admin/user/checkin/test/:uuid
 	- GET /admin/user/checkin/:uuid
-4. Add Admin Manual Override Routes
+2. Add Admin Manual Override Routes
 	- Override Check-In Too Soon
 	- User forgot phone
 	- User has new phone
 	- option to text hand-off link if user can't scan qrcode for some reason
-5. Add Spreadsheet Export
-6. Fix User Fields :
+3. Add Spreadsheet Export
+4. Fix User Fields :
 	- Authorized Aliases
-7. Fix Docker
-8. Why aren't we using any of the built-in time functions ?
+5. Fix Docker
+6. Use time functions
 	- `time.Now().After(lastFetched.Add(CachePeriod))` ?
-9. Change "usernames" DB bucket for key=${uuid}_username , value=Username
+7. Change "usernames" DB bucket for key=${uuid}_username , value=Username
 	- keeps only uuids as keys
