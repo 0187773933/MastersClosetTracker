@@ -121,7 +121,6 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 		TotalClothingItems: total_clothing_items ,
 		Shoes: balance_form.ShoesAvailable ,
 		Accessories: balance_form.AccessoriesAvailable ,
-		Accessories: balance_form.AccessoriesAvailable ,
 		Seasonal: balance_form.SeasonalsAvailable ,
 		FamilyName: family_name ,
 		BarcodeNumber: barcode_number ,
