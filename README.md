@@ -35,3 +35,20 @@
 	- `time.Now().After(lastFetched.Add(CachePeriod))` ?
 7. Change "usernames" DB bucket for key=${uuid}_username , value=Username
 	- keeps only uuids as keys
+
+
+## Misc
+
+- https://offnova.com/pages/download
+- `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+- `brew install cups`
+
+- https://github.com/apple/cups/releases
+- `git clone https://github.com/apple/cups`
+- `cd cups`
+- `./configure --prefix="$(pwd)/build"`
+- `./configure --prefix="/Applications/MCT.app/Contents/Resources"`
+- `make`
+- `sudo make install`
+
+- `sudo rsync -av /usr/local/Cellar/cups/$(brew list --versions cups | awk '{print $2}') ./cups`

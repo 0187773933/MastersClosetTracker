@@ -49,7 +49,7 @@ func HandleLogin( context *fiber.Ctx ) ( error ) {
 			Expires: time.Now().AddDate( 10 , 0 , 0 ) , // aka 10 years from now
 		} ,
 	)
-	return context.Redirect( "/admin" )
+	return context.Redirect( "/" )
 }
 
 func validate_admin_cookie( context *fiber.Ctx ) ( result bool ) {

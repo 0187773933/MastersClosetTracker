@@ -19,8 +19,9 @@ func SanitizeUsername( first_name string , last_name string ) ( username string 
 }
 
 func serve_failed_attempt( context *fiber.Ctx ) ( error ) {
-	context.Set( "Content-Type" , "text/html" )
-	return context.SendString( "<h1>no</h1>" )
+	// context.Set( "Content-Type" , "text/html" )
+	// return context.SendString( "<h1>no</h1>" )
+	return context.SendFile( "./v1/server/html/admin_login.html" )
 }
 
 func ServeLoginPage( context *fiber.Ctx ) ( error ) {

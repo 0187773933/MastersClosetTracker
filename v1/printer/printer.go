@@ -101,11 +101,22 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 	// 2.) Add Middle Text
 	add_centered_text( pdf , fmt.Sprintf( "Family Size ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
 	add_centered_text( pdf , fmt.Sprintf( "Total Clothing Items for Family ( %d )" , job.TotalClothingItems ) , config.FontName , 16 , 2.5 )
-	add_centered_text( pdf , fmt.Sprintf( "%d pair of shoes per person" , job.Shoes ) , config.FontName , 14 , 3.0 )
-	add_centered_text( pdf , fmt.Sprintf( "%d accessories per person" , job.Accessories ) , config.FontName , 14 , 3.3 )
-	add_centered_text( pdf , fmt.Sprintf( "%d seasonal item per person" , job.Seasonal ) , config.FontName , 14 , 3.6 )
+	if job.Shoes > 1 {
+		add_centered_text( pdf , fmt.Sprintf( "%d pairs of shoes" , job.Shoes ) , config.FontName , 14 , 3.0 )
+	} else {
+		add_centered_text( pdf , fmt.Sprintf( "%d pair of shoes" , job.Shoes ) , config.FontName , 14 , 3.0 )
+	}
+	if job.Accessories > 1 {
+		add_centered_text( pdf , fmt.Sprintf( "%d accessories" , job.Accessories ) , config.FontName , 14 , 3.3 )
+	} else {
+		add_centered_text( pdf , fmt.Sprintf( "%d accessory" , job.Accessories ) , config.FontName , 14 , 3.3 )
+	}
+	if job.Seasonal > 1 {
+		add_centered_text( pdf , fmt.Sprintf( "%d seasonal items" , job.Seasonal ) , config.FontName , 14 , 3.6 )
+	} else {
+		add_centered_text( pdf , fmt.Sprintf( "%d seasonal item" , job.Seasonal ) , config.FontName , 14 , 3.6 )
+	}
 	add_centered_text( pdf , job.FamilyName , config.FontName , 16 , 4.4 )
-
 	// 3.) Gen and Add Barcode
 	barcode_temp_file , _ := ioutil.TempFile( "" , "barcode-*.png" )
 	defer barcode_temp_file.Close()
