@@ -175,7 +175,7 @@
 										<option value="4">4</option>
 										<option value="5">5</option>
 										<option value="6">6</option>
-										<option value="7">7</option>
+<!-- 										<option value="7">7</option>
 										<option value="8">8</option>
 										<option value="9">9</option>
 										<option value="10">10</option>
@@ -188,7 +188,7 @@
 										<option value="17">17</option>
 										<option value="18">18</option>
 										<option value="19">19</option>
-										<option value="20">20</option>
+										<option value="20">20</option> -->
 									</select>
 									<label for="user_family_size">Family Members</label>
 								</div>
@@ -347,11 +347,11 @@
 				new_row.className = "row g-2";
 
 				let col_1 = document.createElement( "div" );
-				col_1.className = "col-md-4";
+				col_1.className = "col-md-3";
 				new_row.appendChild( col_1 );
 
 				let col_2 = document.createElement( "div" );
-				col_2.className = "col-md-4";
+				col_2.className = "col-md-6";
 				let input_group = document.createElement( "div" );
 				input_group.className = "input-group";
 				let label = document.createElement( "span" );
@@ -359,10 +359,12 @@
 				label.setAttribute( "id" , `user_barcode_${(current_barcodes.length + 1)}` );
 				label.textContent = `Barcode - ${(current_barcodes.length + 1)}`;
 				let barcode_input = document.createElement( "input" );
+				let barcode_input_id = `user_barcode_input_${(current_barcodes.length + 1)}`;
 				barcode_input.className = "form-control user-barcode";
 				barcode_input.setAttribute( "placeholder" , "Barcode Number" );
 				barcode_input.setAttribute( "type" , "text" );
-				barcode_input.setAttribute( "name" , `user_barcode_${(current_barcodes.length + 1)}` );
+				barcode_input.setAttribute( "name" , barcode_input_id );
+				barcode_input.setAttribute( "id" , barcode_input_id );
 				barcode_input.addEventListener( "keydown" , ( event ) => {
 					if ( event.keyCode === 13 ) {
 						event.preventDefault();
@@ -392,10 +394,11 @@
 				new_row.appendChild( col_2 );
 
 				let col_3 = document.createElement( "div" );
-				col_3.className = "col-md-4";
+				col_3.className = "col-md-3";
 				new_row.appendChild( col_3 );
 
-				holder.appendChild( new_row )
+				holder.appendChild( new_row );
+				document.getElementById( barcode_input_id ).focus();
 			}
 			function on_family_size_change( event ) {
 				console.log( "on_family_size_change() ??" );

@@ -51,8 +51,11 @@ type PrintJob struct {
 	FamilySize int `json:"family_size"`
 	TotalClothingItems int `json:"total_clothing_items"`
 	Shoes int `json:"shoes"`
+	ShoesLimit int `json:"shoes_limit"`
 	Accessories int `json:"accessories"`
+	AccessoriesLimit int `json:"accessories_limit"`
 	Seasonal int `json:"seasonal"`
+	SeasonalLimit int `json:"seasonal_limit"`
 	FamilyName string `json:"family_name"`
 	BarcodeNumber string `json:"barcode_number"`
 }
@@ -102,19 +105,19 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 	add_centered_text( pdf , fmt.Sprintf( "Family Size ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
 	add_centered_text( pdf , fmt.Sprintf( "Total Clothing Items for Family ( %d )" , job.TotalClothingItems ) , config.FontName , 16 , 2.5 )
 	if job.Shoes > 1 {
-		add_centered_text( pdf , fmt.Sprintf( "%d pairs of shoes" , job.Shoes ) , config.FontName , 14 , 3.0 )
+		add_centered_text( pdf , fmt.Sprintf( "%d pairs of shoes , %d Per Person" , job.Shoes ) , config.FontName , 14 , 3.0 )
 	} else {
-		add_centered_text( pdf , fmt.Sprintf( "%d pair of shoes" , job.Shoes ) , config.FontName , 14 , 3.0 )
+		add_centered_text( pdf , fmt.Sprintf( "%d pair of shoes , %d Per Person" , job.Shoes ) , config.FontName , 14 , 3.0 )
 	}
 	if job.Accessories > 1 {
-		add_centered_text( pdf , fmt.Sprintf( "%d accessories" , job.Accessories ) , config.FontName , 14 , 3.3 )
+		add_centered_text( pdf , fmt.Sprintf( "%d accessories , %d Per Person" , job.Accessories ) , config.FontName , 14 , 3.3 )
 	} else {
-		add_centered_text( pdf , fmt.Sprintf( "%d accessory" , job.Accessories ) , config.FontName , 14 , 3.3 )
+		add_centered_text( pdf , fmt.Sprintf( "%d accessory , %d Per Person" , job.Accessories ) , config.FontName , 14 , 3.3 )
 	}
 	if job.Seasonal > 1 {
-		add_centered_text( pdf , fmt.Sprintf( "%d seasonal items" , job.Seasonal ) , config.FontName , 14 , 3.6 )
+		add_centered_text( pdf , fmt.Sprintf( "%d seasonal items , %d Per Person" , job.Seasonal ) , config.FontName , 14 , 3.6 )
 	} else {
-		add_centered_text( pdf , fmt.Sprintf( "%d seasonal item" , job.Seasonal ) , config.FontName , 14 , 3.6 )
+		add_centered_text( pdf , fmt.Sprintf( "%d seasonal item , %d Per Person" , job.Seasonal ) , config.FontName , 14 , 3.6 )
 	}
 	add_centered_text( pdf , job.FamilyName , config.FontName , 16 , 4.4 )
 	// 3.) Gen and Add Barcode

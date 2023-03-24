@@ -109,7 +109,8 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	// 6.) Print Ticket
 	// TODO : clarify calculation ????
 	// total_clothing_items := ( balance_form.TopsAvailable + balance_form.BottomsAvailable + balance_form.DressesAvailable )
-	total_clothing_items := ( balance_form.TopsAvailable + balance_form.ShoesAvailable + balance_form.SeasonalsAvailable + balance_form.AccessoriesAvailable )
+	// total_clothing_items := ( balance_form.TopsAvailable + balance_form.ShoesAvailable + balance_form.SeasonalsAvailable + balance_form.AccessoriesAvailable )
+	total_clothing_items := ( balance_form.TopsAvailable )
 	family_size := viewed_user.FamilySize
 	if family_size < 1 { family_size = 1 } // this is what happens when you don't just use sql
 	barcode_number := ""
@@ -120,8 +121,11 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 		FamilySize: family_size ,
 		TotalClothingItems: total_clothing_items ,
 		Shoes: balance_form.ShoesAvailable ,
+		ShoesLimit: GlobalConfig.Balance.Shoes ,
 		Accessories: balance_form.AccessoriesAvailable ,
+		AccessoriesLimit: GlobalConfig.Balance.Accessories ,
 		Seasonal: balance_form.SeasonalsAvailable ,
+		SeasonalLimit: GlobalConfig.Balance.Seasonals ,
 		FamilyName: family_name ,
 		BarcodeNumber: barcode_number ,
 	}
