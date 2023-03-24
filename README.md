@@ -38,7 +38,7 @@
 	- `time.Now().After(lastFetched.Add(CachePeriod))` ?
 9. Change "usernames" DB bucket for key=${uuid}_username , value=Username
 	- keeps only uuids as keys
-
+10. Make config editable via html
 
 ## Misc
 
