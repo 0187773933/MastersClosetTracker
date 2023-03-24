@@ -53,7 +53,33 @@
 				</div>
 				<div class="col-md-3"></div>
 			</div>
-			<br>
+			<!-- <br> -->
+			<div class="row" id="active-user-row">
+				<div class="row">
+					<center><h2 id="active-username"></h2></center>
+				</div>
+				<div class="row">
+					<div class="col-md-3"></div>
+					<div class="col-md-6">
+						<div class="input-group">
+							<div class="input-group-text">Shopping For</div>
+							<select id="shopping_for" class="form-select" aria-label="Shopping For" name="shopping_for">
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+								<option value="6">6</option>
+								<option value="7">7</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-md-3"></div>
+				</div>
+				<div class="row">
+					<center><h3 id="active-username-time"></h3></center>
+				</div>
+			</div>
 			<div class="row">
 				<div class="col-md-1"></div>
 				<div class="col-md-10">
@@ -70,11 +96,6 @@
 							<tbody id="user-search-table-body"></tbody>
 						</table>
 						<div id="user-balance-table-row" >
-							<center>
-								<h2 id="active-username"></h2>
-								<h3 id="active-username-time"></h3>
-							</center>
-							<br>
 							<table id="user-balance-table" class="table table-hover table-striped-columns">
 								<thead>
 									<tr>
@@ -285,41 +306,51 @@
 			// https://getbootstrap.com/docs/5.3/forms/input-group/#multiple-inputs
 			function populate_user_balance_table( balance ) {
 				$( "#user-balance-table-row" ).show();
+				let shopping_for = parseInt( $( "#shopping_for" ).val() );
+
+				// TODO : move calculation somewhere , like idk the fucking server ?
+				let tops_available = ( shopping_for * ( balance[ "general" ][ "tops" ][ "limit" ] / window.check_in_test.family_size ) );
+				let bottoms_available = ( shopping_for * balance[ "general" ][ "bottoms" ][ "limit" ] / window.check_in_test.family_size );
+				let dresses_available = ( shopping_for * balance[ "general" ][ "dresses" ][ "limit" ] / window.check_in_test.family_size );
+				let shoes_available = ( shopping_for * balance[ "shoes" ][ "limit" ] / window.check_in_test.family_size );
+				let seasonal_available = ( shopping_for * balance[ "seasonals" ][ "limit" ] / window.check_in_test.family_size );
+				let accessories_available = ( shopping_for * balance[ "accessories" ][ "limit" ] / window.check_in_test.family_size );
+
 				let table_body_element = document.getElementById( "user-balance-table-body" );
 				table_body_element.innerHTML = "";
 
 				_add_balance_row( table_body_element , "Tops" ,
-					balance[ "general" ][ "tops" ][ "available" ] ,
+					tops_available ,
 					balance[ "general" ][ "tops" ][ "limit" ] ,
 					balance[ "general" ][ "tops" ][ "used" ] ,
 				);
 
 				_add_balance_row( table_body_element , "Bottoms" ,
-					balance[ "general" ][ "bottoms" ][ "available" ] ,
+					bottoms_available ,
 					balance[ "general" ][ "bottoms" ][ "limit" ] ,
 					balance[ "general" ][ "bottoms" ][ "used" ] ,
 				);
 
 				_add_balance_row( table_body_element , "Dresses" ,
-					balance[ "general" ][ "dresses" ][ "available" ] ,
+					dresses_available ,
 					balance[ "general" ][ "dresses" ][ "limit" ] ,
 					balance[ "general" ][ "dresses" ][ "used" ] ,
 				);
 
 				_add_balance_row( table_body_element , "Shoes" ,
-					balance[ "shoes" ][ "available" ] ,
+					shoes_available ,
 					balance[ "shoes" ][ "limit" ] ,
 					balance[ "shoes" ][ "used" ] ,
 				);
 
 				_add_balance_row( table_body_element , "Seasonals" ,
-					balance[ "seasonals" ][ "available" ] ,
+					seasonal_available ,
 					balance[ "seasonals" ][ "limit" ] ,
 					balance[ "seasonals" ][ "used" ] ,
 				);
 
 				_add_balance_row( table_body_element , "Accessories" ,
-					balance[ "accessories" ][ "available" ] ,
+					accessories_available ,
 					balance[ "accessories" ][ "limit" ] ,
 					balance[ "accessories" ][ "used" ] ,
 				);
@@ -380,13 +411,25 @@
 				$( "#edit-user-button" ).show();
 				let check_in_test = await check_in_uuid_test( typed_input );
 				console.log( check_in_test );
+				window.check_in_test = check_in_test;
+
+				let shopping_for_elem = document.getElementById( "shopping_for" );
+				let shopping_for_value = ( parseInt( check_in_test[ "family_size" ] ) + 1 ); // plus 1 for self // TODO : clean this up
+				console.log( "Shopping For ===" , shopping_for_value )
+				$( "#shopping_for" ).val( shopping_for_value );
+				// const shopping_for_options_to_hide = shopping_for_elem.querySelectorAll( `option[value > "${check_in_test[ "family_size" ]}"]` );
+				const shopping_for_options_to_hide =  Array.from( shopping_for_elem.options ).filter( option => option.value > shopping_for_value );
+				shopping_for_options_to_hide.forEach( option => { option.style.display = 'none'; } );
+
 
 				populate_user_balance_table( check_in_test[ "balance" ] );
 
 				$( "#check-in-button-row" ).show();
+				$( "#active-user-row" ).show();
 				switch ( check_in_test[ "result" ] ) {
 					case true:
-						$( "#active-username" ).text( `${check_in_test[ "name_string" ]} || Family Size = ${check_in_test[ "family_size" ]}` );
+						// $( "#active-username" ).text( `${check_in_test[ "name_string" ]} || Family Size = ${check_in_test[ "family_size" ]}` );
+						$( "#active-username" ).text( `${check_in_test[ "name_string" ]}` );
 						$( "#active-username-time" ).text( "" );
 						$( "#user-balance-table" ).removeClass( "table-danger" );
 						$( "#user-balance-table" ).addClass( "table-success" );
@@ -400,7 +443,9 @@
 						break;
 					case false:
 						let time_remaining_string = convert_milliseconds_to_time_string( check_in_test[ "time_remaining" ] );
-						$( "#active-username" ).text( `${check_in_test[ "name_string" ]} || Family Size = ${check_in_test[ "family_size" ]}` );
+						$(  )
+						// $( "#active-username" ).text( `${check_in_test[ "name_string" ]} || Family Size = ${check_in_test[ "family_size" ]}` );
+						$( "#active-username" ).text( `${check_in_test[ "name_string" ]}` );
 						$( "#active-username-time" ).text( `Needs to wait ${time_remaining_string}` );
 						$( "#user-balance-table" ).removeClass( "table-success" );
 						$( "#user-balance-table" ).addClass( "table-danger" );
@@ -408,7 +453,6 @@
 						$( "#checked-in-alert-false" ).slideDown();
 						break;
 				}
-
 
 			}
 
@@ -438,6 +482,11 @@
 			// 	window.check_in_input.focus();
 			// }
 
+			function on_shopping_for_select_change( event ) {
+				console.log( "on_shopping_for_select_change()" );
+				populate_user_balance_table( window.check_in_test[ "balance" ] );
+			}
+
 			function on_edit_user_button_click( event ) {
 				event.preventDefault();
 				window.open( `/admin/user/edit/${window.check_in_input.value}` , "_blank" );
@@ -450,6 +499,7 @@
 			}
 
 			function reset_search_form() {
+				$( "#active-user-row" ).hide();
 				$( "#edit-user-button" ).hide();
 				$( "#user-search-table" ).hide();
 				// $( "#check-in-input" ).focus();
@@ -481,6 +531,9 @@
 
 				const edit_user_button = document.getElementById( "edit-user-button" );
 				edit_user_button.addEventListener( "click" , on_edit_user_button_click );
+
+				const shopping_for_select = document.getElementById( "shopping_for" );
+				shopping_for_select.addEventListener( "change" , on_shopping_for_select_change );
 			}
 			document.addEventListener( "DOMContentLoaded" , init );
 		</script>

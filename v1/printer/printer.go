@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jung-kurt/gofpdf"
 	// "bufio"
+	"runtime"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -24,7 +25,7 @@ func write_barcode_image( image_path string , barcode_number string ) {
 	png.Encode( file , r )
 }
 
-func clear_printer_que( printer_name string ) {
+func clear_printer_que_mac_osx( printer_name string ) {
 	cmd := exec.Command( "cancel" , "-a" , printer_name )
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -36,8 +37,38 @@ func clear_printer_que( printer_name string ) {
 
 // lpstat -v
 // lp -d "_4BARCODE_4B_2054N" -o PrintSpeed=2 -o fit-to-page "/Users/morpheous/WORKSPACE/GO/TMP2/BarcodePrinterTest/output.pdf"
-func print_pdf( printer_name string , pdf_file_path string ) {
+func print_pdf_mac_osx( printer_name string , pdf_file_path string ) {
 	args := []string{ "lp" , "-d" , printer_name , "-o" , "PrintSpeed=2" , "-o" , "fit-to-page" , pdf_file_path }
+	cmd := exec.Command( args[ 0 ] , args[ 1 : ]... )
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println( "Error Printing PDF: " , err )
+	}
+}
+
+func clear_printer_que_windows( printer_name string ) {
+	cmd := exec.Command( "cancel" , "-a" , printer_name )
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println( "Error Clearing Printer Que:", err )
+	}
+}
+
+// Get Printer Names
+	// wmic printer get name
+// Get Printer Options
+	// wmic printer where "name='Brother MFC-J4535DW'" get /value
+// PDFtoPrinter.exe /printer "Brother MFC-J4535DW" /param "PrintSpeed=2" "myfile.pdf"
+
+// print /D:"'Brother MFC-J4535DW'" "test.pdf"
+// print /D:"printer_name" /o"option1=value1" /o"option2=value2" "file_name"
+// print.exe only prints fucking plaintext ????
+func print_pdf_windows( printer_name string , pdf_file_path string ) {
+	args := []string{ "print" , "/D:" , printer_name , "/o" , "PrintSpeed=2" , pdf_file_path }
 	cmd := exec.Command( args[ 0 ] , args[ 1 : ]... )
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -148,6 +179,11 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 		os.Remove( pdf_temp_file_path )
 	}()
 	pdf.OutputFileAndClose( pdf_temp_file_path )
-	clear_printer_que( config.PrinterName )
-	print_pdf( config.PrinterName , pdf_temp_file_path )
+	if runtime.GOOS == "windows" {
+		clear_printer_que_windows( config.PrinterName )
+		print_pdf_windows( config.PrinterName , pdf_temp_file_path )
+	} else if runtime.GOOS == "darwin" {
+		clear_printer_que_mac_osx( config.PrinterName )
+		print_pdf_mac_osx( config.PrinterName , pdf_temp_file_path )
+	}
 }
