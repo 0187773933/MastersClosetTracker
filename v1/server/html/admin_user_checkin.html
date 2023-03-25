@@ -378,6 +378,7 @@
 			async function search_input( event ) {
 				console.log( "search_input()" );
 				if ( event ) { event.preventDefault(); }
+				$( "#active-user-row" ).hide();
 				$( "#edit-user-button" ).hide();
 				$( "#user-search-table" ).hide();
 				$( "#user-balance-table-row" ).hide();
@@ -407,11 +408,13 @@
 					if ( !results ) {
 						// TODO : Present bootstrap popup
 						alert( "Couldn't Find User !!!" );
+						reset_search_form();
 						return false;
 					}
 					if ( results.length < 1 ) {
 						// TODO : Present bootstrap popup
 						alert( "Couldn't Find User !!!" );
+						reset_search_form();
 						return false;
 					}
 					populate_user_search_table( results );
