@@ -8,6 +8,7 @@ import (
 	json "encoding/json"
 	// bolt "github.com/0187773933/MastersClosetTracker/v1/bolt"
 	bolt "github.com/boltdb/bolt"
+	// bleve "github.com/blevesearch/bleve/v2"
 	// uuid "github.com/satori/go.uuid"
 	encrypt "github.com/0187773933/MastersClosetTracker/v1/encryption"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
@@ -75,6 +76,7 @@ type Person struct {
 }
 
 type User struct {
+	Config *types.ConfigFile `json:"-"`
 	Username string `json:"username"`
 	NameString string `json:"name_string"`
 	UUID string `json:"uuid"`
@@ -118,6 +120,19 @@ type GetUserResult struct {
 // 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
 // 	return
 // }
+
+func ( u *User ) Save() {
+	byte_object , _ := json.Marshal( u )
+	byte_object_encrypted := encrypt.ChaChaEncryptBytes( u.Config.BoltDBEncryptionKey , byte_object )
+	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+	db_result := db.Update( func( tx *bolt.Tx ) error {
+		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
+		users_bucket.Put( []byte( u.UUID ) , byte_object_encrypted )
+		return nil
+	})
+	db.Close()
+	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
+}
 
 func FormatUsername( x_user *User ) {
 	// username := fmt.Sprintf( "%s-%s-%s" , x_user.Identity.FirstName , x_user.Identity.MiddleName , x_user.Identity.LastName )
@@ -194,6 +209,10 @@ func GetByUUID( user_uuid string , db *bolt.DB , encryption_key string ) ( viewe
 	})
 	return
 }
+
+// func ( u *User ) XRefillBalance() {
+
+// }
 
 func RefillBalance( user_uuid string , db *bolt.DB , encryption_key string , balance_config types.BalanceConfig , family_size int ) ( new_balance Balance ) {
 	var viewed_user User

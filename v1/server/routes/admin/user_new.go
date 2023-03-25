@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 	"strings"
+	"reflect"
 	"strconv"
 	json "encoding/json"
 	uuid "github.com/satori/go.uuid"
@@ -102,6 +103,7 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
 
+
 	// 2.) Early Return if User Already Exists
 	// TODO : Add more sophisticated exists? check
 	username_exists , exists_uuid := user.UserNameExists( new_user.Username , db )
@@ -146,6 +148,7 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 		UUID: new_user.UUID ,
 		Name: strings.ReplaceAll( new_user.Username , "-" , " " ) ,
 	}
+	fmt.Println( reflect.TypeOf( search_index ) )
 	search_index.Index( new_user.UUID , new_search_item )
 
 	//return context.Redirect( fmt.Sprintf( "/admin/user/new/handoff/%s" , new_user.UUID ) )

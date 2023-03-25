@@ -40,6 +40,8 @@
 	- keeps only uuids as keys
 10. Make config editable via html
 11. Make tables sortable
+12. Change everything to user struct methods
+13. Imprimir Boletos en Español
 
 ## Misc
 
