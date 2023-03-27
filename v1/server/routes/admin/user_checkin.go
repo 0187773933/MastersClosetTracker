@@ -34,6 +34,7 @@ type CheckInBalanceForm struct {
 	AccessoriesUsed int `json:"balance_accessories_used"`
 }
 
+
 // We changed this to a POST Form , so now we have to parse it
 func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
@@ -137,6 +138,18 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/checkin/:uuid" ,
 		"result": true ,
+	})
+}
+
+func UserCheckInTestV2( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	x_user_uuid := context.Params( "uuid" )
+	x_user := user.GetViaUUID( x_user_uuid , GlobalConfig )
+	check_in_test := x_user.CheckInTest()
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/checkin/testv2/:uuid" ,
+		"result": check_in_test ,
+		"user": x_user ,
 	})
 }
 

@@ -9,7 +9,7 @@ import (
 	// bolt "github.com/0187773933/MastersClosetTracker/v1/bolt"
 	bolt "github.com/boltdb/bolt"
 	// bleve "github.com/blevesearch/bleve/v2"
-	// uuid "github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 	encrypt "github.com/0187773933/MastersClosetTracker/v1/encryption"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
 )
@@ -18,14 +18,16 @@ type CheckIn struct {
 	Date string `json:"date"`
 	Time string `json:"time"`
 	Type string `json:"type"`
+	Result bool `json:"result"`
+	TimeRemaining int `json:"time_remaining"`
 }
 
-type FailedCheckIn struct {
-	Date string `json:"date"`
-	Time string `json:"time"`
-	Type string `json:"type"`
-	DaysRemaining int `json:"remaining_days"`
-}
+// type FailedCheckIn struct {
+// 	Date string `json:"date"`
+// 	Time string `json:"time"`
+// 	Type string `json:"type"`
+// 	DaysRemaining int `json:"remaining_days"`
+// }
 
 type BalanceItem struct {
 	Available int `json:"available"`
@@ -90,8 +92,12 @@ type User struct {
 	CreatedDate string `json:"created_date"`
 	CreatedTime string `json:"created_time"`
 	CheckIns []CheckIn `json:"check_ins"`
-	FailedCheckIns []FailedCheckIn `json:"failed_check_ins"`
+	// FailedCheckIns []FailedCheckIn `json:"failed_check_ins"`
+	FailedCheckIns []CheckIn `json:"failed_check_ins"`
 	Balance Balance `json:"balance"`
+	TimeRemaining int `json:"time_remaining"`
+	AllowedToCheckIn bool `json:"allowed_to_checkin"`
+	Language string `json:"language"`
 }
 
 type GetUserResult struct {
@@ -100,38 +106,213 @@ type GetUserResult struct {
 	LastCheckIn CheckIn `json:"last_check_in"`
 }
 
-// func New( username string , db *bolt.DB , encryption_key string ) ( new_user User ) {
-// 	now := time.Now()
-// 	new_user_uuid := uuid.NewV4().String()
-// 	new_user.Username = username
-// 	new_user.UUID = new_user_uuid
-// 	new_user.CreatedDate = now.Format( "02JAN2006" )
-// 	new_user.CreatedTime = now.Format( "15:04:05.000" )
-// 	new_user_byte_object , _ := json.Marshal( new_user )
-// 	new_user_byte_object_encrypted := encrypt.ChaChaEncryptBytes( encryption_key , new_user_byte_object )
-// 	db_result := db.Update( func( tx *bolt.Tx ) error {
-// 		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
-// 		users_bucket.Put( []byte( new_user_uuid ) , new_user_byte_object_encrypted )
-// 		usernames_bucket , _ := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
-// 		// something something holographic encryption would be nice here
-// 		usernames_bucket.Put( []byte( username ) , []byte( "1" ) )
-// 		return nil
-// 	})
-// 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
-// 	return
-// }
+func New( username string , config *types.ConfigFile ) ( new_user User ) {
+	now := time.Now()
+	new_user_uuid := uuid.NewV4().String()
+	new_user.Username = username
+	new_user.UUID = new_user_uuid
+	new_user.FamilySize = 1
+	new_user.CreatedDate = now.Format( "02JAN2006" )
+	new_user.CreatedTime = now.Format( "15:04:05.000" )
+	new_user_byte_object , _ := json.Marshal( new_user )
+	new_user_byte_object_encrypted := encrypt.ChaChaEncryptBytes( config.BoltDBEncryptionKey , new_user_byte_object )
+	db , _ := bolt.Open( config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+	db_result := db.Update( func( tx *bolt.Tx ) error {
+		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
+		users_bucket.Put( []byte( new_user_uuid ) , new_user_byte_object_encrypted )
+		usernames_bucket , _ := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
+		// ideally : bcrypted first and last name search --> base64 salsabox username --> uuid --> user
+		// but we have bleve search
+		// would have to encrypt decrypt it each time
+		// holomorphic search ?
+		usernames_bucket.Put( []byte( username ) , []byte( new_user.UUID ) )
+		return nil
+	})
+	db.Close()
+	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
+	return
+}
+
+func ( u *User ) UpdateSelfFromDB() {
+	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+	db_result := db.View( func( tx *bolt.Tx ) error {
+		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
+		x_user := users_bucket.Get( []byte( u.UUID ) )
+		decrypted_bucket_value := encrypt.ChaChaDecryptBytes( u.Config.BoltDBEncryptionKey , x_user )
+		json.Unmarshal( decrypted_bucket_value , &u )
+		return nil
+	})
+	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
+}
 
 func ( u *User ) Save() {
 	byte_object , _ := json.Marshal( u )
 	byte_object_encrypted := encrypt.ChaChaEncryptBytes( u.Config.BoltDBEncryptionKey , byte_object )
 	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
 	db_result := db.Update( func( tx *bolt.Tx ) error {
 		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
 		users_bucket.Put( []byte( u.UUID ) , byte_object_encrypted )
 		return nil
 	})
-	db.Close()
 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
+}
+
+func ( u *User ) RefillBalance() {
+	u.Balance.General.Total = ( u.Config.Balance.General.Total * u.FamilySize )
+	u.Balance.General.Available = ( u.Config.Balance.General.Total * u.FamilySize )
+	u.Balance.General.Tops.Limit = ( u.Config.Balance.General.Tops * u.FamilySize )
+	u.Balance.General.Tops.Available = ( u.Config.Balance.General.Tops * u.FamilySize )
+	u.Balance.General.Bottoms.Limit = ( u.Config.Balance.General.Bottoms * u.FamilySize )
+	u.Balance.General.Bottoms.Available = ( u.Config.Balance.General.Bottoms * u.FamilySize )
+	u.Balance.General.Dresses.Limit = ( u.Config.Balance.General.Dresses * u.FamilySize )
+	u.Balance.General.Dresses.Available = ( u.Config.Balance.General.Dresses * u.FamilySize )
+	u.Balance.Shoes.Limit = ( u.Config.Balance.Shoes * u.FamilySize )
+	u.Balance.Shoes.Available = ( u.Config.Balance.Shoes * u.FamilySize )
+	u.Balance.Seasonals.Limit = ( u.Config.Balance.Seasonals * u.FamilySize )
+	u.Balance.Seasonals.Available = ( u.Config.Balance.Seasonals * u.FamilySize )
+	u.Balance.Accessories.Limit = ( u.Config.Balance.Accessories * u.FamilySize )
+	u.Balance.Accessories.Available = ( u.Config.Balance.Accessories * u.FamilySize )
+	u.Save()
+	return
+}
+
+func ( u *User ) FormatUsername() {
+	var username_format string
+	var name_string_format string
+	var username_parts []interface{}
+	if u.Identity.FirstName != "" && u.Identity.MiddleName != "" && u.Identity.LastName != "" {
+		username_format = "%s-%s-%s"
+		name_string_format = "%s %s %s"
+		username_parts = []interface{}{u.Identity.FirstName, u.Identity.MiddleName, u.Identity.LastName}
+	} else if u.Identity.FirstName != "" && u.Identity.MiddleName != "" {
+		username_format = "%s-%s"
+		name_string_format = "%s %s"
+		username_parts = []interface{}{u.Identity.FirstName, u.Identity.MiddleName}
+	} else if u.Identity.FirstName != "" && u.Identity.LastName != "" {
+		username_format = "%s-%s"
+		name_string_format = "%s %s"
+		username_parts = []interface{}{u.Identity.FirstName, u.Identity.LastName}
+	} else if u.Identity.MiddleName != "" && u.Identity.LastName != "" {
+		username_format = "%s-%s"
+		name_string_format = "%s %s"
+		username_parts = []interface{}{u.Identity.MiddleName, u.Identity.LastName}
+	} else if u.Identity.FirstName != "" {
+		username_format = "%s"
+		name_string_format = "%s"
+		username_parts = []interface{}{u.Identity.FirstName}
+	} else if u.Identity.MiddleName != "" {
+		username_format = "%s"
+		name_string_format = "%s"
+		username_parts = []interface{}{u.Identity.MiddleName}
+	} else if u.Identity.LastName != "" {
+		username_format = "%s"
+		name_string_format = "%s"
+		username_parts = []interface{}{u.Identity.LastName}
+	} else {
+		username_format = ""
+		name_string_format = ""
+		username_parts = []interface{}{}
+	}
+	if username_format != "" {
+		u.Username = fmt.Sprintf( username_format , username_parts... )
+		u.NameString = fmt.Sprintf( name_string_format , username_parts... )
+	}
+}
+
+func ( u *User ) CheckInTest() ( check_in CheckIn ) {
+
+	// 1.) prelim
+	result := false
+	time_remaining := -1
+	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+
+	// 2.) Test if Check-In is possible
+	now := time.Now()
+	now_time_zone := now.Location()
+	check_in.Date = now.Format( "02Jan2006" )
+	check_in.Time = now.Format( "15:04:05.000" )
+
+	if len( u.CheckIns ) < 1 {
+		check_in.Result = true
+		time_remaining = 0
+	} else {
+		// user has checked in before , need to compare last check-in date to now
+		// only comparing the dates , not the times
+		last_check_in := u.CheckIns[ len( u.CheckIns ) - 1 ]
+		last_check_in_date , _ := time.ParseInLocation( "02Jan2006" , last_check_in.Date , now_time_zone )
+		fmt.Println( "Now ===" , now )
+		fmt.Println( "Last ===" , last_check_in_date )
+
+		cool_off_hours := ( 24 * u.Config.CheckInCoolOffDays )
+		fmt.Println( "Cooloff Hours ===" , cool_off_hours )
+		cool_off_duration , _ := time.ParseDuration( fmt.Sprintf( "%dh" , cool_off_hours ) )
+		fmt.Println( "Cooloff Duration ===" , cool_off_duration )
+
+		check_in_date_difference := now.Sub( last_check_in_date )
+		fmt.Println( "Difference ===" , check_in_date_difference )
+
+		// Negative Values Mean The User Has Waited Long Enough
+		// Positive Values Mean the User Still has to wait
+		time_remaining_duration := ( cool_off_duration - check_in_date_difference )
+		fmt.Println( "Time Remaining ===" , time_remaining_duration )
+
+		if time_remaining_duration < 0 {
+			// "the user waited long enough before checking in again"
+			check_in.Result = true
+			time_remaining = 0
+		} else {
+
+			days_remaining := int( time_remaining_duration.Hours() / 24 )
+			time_remaining_string := time_remaining_duration.String()
+			fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait : %d days , or %s\n" , days_remaining , time_remaining_string )
+
+			result = false
+			time_remaining = int( time_remaining_duration.Milliseconds() )
+		}
+	}
+	u.TimeRemaining = time_remaining
+	u.AllowedToCheckIn = result
+	check_in.Date = strings.ToUpper( check_in.Date )
+	check_in.TimeRemaining = time_remaining
+	check_in.Result = result
+	return
+}
+
+func ( u *User ) CheckIn() ( check_in CheckIn ) {
+	check_in = u.CheckInTest()
+	if ( u.AllowedToCheckIn == false ) {
+		fmt.Println( "User timed out" )
+		u.FailedCheckIns = append( u.FailedCheckIns , check_in )
+		u.Save()
+		return
+	}
+	if check_in.Result == true {
+		// "the user waited long enough before checking in again"
+		check_in.Type = "new"
+		u.CheckIns = append( u.CheckIns , check_in )
+	} else {
+		// days_remaining := int( check_in.Remaining.Hours() / 24 )
+		// time_remaining_string := time_remaining_duration.String()
+		// fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait : %d days , or %s\n" , days_remaining , time_remaining_string )
+		// time_remaining = int( time_remaining_duration.Milliseconds() )
+		// new_check_in.TimeRemaining = time_remaining
+		fmt.Println( "time remaining ===" , check_in.TimeRemaining )
+	}
+	u.Save()
+	return
+}
+
+func ( u *User ) CheckInForce() ( check_in CheckIn ) {
+	check_in = u.CheckInTest()
+	check_in.Type = "forced"
+	check_in.Result = true
+	check_in.TimeRemaining = 0
+	u.CheckIns = append( u.CheckIns , check_in )
+	u.Save()
+	return
 }
 
 func FormatUsername( x_user *User ) {
@@ -197,6 +378,7 @@ func UserNameExists( username string , db *bolt.DB ) ( result bool , uuid string
 	return
 }
 
+// renaming
 func GetByUUID( user_uuid string , db *bolt.DB , encryption_key string ) ( viewed_user User ) {
 	db.View( func( tx *bolt.Tx ) error {
 		bucket := tx.Bucket( []byte( "users" ) )
@@ -210,9 +392,21 @@ func GetByUUID( user_uuid string , db *bolt.DB , encryption_key string ) ( viewe
 	return
 }
 
-// func ( u *User ) XRefillBalance() {
-
-// }
+func GetViaUUID( user_uuid string , config *types.ConfigFile ) ( viewed_user User ) {
+	db , _ := bolt.Open( config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+	db.View( func( tx *bolt.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket_value := bucket.Get( []byte( user_uuid ) )
+		if bucket_value == nil { return nil }
+		decrypted_bucket_value := encrypt.ChaChaDecryptBytes( config.BoltDBEncryptionKey , bucket_value )
+		// fmt.Println( string( decrypted_bucket_value ) )
+		json.Unmarshal( decrypted_bucket_value , &viewed_user )
+		return nil
+	})
+	viewed_user.Config = config
+	return
+}
 
 func RefillBalance( user_uuid string , db *bolt.DB , encryption_key string , balance_config types.BalanceConfig , family_size int ) ( new_balance Balance ) {
 	var viewed_user User
@@ -379,15 +573,19 @@ func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_
 			time_remaining_string := time_remaining_duration.String()
 			fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait : %d days , or %s\n" , days_remaining , time_remaining_string )
 
-			var new_failed_check_in FailedCheckIn
-			new_failed_check_in.Date = strings.ToUpper( new_check_in.Date )
-			new_failed_check_in.Time = new_check_in.Time
-			new_failed_check_in.Type = "normal"
-			new_failed_check_in.DaysRemaining = days_remaining
-			viewed_user.FailedCheckIns = append( viewed_user.FailedCheckIns , new_failed_check_in )
+			// var new_failed_check_in FailedCheckIn
+			// new_failed_check_in.Date = strings.ToUpper( new_check_in.Date )
+			// new_failed_check_in.Time = new_check_in.Time
+			// new_failed_check_in.Type = "normal"
+			// new_failed_check_in.DaysRemaining = days_remaining
+			// viewed_user.FailedCheckIns = append( viewed_user.FailedCheckIns , new_failed_check_in )
+
+			time_remaining = int( time_remaining_duration.Milliseconds() )
+			new_check_in.TimeRemaining = time_remaining
+			new_check_in.Result = false
+			viewed_user.FailedCheckIns = append( viewed_user.FailedCheckIns , new_check_in )
 
 			result = false
-			time_remaining = int( time_remaining_duration.Milliseconds() )
 		}
 	}
 	viewed_user_byte_object , _ := json.Marshal( viewed_user )
