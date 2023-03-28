@@ -5,6 +5,8 @@
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+		<script src="/cdn/api.js" crossorigin="anonymous"></script>
+		<script src="/cdn/utils.js" crossorigin="anonymous"></script>
 	</head>
 	<body>
 		<br>
@@ -30,130 +32,6 @@
 			<div class="row" id="main-row"></div>
 		</div>
 		<script>
-
-			const uuid_v4_regex = /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
-			function is_uuid( str ) { return uuid_v4_regex.test( str ); }
-			const barcode_regex = /^\d+$/;
-			function is_barcode( str ) { return barcode_regex.test( str ); }
-			function sleep( ms ) { return new Promise( resolve => setTimeout( resolve , ms ) ); }
-
-			function convert_milliseconds_to_time_string( milliseconds ) {
-				let seconds = Math.floor( milliseconds / 1000 );
-				let minutes = Math.floor( seconds / 60 );
-				let hours = Math.floor( minutes / 60 );
-				let days = Math.floor( hours / 24 );
-				hours %= 24;
-				minutes %= 60;
-				seconds %= 60;
-
-				let time_string = `${days} days , ${hours} hours , ${minutes} minutes , and ${seconds} seconds`;
-				return time_string;
-			}
-
-			function check_in_uuid( uuid , balance_form_data ) {
-				return new Promise( async function( resolve , reject ) {
-					try {
-						let json_balance_form_data = JSON.stringify( balance_form_data );
-						let check_in_url = `/admin/user/checkin/${uuid}`;
-						let check_in_response = await fetch( check_in_url , {
-							method: "POST" ,
-							body: json_balance_form_data
-						});
-						let response_json = await check_in_response.json();
-						let result = response_json[ "result" ];
-						resolve( result );
-						return;
-					}
-					catch( error ) { console.log( error ); reject( error ); return; }
-				});
-			}
-
-			function check_in_uuid_test( uuid ) {
-				return new Promise( async function( resolve , reject ) {
-					try {
-						let check_in_url = `/admin/user/checkin/test/${uuid}`;
-						let check_in_response = await fetch( check_in_url , {
-							method: "GET" ,
-							headers: { "Content-Type": "application/json" }
-						});
-						let response_json = await check_in_response.json();
-						resolve( response_json );
-						return;
-					}
-					catch( error ) { console.log( error ); reject( error ); return; }
-				});
-			}
-
-			function get_user_from_barcode( barcode ) {
-				return new Promise( async function( resolve , reject ) {
-					try {
-						let check_in_url = `/admin/user/get/barcode/${barcode}`;
-						let check_in_response = await fetch( check_in_url , {
-							method: "GET" ,
-							headers: { "Content-Type": "application/json" }
-						});
-						let response_json = await check_in_response.json();
-						let user = response_json[ "result" ];
-						resolve( user );
-						return;
-					}
-					catch( error ) { console.log( error ); reject( error ); return; }
-				});
-			}
-
-			function get_user_from_uuid( uuid ) {
-				return new Promise( async function( resolve , reject ) {
-					try {
-						let check_in_url = `/admin/user/get/${uuid}`;
-						let check_in_response = await fetch( check_in_url , {
-							method: "GET" ,
-							headers: { "Content-Type": "application/json" }
-						});
-						let response_json = await check_in_response.json();
-						let user = response_json[ "result" ];
-						resolve( user );
-						return;
-					}
-					catch( error ) { console.log( error ); reject( error ); return; }
-				});
-			}
-
-			function search_username( username ) {
-				return new Promise( async function( resolve , reject ) {
-					try {
-						if ( !username ) { resolve( false ); return; }
-						let search_url = `/admin/user/search/username/${username}`;
-						let check_in_response = await fetch( search_url , {
-							method: "GET" ,
-							headers: { "Content-Type": "application/json" }
-						});
-						let response_json = await check_in_response.json();
-						let result = response_json[ "result" ];
-						if ( result === "not found" ) { result = false; }
-						resolve( result );
-						return;
-					}
-					catch( error ) { console.log( error ); resolve( false ); return; }
-				});
-			}
-
-			function fuzzy_search_username( username ) {
-				return new Promise( async function( resolve , reject ) {
-					try {
-						if ( !username ) { resolve( false ); return; }
-						let search_url = `/admin/user/search/username/fuzzy/${username}`;
-						let check_in_response = await fetch( search_url , {
-							method: "GET" ,
-							headers: { "Content-Type": "application/json" }
-						});
-						let response_json = await check_in_response.json();
-						let result = response_json[ "result" ];
-						resolve( result );
-						return;
-					}
-					catch( error ) { console.log( error ); resolve( false ); return; }
-				});
-			}
 
 			function populate_user_search_table( users ) {
 				$( "#user-search-table" ).show();
