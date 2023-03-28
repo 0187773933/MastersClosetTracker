@@ -118,7 +118,7 @@ function populate_user_search_table( users ) {
 			window.USER = users[ i ];
 			// _on_check_in_input_change( users[ i ][ "uuid" ] );
 			// $( "#main-row" ).trigger( "render_active_user" , users[ i ] );
-			render_active_user();
+			window.UI.render_active_user();
 		};
 		select_button_holder.appendChild( select_button );
 		_tr.appendChild( select_button_holder );
@@ -147,7 +147,13 @@ function get_ui_user_balance_table() {
 			</div>
 		</div>
 		<div class="col-md-1"></div>
-	</div>`;
+		<center>
+			<button id="print-checkin-button" type="submit" class="btn btn-success">Print</button>
+		</center>
+	</div>
+
+	`;
+
 }
 function _add_balance_row( table_body_element , name , available , limit , used ) {
 	let _tr = document.createElement( "tr" );
@@ -242,133 +248,170 @@ function populate_user_balance_table( shopping_for , balance , balance_config ) 
 
 function get_ui_user_edit_form() {
 	return `
-	<form id="user-edit-form" action="/admin/user/edit" onSubmit="return on_submit( event )" method="post">
-		<!-- Main Required Stuff -->
-		<div class="row g-2 mb-3">
-			<div class="col-md-4">
-				<div class="form-floating">
-					<input id="user_first_name" type="text" class="form-control" name="user_first_name">
-					<label for="user_first_name">First Name</label>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="form-floating">
-					<input id="user_middle_name" type="text" class="form-control" name="user_middle_name">
-					<label for="user_middle_name">Middle Name</label>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="form-floating">
-					<input id="user_last_name" type="text" class="form-control" name="user_last_name">
-					<label for="user_last_name">Last Name</label>
-				</div>
-			</div>
-		</div>
-		<div class="row g-2 mb-3">
-				<div class="col-md-2"></div>
-				<div class="col-md-4">
-					<div class="form-floating">
-						<input id="user_email" type="email" class="form-control" name="user_email">
-						<label for="user_email">Email Address</label>
+	<div class="row">
+		<center>
+			<form id="user-edit-form" action="/admin/user/edit" onSubmit="return on_submit( event )" method="post">
+				<!-- Main Required Stuff -->
+				<div class="row g-2 mb-3">
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_first_name" type="text" class="form-control" name="user_first_name">
+							<label for="user_first_name">First Name</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_middle_name" type="text" class="form-control" name="user_middle_name">
+							<label for="user_middle_name">Middle Name</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_last_name" type="text" class="form-control" name="user_last_name">
+							<label for="user_last_name">Last Name</label>
+						</div>
 					</div>
 				</div>
-				<div class="col-md-4">
-					<div class="form-floating">
-						<input id="user_phone_number" type="tel" class="form-control" name="user_phone_number">
-						<label for="user_phone_number">Phone Number</label>
+				<div class="row g-2 mb-3">
+						<div class="col-md-2"></div>
+						<div class="col-md-4">
+							<div class="form-floating">
+								<input id="user_email" type="email" class="form-control" name="user_email">
+								<label for="user_email">Email Address</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating">
+								<input id="user_phone_number" type="tel" class="form-control" name="user_phone_number">
+								<label for="user_phone_number">Phone Number</label>
+							</div>
+						</div>
+						<div class="col-md-2"></div>
+				</div>
+
+				<div class="row g-2 mb-3">
+					<div class="col-md-4"></div>
+					<div class="col-md-4">
+						<button id="add-barcode-button" class="btn btn-primary" onclick="on_add_barcode(event);">Add Barcode</button>
+					</div>
+					<div class="col-md-4"></div>
+				</div>
+
+				<div id="user_barcodes"></div>
+
+				<br>
+
+				<!-- Address - Part 1-->
+				<div class="row g-2 mb-3">
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_street_number" type="text" class="form-control" name="user_street_number">
+							<label for="user_street_number">Street Number</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_street_name" type="text" class="form-control" name="user_street_name">
+							<label for="user_street_name">Street Name</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_address_two" type="text" class="form-control" name="user_street_name">
+							<label for="user_address_two">Address 2</label>
+						</div>
 					</div>
 				</div>
-				<div class="col-md-2"></div>
-		</div>
+				<!-- Address - Part 2-->
+				<div class="row g-2 mb-3">
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_city" type="text" class="form-control" name="user_city">
+							<label for="user_city">City</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_state" type="text" class="form-control" name="user_state">
+							<label for="user_state">State</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_zip_code" type="text" class="form-control" name="user_zip_code">
+							<label for="user_zip_code">Zip Code</label>
+						</div>
+					</div>
+				</div>
+				<br>
+				<!-- Extras -->
+				<div class="row g-2 mb-3">
 
-		<div class="row g-2 mb-3">
-			<div class="col-md-4"></div>
-			<div class="col-md-4">
-				<button id="add-barcode-button" class="btn btn-primary" onclick="on_add_barcode(event);">Add Barcode</button>
-			</div>
-			<div class="col-md-4"></div>
-		</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_birth_day" type="number" min="1" max="31" class="form-control" name="user_birth_day">
+							<label for="user_birth_day">Birth Day</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<select id="user_birth_month" class="form-select" aria-label="User Birth Month" name="user_birth_month">
+								<option value="JAN">JAN = 1</option>
+								<option value="FEB">FEB = 2</option>
+								<option value="MAR">MAR = 3</option>
+								<option value="APR">APR = 4</option>
+								<option value="MAY">MAY = 5</option>
+								<option value="JUN">JUN = 6</option>
+								<option value="JUL">JUL = 7</option>
+								<option value="AUG">AUG = 8</option>
+								<option value="SEP">SEP = 9</option>
+								<option value="OCT">OCT = 10</option>
+								<option value="NOV">NOV = 11</option>
+								<option value="DEC">DEC = 12</option>
+							</select>
+							<label for="user_birth_month">Birth Month</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_birth_year" type="number" min="1900" max="2100" class="form-control" name="user_birth_year">
+							<label for="user_birth_year">Birth Year</label>
+						</div>
+					</div>
+				</div>
 
-		<div id="user_barcodes"></div>
+				<br>
 
-		<br>
+				<div class="row g-2 mb-3">
+					<div class="col-md-4"></div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<select id="user_family_size" class="form-select" aria-label="User Family Size" name="user_family_size">
+								<option value="0">0</option>
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+								<option value="6">6</option>
+							</select>
+							<label for="user_family_size">Family Members</label>
+						</div>
+					</div>
+					<div class="col-md-4"></div>
+				</div>
 
-		<!-- Address - Part 1-->
-		<div class="row g-2 mb-3">
-			<div class="col-md-4">
-				<div class="form-floating">
-					<input id="user_street_number" type="text" class="form-control" name="user_street_number">
-					<label for="user_street_number">Street Number</label>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="form-floating">
-					<input id="user_street_name" type="text" class="form-control" name="user_street_name">
-					<label for="user_street_name">Street Name</label>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="form-floating">
-					<input id="user_address_two" type="text" class="form-control" name="user_street_name">
-					<label for="user_address_two">Address 2</label>
-				</div>
-			</div>
-		</div>
-		<!-- Address - Part 2-->
-		<div class="row g-2 mb-3">
-			<div class="col-md-4">
-				<div class="form-floating">
-					<input id="user_city" type="text" class="form-control" name="user_city">
-					<label for="user_city">City</label>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="form-floating">
-					<input id="user_state" type="text" class="form-control" name="user_state">
-					<label for="user_state">State</label>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="form-floating">
-					<input id="user_zip_code" type="text" class="form-control" name="user_zip_code">
-					<label for="user_zip_code">Zip Code</label>
-				</div>
-			</div>
-		</div>
-		<br>
-		<!-- Extras -->
-		<div class="row g-2 mb-3">
+				<div id="user_family_members">
 
-			<div class="col-md-4">
-				<div class="form-floating">
-					<input id="user_birth_day" type="number" min="1" max="31" class="form-control" name="user_birth_day">
-					<label for="user_birth_day">Birth Day</label>
 				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="form-floating">
-					<select id="user_birth_month" class="form-select" aria-label="User Birth Month" name="user_birth_month">
-						<option value="JAN">JAN = 1</option>
-						<option value="FEB">FEB = 2</option>
-						<option value="MAR">MAR = 3</option>
-						<option value="APR">APR = 4</option>
-						<option value="MAY">MAY = 5</option>
-						<option value="JUN">JUN = 6</option>
-						<option value="JUL">JUL = 7</option>
-						<option value="AUG">AUG = 8</option>
-						<option value="SEP">SEP = 9</option>
-						<option value="OCT">OCT = 10</option>
-						<option value="NOV">NOV = 11</option>
-						<option value="DEC">DEC = 12</option>
-					</select>
-					<label for="user_birth_month">Birth Month</label>
+
+				<br>
+
+				<div class="form-row">
+					<button id ="save-button" type="submit" class="btn btn-success">Save</button>
 				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="form-floating">
-					<input id="user_birth_year" type="number" min="1900" max="2100" class="form-control" name="user_birth_year">
-					<label for="user_birth_year">Birth Year</label>
-				</div>
-			</div>
-		</div>`;
+
+			</form>
+		</center>
+	</div>`;
 }

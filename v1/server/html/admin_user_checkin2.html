@@ -24,7 +24,6 @@
 				</div>
 				<div class="col-lg-2 col-md-1"></div>
 			</div>
-			<br>
 			<div class="row" id="buttons-row">
 				<center>
 					<button id="check-in-button" type="submit" class="btn btn-success">Check-In</button>
@@ -36,97 +35,6 @@
 			<div class="row" id="main-row"></div>
 		</div>
 		<script>
-
-			// http://localhost:5950/admin/user/edit/001393f1-0d0f-4b19-a690-f5bfceb28415
-
-			async function render_active_user( event ) {
-
-				console.log( "render_active_user()" )
-
-				// 1.) Prep UI
-				window.UI.show_all_buttons();
-				window.UI.stack = [ "active_user_info" , "shopping_for_selector" , "user_balance_table" ];
-				window.UI.render();
-				$( "#active-username" ).text( window.USER.name_string );
-
-				// 2.) Pre-Check the Current Check-In Status of the User
-				console.log( window.USER );
-				let check_in_test = await check_in_uuid_test( window.USER.uuid );
-				console.log( check_in_test );
-
-				// 3.) Update Shopping-For Selector
-				let shopping_for_elem = document.getElementById( "shopping_for" );
-				let shopping_for_max = ( check_in_test.user.family_members.length + 1 );
-				let shopping_for_value = ( check_in_test.user.family_members.length + 1 );
-				$( "#shopping_for" ).val( shopping_for_value );
-				const shopping_for_options_to_hide =  Array.from( shopping_for_elem.options ).filter( option => option.value > shopping_for_value );
-				shopping_for_options_to_hide.forEach( option => { option.style.display = "none"; } );
-
-				$( "#shopping_for" ).on( "change" , ( event ) => {
-					console.log( `on_shopping_for_change( ${event.target.value} )` );
-					populate_user_balance_table( event.target.value , check_in_test.user.balance , check_in_test.balance_config );
-				});
-
-				// 4.) Populate Balance Table
-				populate_user_balance_table( shopping_for_value , check_in_test.user.balance , check_in_test.balance_config );
-
-				// 5.) Stylize Table Based on Pre-Check-In Result
-				switch ( check_in_test.result.result ) {
-					case true:
-						$( "#user-balance-table" ).removeClass( "table-danger" );
-						$( "#user-balance-table" ).addClass( "table-success" );
-						break;
-					case false:
-						$( "#active-user-time-remaining" ).text( convert_milliseconds_to_time_string( check_in_test.result.time_remaining ) );
-						$( "#user-balance-table" ).removeClass( "table-success" );
-						$( "#user-balance-table" ).addClass( "table-danger" );
-						break;
-				}
-
-			}
-
-			async function check_in_uuid_input( event ) {
-				if ( event ) { event.preventDefault(); }
-				let typed_input = window.check_in_input.value;
-
-				let balance_table = document.getElementById( "user-balance-table-body" );
-				let balance_inputs = balance_table.querySelectorAll( "input" );
-
-				let form_data = { "uuid": typed_input };
-				for ( let i = 0; i < balance_inputs.length; ++i ) {
-					form_data[ balance_inputs[ i ].id ] = parseInt( balance_inputs[ i ].value );
-				}
-				let valid_check_in = await check_in_uuid( typed_input , form_data );
-				console.log( `${typed_input} === Checked In === ${valid_check_in}` );
-
-				reset_search_form();
-			}
-
-			// function on_override_button_click( event ) {
-			// 	event.preventDefault();
-			// 	alert( "Not Implemented Yet !!!" );
-			// 	// TODO : call backend "/admin/user/checkin/override/${uuid}"
-			// 	$( "#checked-in-alert-false" ).slideUp();
-			// 	window.check_in_input.value = "";
-			// 	window.check_in_input.focus();
-			// }
-
-			function on_shopping_for_select_change( event ) {
-				console.log( "on_shopping_for_select_change()" );
-				populate_user_balance_table( window.check_in_test[ "balance" ] );
-			}
-
-			function on_edit_user_button_click( event ) {
-				event.preventDefault();
-				window.open( `/admin/user/edit/${window.check_in_input.value}` , "_blank" );
-				window.focus();
-			}
-
-			function on_block_button_click( event ) {
-				event.preventDefault();
-				reset_search_form();
-			}
-
 			class MCT_UI {
 				constructor( options={} ) {
 					this.options = options;
@@ -143,10 +51,13 @@
 						}
 					}
 					$( this.options.anchor ).on( "render_active_user" , this.render_active_user );
+					this.clear();
 				}
 				clear() {
+					$( "#user-search-input" ).val( "" );
 					this.hide_all_buttons();
 					$( this.options.anchor ).html( "" );
+					$( "#user-search-input" ).focus();
 				}
 				hide_all_buttons() {
 					for ( let i = 0; i < this.buttons.length; ++i ) {
@@ -176,14 +87,91 @@
 					this.render();
 					populate_user_search_table( search_results );
 				}
-				// render_active_user( user ) {
-				// 	console.log( "render_active_user()" );
-				// 	console.log( user );
-				// 	this.stack = [ "user_balance_table" ];
-				// 	this.render();
-				// 	// populate_user_balance_table(  );
-				// }
+				async render_active_user( user ) {
+					console.log( "render_active_user()" );
+
+					// 1.) Prep UI
+					this.show_all_buttons();
+					$( "#check-in-button" ).on( "click" , on_check_in_button_click );
+					$( "#edit-user-button" ).on( "click" , on_edit_button_click );
+					$( "#new-user-button" ).on( "click" , on_new_button_click );
+					this.stack = [ "active_user_info" , "shopping_for_selector" , "user_balance_table" ];
+					this.render();
+					$( "#active-username" ).text( window.USER.name_string );
+
+					// 2.) Pre-Check the Current Check-In Status of the User
+					console.log( window.USER );
+					let check_in_test = await check_in_uuid_test( window.USER.uuid );
+					console.log( check_in_test );
+
+					// 3.) Update Shopping-For Selector
+					let shopping_for_elem = document.getElementById( "shopping_for" );
+					let shopping_for_max = ( check_in_test.user.family_members.length + 1 );
+					let shopping_for_value = ( check_in_test.user.family_members.length + 1 );
+					$( "#shopping_for" ).val( shopping_for_value );
+					const shopping_for_options_to_hide =  Array.from( shopping_for_elem.options ).filter( option => option.value > shopping_for_value );
+					shopping_for_options_to_hide.forEach( option => { option.style.display = "none"; } );
+					$( "#shopping_for" ).on( "change" , ( event ) => {
+						console.log( `on_shopping_for_change( ${event.target.value} )` );
+						populate_user_balance_table( event.target.value , check_in_test.user.balance , check_in_test.balance_config );
+					});
+
+					// 4.) Populate Balance Table
+					populate_user_balance_table( shopping_for_value , check_in_test.user.balance , check_in_test.balance_config );
+					$( "#print-checkin-button" ).on( "click" , on_print_checkin_button_click );
+
+					// 5.) Stylize Table Based on Pre-Check-In Result
+					switch ( check_in_test.result.result ) {
+						case true:
+							$( "#user-balance-table" ).removeClass( "table-danger" );
+							$( "#user-balance-table" ).addClass( "table-success" );
+							break;
+						case false:
+							$( "#active-user-time-remaining" ).text( convert_milliseconds_to_time_string( check_in_test.result.time_remaining ) );
+							$( "#user-balance-table" ).removeClass( "table-success" );
+							$( "#user-balance-table" ).addClass( "table-danger" );
+							break;
+					}
+				}
+				render_edit_form() {
+					this.stack = [ "user_edit_form" ];
+					this.render();
+					// populate_user_search_table( search_results );
+				}
 			}
+
+			async function on_check_in_button_click( event ) {
+				console.log( "on_check_in_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				window.UI.render_active_user();
+			}
+
+			async function on_print_checkin_button_click( event ) {
+				console.log( "on_print_checkin_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				let balance_table = document.getElementById( "user-balance-table-body" );
+				let balance_inputs = balance_table.querySelectorAll( "input" );
+
+				let form_data = { "uuid": window.USER.uuid };
+				for ( let i = 0; i < balance_inputs.length; ++i ) {
+					form_data[ balance_inputs[ i ].id ] = parseInt( balance_inputs[ i ].value );
+				}
+				let valid_check_in = await check_in_uuid( window.USER.uuid , form_data );
+				console.log( `${window.USER.uuid} === Checked In === ${valid_check_in}` );
+				window.UI.clear();
+			}
+
+			function on_edit_button_click( event ) {
+				console.log( "on_edit_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				window.UI.render_edit_form();
+			}
+
+			function on_new_button_click( event ) {
+				console.log( "on_new_button_click()" );
+				if ( event ) { event.preventDefault(); }
+			}
+
 			async function _on_check_in_input_change( typed_input="" ) {
 				console.log( "_on_check_in_input_change()" , typed_input );
 				let valid_uuid = is_uuid( typed_input );
@@ -241,8 +229,8 @@
 						"alert_check_in_allowed": get_ui_alert_check_in_allowed ,
 						"alert_check_in_failed": get_ui_alert_check_in_failed ,
 						"shopping_for_selector": get_ui_shopping_for_selector ,
-						// "user_search_results_table": get_ui_user_search_results_table ,
-						// "user_edit_form": get_ui_user_edit_form ,
+						"user_edit_form": get_ui_user_edit_form ,
+						// "user_new_form": get_ui_user_new_form ,
 						"user_search_table": get_ui_user_search_table ,
 						"user_balance_table": get_ui_user_balance_table ,
 						"active_user_info": get_ui_active_user_info ,
@@ -256,22 +244,8 @@
 				window.UI.hide_all_buttons();
 
 				$( "#user-search-input" ).on( "input" , on_check_in_input_change );
-				$( "#search-clear-button" ).on( "click" , () => {
-					$( "#user-search-input" ).val( "" );
-					window.UI.clear();
-					$( "#user-search-input" ).focus();
-				});
+				$( "#search-clear-button" ).on( "click" , window.UI.clear );
 
-				// const block_button = document.getElementById( "block-button" );
-				// block_button.addEventListener( "click" , on_block_button_click );
-				// // const override_button = document.getElementById( "override-button" );
-				// // override_button.addEventListener( "click" , on_override_button_click );
-
-				// const edit_user_button = document.getElementById( "edit-user-button" );
-				// edit_user_button.addEventListener( "click" , on_edit_user_button_click );
-
-				// const shopping_for_select = document.getElementById( "shopping_for" );
-				// shopping_for_select.addEventListener( "change" , on_shopping_for_select_change );
 			}
 			document.addEventListener( "DOMContentLoaded" , init );
 		</script>
