@@ -575,6 +575,9 @@
 						}
 					}
 				}
+				clear() {
+					$( this.options.anchor ).html( "" );
+				}
 				render() {
 					let new_ui_stack = [];
 					for ( let i = 0; i < this.stack.length; ++i ) {
@@ -619,7 +622,10 @@
 					}
 					console.log( `Not a UUID , Not a Barcode , Searching : ${typed_input}` );
 					let search_results = await fuzzy_search_username( typed_input );
-					if ( search_results.length < 1 ) { return; }
+					if ( search_results.length < 1 ) {
+						window.UI.clear();
+						return;
+					}
 					window.UI.stack = [ "user_search_table" ];
 					window.UI.render();
 					populate_user_search_table( search_results );
