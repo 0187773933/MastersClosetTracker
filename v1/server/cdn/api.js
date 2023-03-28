@@ -12,7 +12,7 @@ function check_in_uuid( uuid , balance_form_data ) {
 			resolve( result );
 			return;
 		}
-		catch( error ) { console.log( error ); reject( error ); return; }
+		catch( error ) { console.log( error ); resolve( false ); return; }
 	});
 }
 
@@ -29,7 +29,7 @@ function check_in_uuid_test( uuid ) {
 			resolve( response_json );
 			return;
 		}
-		catch( error ) { console.log( error ); reject( error ); return; }
+		catch( error ) { console.log( error ); resolve( false ); return; }
 	});
 }
 
@@ -46,7 +46,7 @@ function get_user_from_barcode( barcode ) {
 			resolve( user );
 			return;
 		}
-		catch( error ) { console.log( error ); reject( error ); return; }
+		catch( error ) { console.log( error ); resolve( false ); return; }
 	});
 }
 
@@ -63,7 +63,7 @@ function get_user_from_uuid( uuid ) {
 			resolve( user );
 			return;
 		}
-		catch( error ) { console.log( error ); reject( error ); return; }
+		catch( error ) { console.log( error ); resolve( false ); return; }
 	});
 }
 

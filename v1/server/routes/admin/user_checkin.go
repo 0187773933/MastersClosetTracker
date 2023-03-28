@@ -150,6 +150,7 @@ func UserCheckInTestV2( context *fiber.Ctx ) ( error ) {
 		"route": "/admin/user/checkin/testv2/:uuid" ,
 		"result": check_in_test ,
 		"user": x_user ,
+		"balance_config": GlobalConfig.Balance ,
 	})
 }
 

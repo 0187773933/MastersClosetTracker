@@ -174,7 +174,7 @@ func ( u *User ) Delete() {
 }
 
 func ( u *User ) RefillBalance() {
-	u.FamilySize()
+	u.GetFamilySize()
 	u.Balance.General.Total = ( u.Config.Balance.General.Total * u.FamilySize )
 	u.Balance.General.Available = ( u.Config.Balance.General.Total * u.FamilySize )
 	u.Balance.General.Tops.Limit = ( u.Config.Balance.General.Tops * u.FamilySize )
@@ -193,7 +193,7 @@ func ( u *User ) RefillBalance() {
 	return
 }
 
-func ( u *User ) FamilySize() ( result int ) {
+func ( u *User ) GetFamilySize() ( result int ) {
 	result = ( len( u.FamilyMembers ) + 1 )
 	if ( u.FamilySize != result ) {
 		u.FamilySize = result

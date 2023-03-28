@@ -39,34 +39,47 @@
 
 			async function render_active_user( event ) {
 
+				console.log( "render_active_user()" )
+
 				// 1.) Prep UI
 				window.UI.show_all_buttons();
-				window.UI.stack = [ "user_balance_table" ];
+				window.UI.stack = [ "active_user_info" , "shopping_for_selector" , "user_balance_table" ];
 				window.UI.render();
+				$( "#active-username" ).text( window.USER.name_string );
 
-				// 2.) Populate User Balance Table
-				// this is the /checkin page afterall
+				// 2.) Pre-Check the Current Check-In Status of the User
 				console.log( window.USER );
 				let check_in_test = await check_in_uuid_test( window.USER.uuid );
 				console.log( check_in_test );
 
-				// let check_in_test = await check_in_uuid_test( typed_input );
-				// console.log( check_in_test );
-				// window.check_in_test = check_in_test;
+				// 3.) Update Shopping-For Selector
+				let shopping_for_elem = document.getElementById( "shopping_for" );
+				let shopping_for_max = ( check_in_test.user.family_members.length + 1 );
+				let shopping_for_value = ( check_in_test.user.family_members.length + 1 );
+				$( "#shopping_for" ).val( shopping_for_value );
+				const shopping_for_options_to_hide =  Array.from( shopping_for_elem.options ).filter( option => option.value > shopping_for_value );
+				shopping_for_options_to_hide.forEach( option => { option.style.display = "none"; } );
 
-				// let shopping_for_elem = document.getElementById( "shopping_for" );
-				// console.log( "Family Size ===" + check_in_test[ "family_size" ] );
-				// let shopping_for_value = check_in_test[ "family_size" ];
-				// if ( shopping_for_value > 1 ) { shopping_for_value += 1; }
-				// // let shopping_for_value = ( parseInt( check_in_test[ "family_size" ] ) + 1 ); // plus 1 for self // TODO : clean this up
-				// console.log( "Shopping For ===" , shopping_for_value )
-				// $( "#shopping_for" ).val( shopping_for_value );
-				// // const shopping_for_options_to_hide = shopping_for_elem.querySelectorAll( `option[value > "${check_in_test[ "family_size" ]}"]` );
-				// const shopping_for_options_to_hide =  Array.from( shopping_for_elem.options ).filter( option => option.value > shopping_for_value );
-				// shopping_for_options_to_hide.forEach( option => { option.style.display = 'none'; } );
+				$( "#shopping_for" ).on( "change" , ( event ) => {
+					console.log( `on_shopping_for_change( ${event.target.value} )` );
+					populate_user_balance_table( event.target.value , check_in_test.user.balance , check_in_test.balance_config );
+				});
 
+				// 4.) Populate Balance Table
+				populate_user_balance_table( shopping_for_value , check_in_test.user.balance , check_in_test.balance_config );
 
-				// populate_user_balance_table( check_in_test[ "balance" ] );
+				// 5.) Stylize Table Based on Pre-Check-In Result
+				switch ( check_in_test.result.result ) {
+					case true:
+						$( "#user-balance-table" ).removeClass( "table-danger" );
+						$( "#user-balance-table" ).addClass( "table-success" );
+						break;
+					case false:
+						$( "#active-user-time-remaining" ).text( convert_milliseconds_to_time_string( check_in_test.result.time_remaining ) );
+						$( "#user-balance-table" ).removeClass( "table-success" );
+						$( "#user-balance-table" ).addClass( "table-danger" );
+						break;
+				}
 
 				// $( "#check-in-button-row" ).show();
 				// $( "#active-user-row" ).show();
@@ -156,6 +169,7 @@
 							// html: "" ,
 						}
 					}
+					$( this.options.anchor ).on( "render_active_user" , this.render_active_user );
 				}
 				clear() {
 					$( this.options.anchor ).html( "" );
@@ -183,15 +197,28 @@
 					let new_ui_stack_html_string = new_ui_stack.join( " " );
 					$( this.options.anchor ).html( new_ui_stack_html_string );
 				}
+				render_search_table( search_results ) {
+					this.stack = [ "user_search_table" ];
+					this.render();
+					populate_user_search_table( search_results );
+				}
+				// render_active_user( user ) {
+				// 	console.log( "render_active_user()" );
+				// 	console.log( user );
+				// 	this.stack = [ "user_balance_table" ];
+				// 	this.render();
+				// 	// populate_user_balance_table(  );
+				// }
 			}
-
 			async function _on_check_in_input_change( typed_input="" ) {
+				console.log( "_on_check_in_input_change()" , typed_input );
 				let valid_uuid = is_uuid( typed_input );
 				if ( valid_uuid ) {
 					let user = await get_user_from_uuid( typed_input );
 					if ( user ) {
+						console.log( "UUID !" , typed_input );
 						window.USER = user;
-						render_active_user();
+						await render_active_user();
 					}
 					return;
 				}
@@ -199,8 +226,9 @@
 				if ( valid_barcode ) {
 					let user = await get_user_from_barcode( typed_input );
 					if ( user ) {
+						console.log( "Barcode !" , typed_input );
 						window.USER = user;
-						render_active_user();
+						await render_active_user();
 					}
 					return;
 				}
@@ -214,9 +242,7 @@
 					window.UI.clear();
 					return;
 				}
-				window.UI.stack = [ "user_search_table" ];
-				window.UI.render();
-				populate_user_search_table( search_results );
+				window.UI.render_search_table( search_results )
 			}
 			let timeout_id;
 			const debounce_time = 200;
@@ -245,6 +271,7 @@
 						// "user_edit_form": get_ui_user_edit_form ,
 						"user_search_table": get_ui_user_search_table ,
 						"user_balance_table": get_ui_user_balance_table ,
+						"active_user_info": get_ui_active_user_info ,
 					} ,
 					buttons: [
 						"#check-in-button" ,

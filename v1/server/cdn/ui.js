@@ -27,6 +27,15 @@ function get_ui_alert_check_in_failed() {
 	</div>`;
 }
 
+function get_ui_active_user_info() {
+	return `
+	<div class="row">
+		<center><h2 id="active-username"></h2></center>
+		<center><h4 id="active-user-time-remaining"></h4></center>
+	</row>
+	`;
+}
+
 function get_ui_shopping_for_selector() {
 	return `
 	<div class="row">
@@ -73,6 +82,8 @@ function get_ui_user_search_table() {
 	</div>`;
 }
 function populate_user_search_table( users ) {
+	// console.log( "populate_user_search_table()" );
+	// console.log( users );
 	$( "#user-search-table" ).show();
 	let table_body_element = document.getElementById( "user-search-table-body" );
 	table_body_element.innerHTML = "";
@@ -105,7 +116,9 @@ function populate_user_search_table( users ) {
 			// check_in_uuid_input();
 			// search_input();
 			window.USER = users[ i ];
-			_on_check_in_input_change( users[ i ][ "uuid" ] );
+			// _on_check_in_input_change( users[ i ][ "uuid" ] );
+			// $( "#main-row" ).trigger( "render_active_user" , users[ i ] );
+			render_active_user();
 		};
 		select_button_holder.appendChild( select_button );
 		_tr.appendChild( select_button_holder );
@@ -172,34 +185,19 @@ function _add_balance_row( table_body_element , name , available , limit , used 
 
 // could just switch to multiple inputs ?
 // https://getbootstrap.com/docs/5.3/forms/input-group/#multiple-inputs
-function populate_user_balance_table( balance ) {
-	$( "#user-balance-table-row" ).show();
-	let shopping_for = parseInt( $( "#shopping_for" ).val() );
+function populate_user_balance_table( shopping_for , balance , balance_config ) {
 
-	// TODO : move calculation somewhere , like idk the server ?
+	console.log( "populate_user_balance_table()" );
+	console.log( "shopping for === " , shopping_for );
+	console.log( "balance === " , balance );
+	console.log( "balance_config === " , balance_config );
 
-	// console.log( "shopping for === " , shopping_for );
-	// console.log( "tops limit for === " , balance[ "general" ][ "tops" ][ "limit" ] );
-	// console.log( "window.check_in_test.family_size === " , window.check_in_test.family_size );
-
-	let total_in_family = window.check_in_test.family_size;
-	if ( total_in_family > 1 ) { total_in_family += 1 }
-	// console.log( "total_in_family === " , total_in_family );
-
-	// TODO , these are hardcoded config values for limits
-	let tops_available = ( shopping_for * 6 );
-	let bottoms_available = ( shopping_for * 3 );
-	let dresses_available = ( shopping_for * 1 );
-	let shoes_available = ( shopping_for * 1 );
-	let seasonal_available = ( shopping_for * 1 );
-	let accessories_available = ( shopping_for * 2 );
-
-	// let tops_available = ( shopping_for * ( balance[ "general" ][ "tops" ][ "limit" ] / window.check_in_test.family_size ) );
-	// let bottoms_available = ( shopping_for * balance[ "general" ][ "bottoms" ][ "limit" ] / window.check_in_test.family_size );
-	// let dresses_available = ( shopping_for * balance[ "general" ][ "dresses" ][ "limit" ] / window.check_in_test.family_size );
-	// let shoes_available = ( shopping_for * balance[ "shoes" ][ "limit" ] / window.check_in_test.family_size );
-	// let seasonal_available = ( shopping_for * balance[ "seasonals" ][ "limit" ] / window.check_in_test.family_size );
-	// let accessories_available = ( shopping_for * balance[ "accessories" ][ "limit" ] / window.check_in_test.family_size );
+	let tops_available = ( shopping_for * balance_config.general.tops );
+	let bottoms_available = ( shopping_for * balance_config.general.bottoms );
+	let dresses_available = ( shopping_for * balance_config.general.dresses );
+	let shoes_available = ( shopping_for * balance_config.shoes );
+	let seasonal_available = ( shopping_for * balance_config.seasonals );
+	let accessories_available = ( shopping_for * balance_config.accessories );
 
 	let table_body_element = document.getElementById( "user-balance-table-body" );
 	table_body_element.innerHTML = "";
