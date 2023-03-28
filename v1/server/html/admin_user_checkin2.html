@@ -7,6 +7,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
 		<script src="/cdn/api.js" crossorigin="anonymous"></script>
 		<script src="/cdn/utils.js" crossorigin="anonymous"></script>
+		<script src="/cdn/ui.js" crossorigin="anonymous"></script>
 	</head>
 	<body>
 		<br>
@@ -33,206 +34,9 @@
 		</div>
 		<script>
 
-			function populate_user_search_table( users ) {
-				$( "#user-search-table" ).show();
-				let table_body_element = document.getElementById( "user-search-table-body" );
-				table_body_element.innerHTML = "";
-				for ( let i = 0; i < users.length; ++i ) {
-					let _tr = document.createElement( "tr" );
-
-					let user_number = document.createElement( "th" );
-					user_number.setAttribute( "scope" , "row" );
-					user_number.textContent = `${(i + 1)}`;
-					_tr.appendChild( user_number );
-
-					let username = document.createElement( "td" );
-					username.textContent = users[ i ][ "username" ];
-					_tr.appendChild( username );
-
-					let uuid_holder = document.createElement( "td" );
-					let uuid_text = document.createElement( "span" );
-					uuid_text.textContent = users[ i ][ "uuid" ];
-					uuid_text.innerHTML += "&nbsp;&nbsp;"
-					uuid_holder.appendChild( uuid_text );
-					_tr.appendChild( uuid_holder );
-
-					let select_button_holder = document.createElement( "td" );
-					let select_button = document.createElement( "button" );
-					select_button.textContent = "Select"
-					select_button.className = "btn btn-success btn-sm";
-					select_button.onclick = function() {
-						window.check_in_input.value = users[ i ][ "uuid" ];
-						$( "#user-search-table" ).hide();
-						// check_in_uuid_input();
-						search_input();
-					};
-					select_button_holder.appendChild( select_button );
-					_tr.appendChild( select_button_holder );
-
-					table_body_element.appendChild( _tr );
-				}
-			}
-
-			function _add_balance_row( table_body_element , name , available , limit , used ) {
-				let _tr = document.createElement( "tr" );
-				let item = document.createElement( "th" );
-				item.textContent = name;
-				_tr.appendChild( item );
-				let _available = document.createElement( "td" );
-				let available_input = document.createElement( "input" );
-				available_input.setAttribute( "type" , "text" );
-				available_input.className = "form-control";
-				available_input.value = available;
-				available_input.setAttribute( "id" , `balance_${name.toLowerCase()}_available` );
-				_available.appendChild( available_input );
-				_tr.appendChild( _available );
-				let _limit = document.createElement( "td" );
-				let limit_input = document.createElement( "input" );
-				limit_input.setAttribute( "type" , "text" );
-				limit_input.className = "form-control";
-				limit_input.value = limit;
-				limit_input.setAttribute( "id" , `balance_${name.toLowerCase()}_limit` );
-				limit_input.setAttribute( "readonly" , "" );
-				_limit.appendChild( limit_input );
-				_tr.appendChild( _limit );
-				let _used = document.createElement( "td" );
-				let used_input = document.createElement( "input" );
-				used_input.setAttribute( "type" , "text" );
-				used_input.className = "form-control";
-				used_input.value = used;
-				used_input.setAttribute( "id" , `balance_${name.toLowerCase()}_used` );
-				used_input.setAttribute( "readonly" , "" );
-				_used.appendChild( used_input );
-				_tr.appendChild( _used );
-				table_body_element.appendChild( _tr );
-			}
-
-			// could just switch to multiple inputs ?
-			// https://getbootstrap.com/docs/5.3/forms/input-group/#multiple-inputs
-			function populate_user_balance_table( balance ) {
-				$( "#user-balance-table-row" ).show();
-				let shopping_for = parseInt( $( "#shopping_for" ).val() );
-
-				// TODO : move calculation somewhere , like idk the server ?
-
-				// console.log( "shopping for === " , shopping_for );
-				// console.log( "tops limit for === " , balance[ "general" ][ "tops" ][ "limit" ] );
-				// console.log( "window.check_in_test.family_size === " , window.check_in_test.family_size );
-
-				let total_in_family = window.check_in_test.family_size;
-				if ( total_in_family > 1 ) { total_in_family += 1 }
-				// console.log( "total_in_family === " , total_in_family );
-
-				// TODO , these are hardcoded config values for limits
-				let tops_available = ( shopping_for * 6 );
-				let bottoms_available = ( shopping_for * 3 );
-				let dresses_available = ( shopping_for * 1 );
-				let shoes_available = ( shopping_for * 1 );
-				let seasonal_available = ( shopping_for * 1 );
-				let accessories_available = ( shopping_for * 2 );
-
-				// let tops_available = ( shopping_for * ( balance[ "general" ][ "tops" ][ "limit" ] / window.check_in_test.family_size ) );
-				// let bottoms_available = ( shopping_for * balance[ "general" ][ "bottoms" ][ "limit" ] / window.check_in_test.family_size );
-				// let dresses_available = ( shopping_for * balance[ "general" ][ "dresses" ][ "limit" ] / window.check_in_test.family_size );
-				// let shoes_available = ( shopping_for * balance[ "shoes" ][ "limit" ] / window.check_in_test.family_size );
-				// let seasonal_available = ( shopping_for * balance[ "seasonals" ][ "limit" ] / window.check_in_test.family_size );
-				// let accessories_available = ( shopping_for * balance[ "accessories" ][ "limit" ] / window.check_in_test.family_size );
-
-				let table_body_element = document.getElementById( "user-balance-table-body" );
-				table_body_element.innerHTML = "";
-
-				_add_balance_row( table_body_element , "Tops" ,
-					tops_available ,
-					balance[ "general" ][ "tops" ][ "limit" ] ,
-					balance[ "general" ][ "tops" ][ "used" ] ,
-				);
-
-				_add_balance_row( table_body_element , "Bottoms" ,
-					bottoms_available ,
-					balance[ "general" ][ "bottoms" ][ "limit" ] ,
-					balance[ "general" ][ "bottoms" ][ "used" ] ,
-				);
-
-				_add_balance_row( table_body_element , "Dresses" ,
-					dresses_available ,
-					balance[ "general" ][ "dresses" ][ "limit" ] ,
-					balance[ "general" ][ "dresses" ][ "used" ] ,
-				);
-
-				_add_balance_row( table_body_element , "Shoes" ,
-					shoes_available ,
-					balance[ "shoes" ][ "limit" ] ,
-					balance[ "shoes" ][ "used" ] ,
-				);
-
-				_add_balance_row( table_body_element , "Seasonals" ,
-					seasonal_available ,
-					balance[ "seasonals" ][ "limit" ] ,
-					balance[ "seasonals" ][ "used" ] ,
-				);
-
-				_add_balance_row( table_body_element , "Accessories" ,
-					accessories_available ,
-					balance[ "accessories" ][ "limit" ] ,
-					balance[ "accessories" ][ "used" ] ,
-				);
-
-			}
 			// http://localhost:5950/admin/user/edit/001393f1-0d0f-4b19-a690-f5bfceb28415
 
-			async function search_input( event ) {
-				console.log( "search_input()" );
-				if ( event ) { event.preventDefault(); }
-				$( "#active-user-row" ).hide();
-				$( "#edit-user-button" ).hide();
-				$( "#user-search-table" ).hide();
-				$( "#user-balance-table-row" ).hide();
-				$( "#checked-in-alert-true" ).slideUp();
-				$( "#checked-in-alert-false" ).slideUp();
-				$( "#checked-in-alert-false" ).slideUp();
-				$( "#check-in-button-row" ).hide();
-				let typed_input = window.check_in_input.value;
-
-				let valid_uuid = is_uuid( typed_input );
-				let valid_barcode = is_barcode( typed_input );
-
-				if ( valid_uuid === false && valid_barcode === false ) {
-
-					// Basic Search
-					// let user_uuid = await search_username( typed_input );
-					// if ( user_uuid === false ) {
-					// 	// TODO : Present bootstrap popup
-					// 	alert( "Couldn't Find User !!!" );
-					// 	return false;
-					// }
-					// console.log( "Search Result ===" , user_uuid );
-					// typed_input = user_uuid;
-
-					// Advanced Fuzzy Search
-					let results = await fuzzy_search_username( typed_input );
-					if ( !results ) {
-						// TODO : Present bootstrap popup
-						alert( "Couldn't Find User !!!" );
-						reset_search_form();
-						return false;
-					}
-					if ( results.length < 1 ) {
-						// TODO : Present bootstrap popup
-						alert( "Couldn't Find User !!!" );
-						reset_search_form();
-						return false;
-					}
-					populate_user_search_table( results );
-					return;
-				}
-
-				if ( valid_uuid === false && valid_barcode === true ) {
-					typed_input = await get_uuid_from_barcode( typed_input );
-					valid_uuid = is_uuid( typed_input );
-					if ( valid_uuid ) {
-						window.check_in_input.value = typed_input;
-					}
-				}
+			async function render_active_user( event ) {
 				$( "#edit-user-button" ).show();
 				let check_in_test = await check_in_uuid_test( typed_input );
 				console.log( check_in_test );
@@ -281,7 +85,6 @@
 						$( "#checked-in-alert-false" ).slideDown();
 						break;
 				}
-
 			}
 
 			async function check_in_uuid_input( event ) {
@@ -326,122 +129,11 @@
 				reset_search_form();
 			}
 
-			function reset_search_form() {
-				$( "#active-user-row" ).hide();
-				$( "#edit-user-button" ).hide();
-				$( "#user-search-table" ).hide();
-				// $( "#user-search-input" ).focus();
-				$( "#user-balance-table-row" ).hide();
-				$( "#check-in-button-row" ).hide();
-				$( "#checked-in-alert-true" ).slideUp();
-				$( "#checked-in-alert-false" ).slideUp();
-				window.check_in_input = document.getElementById( "user-search-input" );
-				window.check_in_input.value = "";
-				window.check_in_input.focus();
-			}
-
-			function get_ui_alert_check_in_allowed() {
-				return `
-				<div class="row">
-					<div class="col-md-4"></div>
-					<div class="col-md-4">
-						<div class="alert alert-success" id="checked-in-alert-true">
-							<center>Allowed to Check In !!!</center>
-						</div>
-					</div>
-					<div class="col-md-4"></div>
-				</div>`;
-			}
-
-			function get_ui_alert_check_in_failed() {
-				return `
-				<div class="row">
-					<div class="col-md-3"></div>
-					<div class="col-md-6">
-						<div class="alert alert-danger" id="checked-in-alert-false">
-							<center>
-								Checked In Too Recently !!!<br><br>
-								<a id="block-button" class="btn btn-warning" target="_blank" href="/none">Block</a>
-							</center>
-						</div>
-					</div>
-					<div class="col-md-3"></div>
-				</div>`;
-			}
-
-			function get_ui_shopping_for_selector() {
-				return `
-				<div class="row">
-					<div class="col-md-3"></div>
-					<div class="col-md-6">
-						<div class="input-group">
-							<div class="input-group-text">Shopping For</div>
-							<select id="shopping_for" class="form-select" aria-label="Shopping For" name="shopping_for">
-								<option value="1">1</option>
-								<option value="2">2</option>
-								<option value="3">3</option>
-								<option value="4">4</option>
-								<option value="5">5</option>
-								<option value="6">6</option>
-								<option value="7">7</option>
-							</select>
-						</div>
-					</div>
-					<div class="col-md-3"></div>
-				</div>
-				`;
-			}
-
-			function get_ui_user_search_table() {
-				return `
-				<div class="row">
-					<div class="col-md-1"></div>
-					<div class="col-md-10">
-						<div class="table-responsive-sm">
-							<table id="user-search-table" class="table table-hover table-striped-columns">
-								<thead>
-									<tr>
-										<th scope="col">#</th>
-										<th scope="col">Username</th>
-										<th scope="col">UUID</th>
-										<th scope="col">Select</th>
-									</tr>
-								</thead>
-								<tbody id="user-search-table-body"></tbody>
-							</table>
-						</div>
-					</div>
-					<div class="col-md-1"></div>
-				</div>`;
-			}
-
-			function get_ui_user_balance_table() {
-				return `
-				<div class="row">
-					<div class="col-md-1"></div>
-					<div class="col-md-10">
-						<div class="table-responsive-sm">
-							<table id="user-balance-table" class="table table-hover table-striped-columns">
-								<thead>
-									<tr>
-										<th scope="col">Item</th>
-										<th scope="col">Available</th>
-										<th scope="col">Limit</th>
-										<th scope="col">Total Used</th>
-									</tr>
-								</thead>
-								<tbody id="user-balance-table-body"></tbody>
-							</table>
-						</div>
-					</div>
-					<div class="col-md-1"></div>
-				</div>`;
-			}
-
 			class MCT_UI {
 				constructor( options={} ) {
 					this.options = options;
 					this.stack = options.stack;
+					this.buttons = options.buttons;
 					this.ids = {};
 					for ( let key in this.options.ids ) {
 						this.ids[ key ] = {
@@ -455,6 +147,11 @@
 				}
 				clear() {
 					$( this.options.anchor ).html( "" );
+				}
+				hide_all_buttons() {
+					for ( let i = 0; i < this.buttons.length; ++i ) {
+						$( this.buttons[ i ] ).hide();
+					}
 				}
 				render() {
 					let new_ui_stack = [];
@@ -511,8 +208,6 @@
 
 			async function init() {
 
-				$( "#edit-user-button" ).hide();
-
 				window.UI = new MCT_UI({
 					anchor: "#main-row" ,
 					// stack: [ "user_balance_table" , "user_search_table" , "shopping_for_selector" , "alert_check_in_allowed" , "alert_check_in_failed" ] ,
@@ -525,17 +220,14 @@
 						// "user_edit_form": get_ui_user_edit_form ,
 						"user_search_table": get_ui_user_search_table ,
 						"user_balance_table": get_ui_user_balance_table ,
-					}
-
+					} ,
+					buttons: [
+						"#check-in-button" ,
+						"#edit-user-button" ,
+					] ,
 				});
-				// window.UI.render();
-				// await sleep( 1500 );
-				// console.log( "here???3234" );
-				// window.UI.stack = [ "alert_check_in_allowed" , "shopping_for_selector" "alert_check_in_failed" ];
-				// window.UI.render();
+				window.UI.hide_all_buttons();
 
-
-				// reset_search_form();
 				let check_in_input = document.getElementById( "user-search-input" );
 				check_in_input.addEventListener( "input" , on_check_in_input_change );
 				// check_in_input.addEventListener( "keydown" , ( event ) => {

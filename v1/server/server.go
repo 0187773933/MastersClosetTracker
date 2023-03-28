@@ -72,6 +72,7 @@ func New( config types.ConfigFile ) ( server Server ) {
 	server.FiberApp.Get( "/logo.png" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/logo.png" ) } )
 	server.FiberApp.Get( "/cdn/api.js" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/api.js" ) } )
 	server.FiberApp.Get( "/cdn/utils.js" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/utils.js" ) } )
+	server.FiberApp.Get( "/cdn/ui.js" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/ui.js" ) } )
 	server.SetupRoutes()
 	server.FiberApp.Get( "/*" , func( context *fiber.Ctx ) ( error ) { return context.Redirect( "/" ) } )
 	return
