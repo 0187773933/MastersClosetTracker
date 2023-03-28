@@ -13,20 +13,22 @@
 		<br>
 		<div class="container">
 			<div class="row" id="search-row">
-				<div class="col-md-2"></div>
-				<div class="col-md-8">
+				<div class="col-lg-2 col-md-1"></div>
+				<div class="col-lg-8 col-md-10">
 					<div class="input-group mb-3">
-						<button class="btn btn-outline-secondary" type="button" id="search-button">Search</button>
+						<!-- <button class="btn btn-outline-secondary" type="button" id="search-button">Search</button> -->
+						<span class="input-group-text" id="search-button">Search</span>
 						<input id="user-search-input" type="text" class="form-control flex-grow-1">
+						<button class="btn btn-outline-secondary" type="button" id="search-clear-button">Clear</button>
 					</div>
 				</div>
-				<div class="col-md-2"></div>
+				<div class="col-lg-2 col-md-1"></div>
 			</div>
 			<br>
 			<div class="row" id="buttons-row">
 				<center>
-					<button id="check-in-button" type="submit" class="btn btn-primary">Check-In</button>
-					<button id="edit-user-button" type="submit" class="btn btn-success">Edit</button>
+					<button id="check-in-button" type="submit" class="btn btn-success">Check-In</button>
+					<button id="edit-user-button" type="submit" class="btn btn-primary">Edit</button>
 					<button id="new-user-button" type="submit" class="btn btn-warning">New</button>
 				</center>
 			</div>
@@ -81,35 +83,6 @@
 						break;
 				}
 
-				// $( "#check-in-button-row" ).show();
-				// $( "#active-user-row" ).show();
-				// switch ( check_in_test[ "result" ] ) {
-				// 	case true:
-				// 		// $( "#active-username" ).text( `${check_in_test[ "name_string" ]} || Family Size = ${check_in_test[ "family_size" ]}` );
-				// 		$( "#active-username" ).text( `${check_in_test[ "name_string" ]}` );
-				// 		$( "#active-username-time" ).text( "" );
-				// 		$( "#user-balance-table" ).removeClass( "table-danger" );
-				// 		$( "#user-balance-table" ).addClass( "table-success" );
-				// 		// $( "#checked-in-alert-true" ).slideDown();
-				// 		$( "#checked-in-alert-false" ).slideUp();
-				// 		// setTimeout( function() {
-				// 		// 	$( "#checked-in-alert-true" ).slideUp();
-				// 		// 	// $( "#user-search-input" ).val( "" );
-				// 		// } , 3000 );
-				// 		window.check_in_input.focus();
-				// 		break;
-				// 	case false:
-				// 		let time_remaining_string = convert_milliseconds_to_time_string( check_in_test[ "time_remaining" ] );
-				// 		$(  )
-				// 		// $( "#active-username" ).text( `${check_in_test[ "name_string" ]} || Family Size = ${check_in_test[ "family_size" ]}` );
-				// 		$( "#active-username" ).text( `${check_in_test[ "name_string" ]}` );
-				// 		$( "#active-username-time" ).text( `Needs to wait ${time_remaining_string}` );
-				// 		$( "#user-balance-table" ).removeClass( "table-success" );
-				// 		$( "#user-balance-table" ).addClass( "table-danger" );
-				// 		$( "#checked-in-alert-true" ).slideUp();
-				// 		$( "#checked-in-alert-false" ).slideDown();
-				// 		break;
-				// }
 			}
 
 			async function check_in_uuid_input( event ) {
@@ -172,6 +145,7 @@
 					$( this.options.anchor ).on( "render_active_user" , this.render_active_user );
 				}
 				clear() {
+					this.hide_all_buttons();
 					$( this.options.anchor ).html( "" );
 				}
 				hide_all_buttons() {
@@ -281,21 +255,17 @@
 				});
 				window.UI.hide_all_buttons();
 
-				let check_in_input = document.getElementById( "user-search-input" );
-				check_in_input.addEventListener( "input" , on_check_in_input_change );
-				// check_in_input.addEventListener( "keydown" , ( event ) => {
-				// 	if ( event.keyCode === 13 ) {
-				// 		// check_in_uuid_input( event );
-				// 		search_input( event );
-				// 	}
-				// });
+				$( "#user-search-input" ).on( "input" , on_check_in_input_change );
+				$( "#search-clear-button" ).on( "click" , () => {
+					$( "#user-search-input" ).val( "" );
+					window.UI.clear();
+					$( "#user-search-input" ).focus();
+				});
+
 				// const block_button = document.getElementById( "block-button" );
 				// block_button.addEventListener( "click" , on_block_button_click );
 				// // const override_button = document.getElementById( "override-button" );
 				// // override_button.addEventListener( "click" , on_override_button_click );
-
-				// const search_button = document.getElementById( "search-button" );
-				// search_button.addEventListener( "click" , search_input );
 
 				// const edit_user_button = document.getElementById( "edit-user-button" );
 				// edit_user_button.addEventListener( "click" , on_edit_user_button_click );
