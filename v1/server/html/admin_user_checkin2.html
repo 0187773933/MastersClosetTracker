@@ -458,9 +458,9 @@
 				}
 				render() {
 					let new_ui_stack = [];
+					Object.keys( this.ids ).forEach( x => this.ids[ x ].visible = false );
 					for ( let i = 0; i < this.stack.length; ++i ) {
 						let x_id = this.ids[ this.stack[ i ] ];
-						console.log( x_id );
 						let html = x_id.render();
 						x_id.visible = true;
 						new_ui_stack.push( html );
@@ -468,7 +468,6 @@
 					}
 					let new_ui_stack_html_string = new_ui_stack.join( " " );
 					$( this.options.anchor ).html( new_ui_stack_html_string );
-					console.log( new_ui_stack );
 				}
 			}
 
@@ -529,7 +528,7 @@
 					}
 
 				});
-				window.UI.render();
+				// window.UI.render();
 				// await sleep( 1500 );
 				// console.log( "here???3234" );
 				// window.UI.stack = [ "alert_check_in_allowed" , "shopping_for_selector" "alert_check_in_failed" ];
