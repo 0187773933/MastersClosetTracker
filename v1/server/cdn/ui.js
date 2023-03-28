@@ -100,10 +100,12 @@ function populate_user_search_table( users ) {
 		select_button.textContent = "Select"
 		select_button.className = "btn btn-success btn-sm";
 		select_button.onclick = function() {
-			window.check_in_input.value = users[ i ][ "uuid" ];
-			$( "#user-search-table" ).hide();
+			$( "#user-search-input" ).val( users[ i ][ "uuid" ] );
+			// $( "#user-search-table" ).hide();
 			// check_in_uuid_input();
-			search_input();
+			// search_input();
+			window.USER = users[ i ];
+			_on_check_in_input_change( users[ i ][ "uuid" ] );
 		};
 		select_button_holder.appendChild( select_button );
 		_tr.appendChild( select_button_holder );

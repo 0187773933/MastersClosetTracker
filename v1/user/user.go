@@ -111,6 +111,7 @@ func New( username string , config *types.ConfigFile ) ( new_user User ) {
 	new_user_uuid := uuid.NewV4().String()
 	new_user.Username = username
 	new_user.UUID = new_user_uuid
+	new_user.Config = config
 	new_user.FamilySize = 1
 	new_user.CreatedDate = now.Format( "02JAN2006" )
 	new_user.CreatedTime = now.Format( "15:04:05.000" )
@@ -159,7 +160,21 @@ func ( u *User ) Save() {
 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
 }
 
+func ( u *User ) Delete() {
+	// byte_object , _ := json.Marshal( u )
+	// byte_object_encrypted := encrypt.ChaChaEncryptBytes( u.Config.BoltDBEncryptionKey , byte_object )
+	// db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+	// defer db.Close()
+	// db_result := db.Update( func( tx *bolt.Tx ) error {
+	// 	users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
+	// 	users_bucket.Put( []byte( u.UUID ) , byte_object_encrypted )
+	// 	return nil
+	// })
+	// if db_result != nil { panic( "couldn't write to bolt db ??" ) }
+}
+
 func ( u *User ) RefillBalance() {
+	u.FamilySize()
 	u.Balance.General.Total = ( u.Config.Balance.General.Total * u.FamilySize )
 	u.Balance.General.Available = ( u.Config.Balance.General.Total * u.FamilySize )
 	u.Balance.General.Tops.Limit = ( u.Config.Balance.General.Tops * u.FamilySize )
@@ -175,6 +190,15 @@ func ( u *User ) RefillBalance() {
 	u.Balance.Accessories.Limit = ( u.Config.Balance.Accessories * u.FamilySize )
 	u.Balance.Accessories.Available = ( u.Config.Balance.Accessories * u.FamilySize )
 	u.Save()
+	return
+}
+
+func ( u *User ) FamilySize() ( result int ) {
+	result = ( len( u.FamilyMembers ) + 1 )
+	if ( u.FamilySize != result ) {
+		u.FamilySize = result
+		u.Save()
+	}
 	return
 }
 
@@ -224,7 +248,6 @@ func ( u *User ) FormatUsername() {
 func ( u *User ) CheckInTest() ( check_in CheckIn ) {
 
 	// 1.) prelim
-	result := false
 	time_remaining := -1
 	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
@@ -269,15 +292,14 @@ func ( u *User ) CheckInTest() ( check_in CheckIn ) {
 			time_remaining_string := time_remaining_duration.String()
 			fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait : %d days , or %s\n" , days_remaining , time_remaining_string )
 
-			result = false
+			check_in.Result = false
 			time_remaining = int( time_remaining_duration.Milliseconds() )
 		}
 	}
 	u.TimeRemaining = time_remaining
-	u.AllowedToCheckIn = result
+	u.AllowedToCheckIn = check_in.Result
 	check_in.Date = strings.ToUpper( check_in.Date )
 	check_in.TimeRemaining = time_remaining
-	check_in.Result = result
 	return
 }
 

@@ -27,6 +27,7 @@
 				<center>
 					<button id="check-in-button" type="submit" class="btn btn-primary">Check-In</button>
 					<button id="edit-user-button" type="submit" class="btn btn-success">Edit</button>
+					<button id="new-user-button" type="submit" class="btn btn-warning">New</button>
 				</center>
 			</div>
 			<br>
@@ -37,54 +38,65 @@
 			// http://localhost:5950/admin/user/edit/001393f1-0d0f-4b19-a690-f5bfceb28415
 
 			async function render_active_user( event ) {
-				$( "#edit-user-button" ).show();
-				let check_in_test = await check_in_uuid_test( typed_input );
+
+				// 1.) Prep UI
+				window.UI.show_all_buttons();
+				window.UI.stack = [ "user_balance_table" ];
+				window.UI.render();
+
+				// 2.) Populate User Balance Table
+				// this is the /checkin page afterall
+				console.log( window.USER );
+				let check_in_test = await check_in_uuid_test( window.USER.uuid );
 				console.log( check_in_test );
-				window.check_in_test = check_in_test;
 
-				let shopping_for_elem = document.getElementById( "shopping_for" );
-				console.log( "Family Size ===" + check_in_test[ "family_size" ] );
-				let shopping_for_value = check_in_test[ "family_size" ];
-				if ( shopping_for_value > 1 ) { shopping_for_value += 1; }
-				// let shopping_for_value = ( parseInt( check_in_test[ "family_size" ] ) + 1 ); // plus 1 for self // TODO : clean this up
-				console.log( "Shopping For ===" , shopping_for_value )
-				$( "#shopping_for" ).val( shopping_for_value );
-				// const shopping_for_options_to_hide = shopping_for_elem.querySelectorAll( `option[value > "${check_in_test[ "family_size" ]}"]` );
-				const shopping_for_options_to_hide =  Array.from( shopping_for_elem.options ).filter( option => option.value > shopping_for_value );
-				shopping_for_options_to_hide.forEach( option => { option.style.display = 'none'; } );
+				// let check_in_test = await check_in_uuid_test( typed_input );
+				// console.log( check_in_test );
+				// window.check_in_test = check_in_test;
+
+				// let shopping_for_elem = document.getElementById( "shopping_for" );
+				// console.log( "Family Size ===" + check_in_test[ "family_size" ] );
+				// let shopping_for_value = check_in_test[ "family_size" ];
+				// if ( shopping_for_value > 1 ) { shopping_for_value += 1; }
+				// // let shopping_for_value = ( parseInt( check_in_test[ "family_size" ] ) + 1 ); // plus 1 for self // TODO : clean this up
+				// console.log( "Shopping For ===" , shopping_for_value )
+				// $( "#shopping_for" ).val( shopping_for_value );
+				// // const shopping_for_options_to_hide = shopping_for_elem.querySelectorAll( `option[value > "${check_in_test[ "family_size" ]}"]` );
+				// const shopping_for_options_to_hide =  Array.from( shopping_for_elem.options ).filter( option => option.value > shopping_for_value );
+				// shopping_for_options_to_hide.forEach( option => { option.style.display = 'none'; } );
 
 
-				populate_user_balance_table( check_in_test[ "balance" ] );
+				// populate_user_balance_table( check_in_test[ "balance" ] );
 
-				$( "#check-in-button-row" ).show();
-				$( "#active-user-row" ).show();
-				switch ( check_in_test[ "result" ] ) {
-					case true:
-						// $( "#active-username" ).text( `${check_in_test[ "name_string" ]} || Family Size = ${check_in_test[ "family_size" ]}` );
-						$( "#active-username" ).text( `${check_in_test[ "name_string" ]}` );
-						$( "#active-username-time" ).text( "" );
-						$( "#user-balance-table" ).removeClass( "table-danger" );
-						$( "#user-balance-table" ).addClass( "table-success" );
-						// $( "#checked-in-alert-true" ).slideDown();
-						$( "#checked-in-alert-false" ).slideUp();
-						// setTimeout( function() {
-						// 	$( "#checked-in-alert-true" ).slideUp();
-						// 	// $( "#user-search-input" ).val( "" );
-						// } , 3000 );
-						window.check_in_input.focus();
-						break;
-					case false:
-						let time_remaining_string = convert_milliseconds_to_time_string( check_in_test[ "time_remaining" ] );
-						$(  )
-						// $( "#active-username" ).text( `${check_in_test[ "name_string" ]} || Family Size = ${check_in_test[ "family_size" ]}` );
-						$( "#active-username" ).text( `${check_in_test[ "name_string" ]}` );
-						$( "#active-username-time" ).text( `Needs to wait ${time_remaining_string}` );
-						$( "#user-balance-table" ).removeClass( "table-success" );
-						$( "#user-balance-table" ).addClass( "table-danger" );
-						$( "#checked-in-alert-true" ).slideUp();
-						$( "#checked-in-alert-false" ).slideDown();
-						break;
-				}
+				// $( "#check-in-button-row" ).show();
+				// $( "#active-user-row" ).show();
+				// switch ( check_in_test[ "result" ] ) {
+				// 	case true:
+				// 		// $( "#active-username" ).text( `${check_in_test[ "name_string" ]} || Family Size = ${check_in_test[ "family_size" ]}` );
+				// 		$( "#active-username" ).text( `${check_in_test[ "name_string" ]}` );
+				// 		$( "#active-username-time" ).text( "" );
+				// 		$( "#user-balance-table" ).removeClass( "table-danger" );
+				// 		$( "#user-balance-table" ).addClass( "table-success" );
+				// 		// $( "#checked-in-alert-true" ).slideDown();
+				// 		$( "#checked-in-alert-false" ).slideUp();
+				// 		// setTimeout( function() {
+				// 		// 	$( "#checked-in-alert-true" ).slideUp();
+				// 		// 	// $( "#user-search-input" ).val( "" );
+				// 		// } , 3000 );
+				// 		window.check_in_input.focus();
+				// 		break;
+				// 	case false:
+				// 		let time_remaining_string = convert_milliseconds_to_time_string( check_in_test[ "time_remaining" ] );
+				// 		$(  )
+				// 		// $( "#active-username" ).text( `${check_in_test[ "name_string" ]} || Family Size = ${check_in_test[ "family_size" ]}` );
+				// 		$( "#active-username" ).text( `${check_in_test[ "name_string" ]}` );
+				// 		$( "#active-username-time" ).text( `Needs to wait ${time_remaining_string}` );
+				// 		$( "#user-balance-table" ).removeClass( "table-success" );
+				// 		$( "#user-balance-table" ).addClass( "table-danger" );
+				// 		$( "#checked-in-alert-true" ).slideUp();
+				// 		$( "#checked-in-alert-false" ).slideDown();
+				// 		break;
+				// }
 			}
 
 			async function check_in_uuid_input( event ) {
@@ -153,6 +165,11 @@
 						$( this.buttons[ i ] ).hide();
 					}
 				}
+				show_all_buttons() {
+					for ( let i = 0; i < this.buttons.length; ++i ) {
+						$( this.buttons[ i ] ).show();
+					}
+				}
 				render() {
 					let new_ui_stack = [];
 					Object.keys( this.ids ).forEach( x => this.ids[ x ].visible = false );
@@ -168,41 +185,49 @@
 				}
 			}
 
+			async function _on_check_in_input_change( typed_input="" ) {
+				let valid_uuid = is_uuid( typed_input );
+				if ( valid_uuid ) {
+					let user = await get_user_from_uuid( typed_input );
+					if ( user ) {
+						window.USER = user;
+						render_active_user();
+					}
+					return;
+				}
+				let valid_barcode = is_barcode( typed_input );
+				if ( valid_barcode ) {
+					let user = await get_user_from_barcode( typed_input );
+					if ( user ) {
+						window.USER = user;
+						render_active_user();
+					}
+					return;
+				}
+				console.log( `Not a UUID , Not a Barcode , Searching : ${typed_input}` );
+				let search_results = await fuzzy_search_username( typed_input );
+				if ( !search_results ) {
+					window.UI.clear();
+					return;
+				}
+				if ( search_results.length < 1 ) {
+					window.UI.clear();
+					return;
+				}
+				window.UI.stack = [ "user_search_table" ];
+				window.UI.render();
+				populate_user_search_table( search_results );
+			}
 			let timeout_id;
 			const debounce_time = 200;
 			async function on_check_in_input_change( event ) {
 				if ( event ) { event.preventDefault(); }
 				clearTimeout( timeout_id );
-				let typed_input = event.target.value;
+				let typed_input = event?.target?.value;
+				if ( !typed_input ) { typed_input = document.getElementById( "user-search-input" ).value; }
 				if ( typed_input.length < 2 ) { return; }
-				timeout_id = setTimeout( async () => {
-					let valid_uuid = is_uuid( typed_input );
-					if ( valid_uuid ) {
-						let user = await get_user_from_uuid( typed_input );
-						if ( user ) {
-							window.USER = user;
-							render_active_user();
-						}
-						return;
-					}
-					let valid_barcode = is_barcode( typed_input );
-					if ( valid_barcode ) {
-						let user = await get_user_from_barcode( typed_input );
-						if ( user ) {
-							window.USER = user;
-							render_active_user();
-						}
-						return;
-					}
-					console.log( `Not a UUID , Not a Barcode , Searching : ${typed_input}` );
-					let search_results = await fuzzy_search_username( typed_input );
-					if ( search_results.length < 1 ) {
-						window.UI.clear();
-						return;
-					}
-					window.UI.stack = [ "user_search_table" ];
-					window.UI.render();
-					populate_user_search_table( search_results );
+				timeout_id = setTimeout( () => {
+					_on_check_in_input_change( typed_input );
 				} , debounce_time );
 			}
 
@@ -224,6 +249,7 @@
 					buttons: [
 						"#check-in-button" ,
 						"#edit-user-button" ,
+						"#new-user-button" ,
 					] ,
 				});
 				window.UI.hide_all_buttons();

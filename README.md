@@ -16,8 +16,14 @@
 
 ---
 
+## DB Fixes
+
+1. manual family_size fix
+	- should equal family_members.length + 1
+
 ## TODO
 
+1. add barcodes quick edit menu popup
 1. Add "shopping for" drop down select on check-in page
 2. Build windows version
 	- printing

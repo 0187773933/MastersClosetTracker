@@ -19,7 +19,8 @@ function check_in_uuid( uuid , balance_form_data ) {
 function check_in_uuid_test( uuid ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
-			let check_in_url = `/admin/user/checkin/test/${uuid}`;
+			// let check_in_url = `/admin/user/checkin/test/${uuid}`;
+			let check_in_url = `/admin/user/checkin/testv2/${uuid}`;
 			let check_in_response = await fetch( check_in_url , {
 				method: "GET" ,
 				headers: { "Content-Type": "application/json" }
