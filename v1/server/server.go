@@ -40,7 +40,7 @@ func New( config types.ConfigFile ) ( server Server ) {
 	server.FiberApp.Use( favicon.New() )
 	// server.FiberApp.Get( "/favicon.ico" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/favicon.ico" ) } )
 	server.FiberApp.Use( rate_limiter.New( rate_limiter.Config{
-		Max: 6 ,
+		Max: 30 ,
 		Expiration: ( 1 * time.Second ) ,
 		// Next: func( c *fiber.Ctx ) bool {
 		// 	ip := c.IP()
