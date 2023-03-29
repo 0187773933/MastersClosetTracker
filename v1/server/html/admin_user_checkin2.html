@@ -73,6 +73,7 @@
 					$( "#user-search-input" ).focus();
 				}
 				render() {
+					$( this.options.anchor ).html( "" );
 					let new_ui_stack = [];
 					Object.keys( this.ids ).forEach( x => this.ids[ x ].visible = false );
 					for ( let i = 0; i < this.stack.length; ++i ) {
@@ -162,10 +163,12 @@
 			async function on_edit_save_button_click( event ) {
 				console.log( "on_edit_save()" );
 				if ( event ) { event.preventDefault(); }
+				// update dynamic form thing ?
 				window.USER.barcodes = Object.values( window.BARCODES );
 				window.USER.barcodes = window.USER.barcodes.filter( ( x ) => { return x !== ""; } );
-				// TODO Family Members
-					// any dynamic form thing ?
+				window.USER.family_members = Object.values( window.FAMILY_MEMBERS );
+				window.USER.family_members = window.USER.family_members.filter( ( x ) => { return x !== ""; } );
+				window.USER.family_members = window.USER.family_members.map( ( x ) => { return { "first_name": "" , "last_name": "" , "age": x } } );
 				let edit_result = await api_edit_user( window.USER );
 				console.log( edit_result );
 				// alert( "User Info Saved !" );

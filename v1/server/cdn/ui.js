@@ -387,25 +387,12 @@ function get_ui_user_edit_form() {
 				<div class="row g-2 mb-3">
 					<div class="col-md-4"></div>
 					<div class="col-md-4">
-						<div class="form-floating">
-							<select id="user_family_size" class="form-select" aria-label="User Family Size" name="user_family_size">
-								<option value="0">0</option>
-								<option value="1">1</option>
-								<option value="2">2</option>
-								<option value="3">3</option>
-								<option value="4">4</option>
-								<option value="5">5</option>
-								<option value="6">6</option>
-							</select>
-							<label for="user_family_size">Family Members</label>
-						</div>
+						<button id="add-barcode-button" class="btn btn-primary" onclick="on_add_family_member(event);">Add Family Member</button>
 					</div>
 					<div class="col-md-4"></div>
 				</div>
 
-				<div id="user_family_members">
-
-				</div>
+				<div id="user_family_members"></div>
 
 				<br>
 
@@ -418,48 +405,84 @@ function get_ui_user_edit_form() {
 	</div>`;
 }
 
-function set_family_members_size( family_members_size ) {
-	let family_members_input_area = document.getElementById( "user_family_members" );
-	family_members_input_area.innerHTML = "";
-	for ( let i = 0; i < family_members_size; ++i ) {
-		let new_row = document.createElement( "div" );
-		new_row.className = "row g-2";
-
-		let col_1 = document.createElement( "div" );
-		col_1.className = "col-md-4";
-		new_row.appendChild( col_1 );
-
-		let col_2 = document.createElement( "div" );
-		col_2.className = "col-md-4";
-		let input_group = document.createElement( "div" );
-		input_group.className = "input-group";
-		let label = document.createElement( "span" );
-		label.className = "input-group-text";
-		label.setAttribute( "id" , `user_family_member_${(i +1)}` );
-		label.textContent = `Family Member - ${(i + 1)}`;
-		let age_input = document.createElement( "input" );
-		age_input.className = "form-control";
-		age_input.setAttribute( "placeholder" , "Age" );
-		age_input.setAttribute( "type" , "text" );
-		age_input.setAttribute( "name" , `user_family_member_${(i + 1)}_age` );
-		age_input.setAttribute( "id" , `user_family_member_${(i + 1)}_age` );
-		input_group.appendChild( label );
-		input_group.appendChild( age_input );
-		col_2.appendChild( input_group );
-		new_row.appendChild( col_2 );
-
-		let col_3 = document.createElement( "div" );
-		col_3.className = "col-md-4";
-		new_row.appendChild( col_3 );
-
-		family_members_input_area.appendChild( new_row );
-	}
-}
-function on_family_size_change( event ) {
-	console.log( "on_family_size_change()" );
+function on_add_family_member( event ) {
+	console.log( "on_add_family_member()" );
+	let family_member_ulid = ULID.ulid();
+	let family_member_id = `user_family_member_${family_member_ulid}`;
+	window.FAMILY_MEMBERS[ family_member_id ] = "";
 	if ( event ) { event.preventDefault(); }
-	let party_size = parseInt( event.target.value );
-	set_family_members_size( party_size );
+	let current_family_members = document.querySelectorAll( ".user-family-member" );
+	let holder = document.getElementById( "user_family_members" );
+
+	let new_row = document.createElement( "div" );
+	new_row.setAttribute( "id" , `user_family_member_row_${family_member_ulid}` );
+	new_row.className = "row g-2";
+
+	let col_1 = document.createElement( "div" );
+	col_1.className = "col-md-3";
+	new_row.appendChild( col_1 );
+
+	let col_2 = document.createElement( "div" );
+	col_2.className = "col-md-6";
+	let input_group = document.createElement( "div" );
+	input_group.className = "input-group";
+	let label = document.createElement( "span" );
+	label.className = "input-group-text";
+	label.setAttribute( "id" , `user_family_member_label_${family_member_ulid}` );
+	label.textContent = `Family Member - ${(current_family_members.length + 1)}`;
+	let family_member_input = document.createElement( "input" );
+	family_member_input.className = "form-control user-family-member";
+	family_member_input.setAttribute( "placeholder" , "Age" );
+	family_member_input.setAttribute( "type" , "text" );
+	family_member_input.setAttribute( "name" , family_member_id );
+	family_member_input.setAttribute( "id" , family_member_id );
+	family_member_input.addEventListener( "keydown" , ( event ) => {
+		if ( event.keyCode === 13 ) {
+			event.preventDefault();
+			return;
+		}
+		window.FAMILY_MEMBERS[ family_member_ulid ] = event.target.value;
+	});
+	input_group.appendChild( label );
+	input_group.appendChild( family_member_input );
+
+	let delete_button = document.createElement( "a" );
+	delete_button.className = "btn btn-danger p-1 d-flex justify-content-center align-items-center";
+	let delete_button_icon = document.createElement( "i" );
+	delete_button_icon.className = "bi bi-trash3-fill";
+	delete_button.appendChild( delete_button_icon );
+	delete_button.onclick = async function( event ) {
+		if ( event ) { event.preventDefault(); }
+		let family_member_id = event?.target?.parentNode?.parentNode?.childNodes[ 1 ]?.id;
+		if ( family_member_id === undefined ) { family_member_id = event?.target?.parentNode?.childNodes[ 1 ]?.id; }
+		if ( family_member_id === undefined ) { console.log( event.target ); }
+		let family_member_ulid = family_member_id.split( "user_family_member_" )[ 1 ];
+		let result = confirm( `Are You Absolutely Sure You Want to Delete This Family Member ???` );
+		if ( result === true ) {
+			delete window.FAMILY_MEMBERS[ family_member_ulid ];
+			let row_id = `#user_family_member_row_${family_member_ulid}`;
+			$( row_id ).remove();
+			let labels = document.querySelectorAll( '[id^="user_family_member_label"]' );
+			for ( let i = 0; i < labels.length; ++i ) {
+				console.log( labels[ i ].innerText , `Family Member - ${(i+1)}` );
+				labels[ i ].innerText = `Family Member - ${(i+1)}`;
+			}
+			return;
+		}
+	};
+	input_group.appendChild( delete_button );
+	col_2.appendChild( input_group );
+	// col_2.appendChild( barcode_delete_button );
+
+	new_row.appendChild( col_2 );
+
+	let col_3 = document.createElement( "div" );
+	col_3.className = "col-md-3";
+	new_row.appendChild( col_3 );
+
+	holder.appendChild( new_row );
+	document.getElementById( family_member_id ).focus();
+	return family_member_ulid;
 }
 
 function on_add_barcode( event ) {
@@ -546,6 +569,7 @@ function populate_user_edit_form( user_info ) {
 	console.log( "populate_user_edit_form()" );
 	console.log( user_info );
 	window.BARCODES = {};
+	window.FAMILY_MEMBERS = {};
 	// console.log( JSON.stringify( user_info , null , 4 ) );
 	let first_name_element = document.getElementById( "user_first_name" );
 	first_name_element.value = user_info[ "identity" ][ "first_name" ];
@@ -583,13 +607,14 @@ function populate_user_edit_form( user_info ) {
 		birth_year_element.value = user_info[ "identity" ][ "date_of_birth" ][ "year" ];
 	}
 
-	if ( user_info[ "family_members" ].length > 0 ) {
-		let family_size_element = document.getElementById( "user_family_size" );
-		family_size_element.value = user_info[ "family_size" ];
-		set_family_members_size( user_info.family_members.length );
+	// Update Dynamic Stuff
+	if ( user_info[ "family_members" ] ) {
 		for ( let i = 0; i < user_info[ "family_members" ].length; ++i ) {
-			let family_member_age_element = document.getElementById( `user_family_member_${(i + 1)}_age` );
-			family_member_age_element.value = user_info[ "family_members" ][ i ][ "age" ];
+			let family_member_ulid = on_add_family_member(); // add barcode to DOM
+			let family_member_id = `user_family_member_${family_member_ulid}`;
+			let family_member_input_element = document.getElementById( family_member_id );
+			family_member_input_element.value = user_info[ "family_members" ][ i ].age;
+			window.FAMILY_MEMBERS[ family_member_ulid ] = user_info[ "family_members" ][ i ].age;
 		}
 	}
 
