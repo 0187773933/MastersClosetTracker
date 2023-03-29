@@ -12,8 +12,22 @@ import (
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
 	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
 	bleve "github.com/blevesearch/bleve/v2"
+	// pp "github.com/k0kubun/pp/v3"
+		// pp.Println( viewed_user )
 )
 
+func HandleUserEdit2( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	var viewed_user user.User
+	json.Unmarshal( context.Body() , &viewed_user )
+	// pp.Println( viewed_user )
+	viewed_user.Config = GlobalConfig
+	viewed_user.Save();
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/edit2" ,
+		"result": "saved" ,
+	})
+}
 
 func HandleUserEdit( context *fiber.Ctx ) ( error ) {
 
@@ -32,6 +46,7 @@ func HandleUserEdit( context *fiber.Ctx ) ( error ) {
 
 	fmt.Println( "Editing User :" )
 	fmt.Println( new_user )
+	fmt.Println( "barcodes ===" , new_user.Barcodes )
 
 	// 3.) Store User in DB
 	new_user_byte_object , _ := json.Marshal( new_user )

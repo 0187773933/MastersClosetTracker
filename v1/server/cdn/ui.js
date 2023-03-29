@@ -1,3 +1,5 @@
+
+
 function get_ui_alert_check_in_allowed() {
 	return `
 	<div class="row">
@@ -250,7 +252,7 @@ function get_ui_user_edit_form() {
 	return `
 	<div class="row">
 		<center>
-			<form id="user-edit-form" action="/admin/user/edit" onSubmit="return on_submit( event )" method="post">
+			<form id="user-edit-form" action="/admin/user/edit" method="post">
 				<!-- Main Required Stuff -->
 				<div class="row g-2 mb-3">
 					<div class="col-md-4">
@@ -408,10 +410,196 @@ function get_ui_user_edit_form() {
 				<br>
 
 				<div class="form-row">
-					<button id ="save-button" type="submit" class="btn btn-success">Save</button>
+					<button id="save-button" type="submit" class="btn btn-success">Save</button>
 				</div>
 
 			</form>
 		</center>
 	</div>`;
+}
+
+function set_family_members_size( family_members_size ) {
+	let family_members_input_area = document.getElementById( "user_family_members" );
+	family_members_input_area.innerHTML = "";
+	for ( let i = 0; i < family_members_size; ++i ) {
+		let new_row = document.createElement( "div" );
+		new_row.className = "row g-2";
+
+		let col_1 = document.createElement( "div" );
+		col_1.className = "col-md-4";
+		new_row.appendChild( col_1 );
+
+		let col_2 = document.createElement( "div" );
+		col_2.className = "col-md-4";
+		let input_group = document.createElement( "div" );
+		input_group.className = "input-group";
+		let label = document.createElement( "span" );
+		label.className = "input-group-text";
+		label.setAttribute( "id" , `user_family_member_${(i +1)}` );
+		label.textContent = `Family Member - ${(i + 1)}`;
+		let age_input = document.createElement( "input" );
+		age_input.className = "form-control";
+		age_input.setAttribute( "placeholder" , "Age" );
+		age_input.setAttribute( "type" , "text" );
+		age_input.setAttribute( "name" , `user_family_member_${(i + 1)}_age` );
+		age_input.setAttribute( "id" , `user_family_member_${(i + 1)}_age` );
+		input_group.appendChild( label );
+		input_group.appendChild( age_input );
+		col_2.appendChild( input_group );
+		new_row.appendChild( col_2 );
+
+		let col_3 = document.createElement( "div" );
+		col_3.className = "col-md-4";
+		new_row.appendChild( col_3 );
+
+		family_members_input_area.appendChild( new_row );
+	}
+}
+function on_family_size_change( event ) {
+	console.log( "on_family_size_change()" );
+	if ( event ) { event.preventDefault(); }
+	let party_size = parseInt( event.target.value );
+	set_family_members_size( party_size );
+}
+
+function on_add_barcode( event ) {
+	console.log( "on_add_barcode()" );
+	let barcode_ulid = ULID.ulid();
+	let barcode_id = `user_barcode_${barcode_ulid}`;
+	window.BARCODES[ barcode_id ] = "";
+	if ( event ) { event.preventDefault(); }
+	let current_barcodes = document.querySelectorAll( ".user-barcode" );
+	let holder = document.getElementById( "user_barcodes" );
+
+	let new_row = document.createElement( "div" );
+	new_row.setAttribute( "id" , `user_barcode_row_${barcode_ulid}` );
+	new_row.className = "row g-2";
+
+	let col_1 = document.createElement( "div" );
+	col_1.className = "col-md-3";
+	new_row.appendChild( col_1 );
+
+	let col_2 = document.createElement( "div" );
+	col_2.className = "col-md-6";
+	let input_group = document.createElement( "div" );
+	input_group.className = "input-group";
+	let label = document.createElement( "span" );
+	label.className = "input-group-text";
+	label.setAttribute( "id" , `user_barcode_label_${barcode_ulid}` );
+	label.textContent = `Barcode - ${(current_barcodes.length + 1)}`;
+	let barcode_input = document.createElement( "input" );
+	barcode_input.className = "form-control user-barcode";
+	barcode_input.setAttribute( "placeholder" , "Barcode Number" );
+	barcode_input.setAttribute( "type" , "text" );
+	barcode_input.setAttribute( "name" , barcode_id );
+	barcode_input.setAttribute( "id" , barcode_id );
+	barcode_input.addEventListener( "keydown" , ( event ) => {
+		if ( event.keyCode === 13 ) {
+			event.preventDefault();
+			return;
+		}
+		// window.USER.barcodes[ current_barcodes.length ] = event.target.value;
+		window.BARCODES[ barcode_ulid ] = event.target.value;
+	});
+	input_group.appendChild( label );
+	input_group.appendChild( barcode_input );
+
+	let barcode_delete_button = document.createElement( "a" );
+	barcode_delete_button.className = "btn btn-danger p-1 d-flex justify-content-center align-items-center";
+	let barcode_delete_button_icon = document.createElement( "i" );
+	barcode_delete_button_icon.className = "bi bi-trash3-fill";
+	barcode_delete_button.appendChild( barcode_delete_button_icon );
+	barcode_delete_button.onclick = async function( event ) {
+		if ( event ) { event.preventDefault(); }
+		let barcode_id = event?.target?.parentNode?.parentNode?.childNodes[ 1 ]?.id;
+		if ( barcode_id === undefined ) { bardcode_id = event?.target?.parentNode?.childNodes[ 1 ]?.id; }
+		if ( barcode_id === undefined ) { console.log( event.target ); }
+		let barcode_ulid = barcode_id.split( "user_barcode_" )[ 1 ];
+		let result = confirm( `Are You Absolutely Sure You Want to Delete This Barcode ???` );
+		if ( result === true ) {
+			delete window.BARCODES[ barcode_ulid ];
+			let row_id = `#user_barcode_row_${barcode_ulid}`;
+			$( row_id ).remove();
+			let labels = document.querySelectorAll( '[id^="user_barcode_label_"]' );
+			for ( let i = 0; i < labels.length; ++i ) {
+				console.log( labels[ i ].innerText , `Barcode - ${(i+1)}` );
+				labels[ i ].innerText = `Barcode - ${(i+1)}`;
+			}
+			return;
+		}
+	};
+	input_group.appendChild( barcode_delete_button );
+	col_2.appendChild( input_group );
+	// col_2.appendChild( barcode_delete_button );
+
+	new_row.appendChild( col_2 );
+
+	let col_3 = document.createElement( "div" );
+	col_3.className = "col-md-3";
+	new_row.appendChild( col_3 );
+
+	holder.appendChild( new_row );
+	document.getElementById( barcode_id ).focus();
+	return barcode_ulid;
+}
+function populate_user_edit_form( user_info ) {
+	console.log( "populate_user_edit_form()" );
+	console.log( user_info );
+	window.BARCODES = {};
+	// console.log( JSON.stringify( user_info , null , 4 ) );
+	let first_name_element = document.getElementById( "user_first_name" );
+	first_name_element.value = user_info[ "identity" ][ "first_name" ];
+	let middle_name_element = document.getElementById( "user_middle_name" );
+	middle_name_element.value = user_info[ "identity" ][ "middle_name" ];
+	let last_name_element = document.getElementById( "user_last_name" );
+	last_name_element.value = user_info[ "identity" ][ "last_name" ];
+	let email_element = document.getElementById( "user_email" );
+	email_element.value = user_info[ "email_address" ];
+	let phone_number_element = document.getElementById( "user_phone_number" );
+	phone_number_element.value = user_info[ "phone_number" ];
+	let street_number_element = document.getElementById( "user_street_number" );
+	street_number_element.value = user_info[ "identity" ][ "address" ][ "street_number" ];
+	let street_name_element = document.getElementById( "user_street_name" );
+	street_name_element.value = user_info[ "identity" ][ "address" ][ "street_name" ];
+	let address_two_element = document.getElementById( "user_address_two" );
+	address_two_element.value = user_info[ "identity" ][ "address" ][ "address_two" ];
+	let city_element = document.getElementById( "user_city" );
+	city_element.value = user_info[ "identity" ][ "address" ][ "city" ];
+	let state_element = document.getElementById( "user_state" );
+	state_element.value = user_info[ "identity" ][ "address" ][ "state" ];
+	let zip_code_element = document.getElementById( "user_zip_code" );
+	zip_code_element.value = user_info[ "identity" ][ "address" ][ "zipcode" ];
+
+	if ( user_info[ "identity" ][ "date_of_birth" ][ "day" ] > 0 ) {
+		let birth_day_element = document.getElementById( "user_birth_day" );
+		birth_day_element.value = user_info[ "identity" ][ "date_of_birth" ][ "day" ];
+	}
+	if ( user_info[ "identity" ][ "date_of_birth" ][ "month" ] !== "" ) {
+		let birth_month_element = document.getElementById( "user_birth_month" );
+		birth_month_element.value = user_info[ "identity" ][ "date_of_birth" ][ "month" ];
+	}
+	if ( user_info[ "identity" ][ "date_of_birth" ][ "year" ] > 0 ) {
+		let birth_year_element = document.getElementById( "user_birth_year" );
+		birth_year_element.value = user_info[ "identity" ][ "date_of_birth" ][ "year" ];
+	}
+
+	if ( user_info[ "family_members" ].length > 0 ) {
+		let family_size_element = document.getElementById( "user_family_size" );
+		family_size_element.value = user_info[ "family_size" ];
+		set_family_members_size( user_info.family_members.length );
+		for ( let i = 0; i < user_info[ "family_members" ].length; ++i ) {
+			let family_member_age_element = document.getElementById( `user_family_member_${(i + 1)}_age` );
+			family_member_age_element.value = user_info[ "family_members" ][ i ][ "age" ];
+		}
+	}
+
+	if ( user_info[ "barcodes" ] ) {
+		for ( let i = 0; i < user_info[ "barcodes" ].length; ++i ) {
+			let barcode_ulid = on_add_barcode(); // add barcode to DOM
+			let barcode_id = `user_barcode_${barcode_ulid}`;
+			let barcode_input_element = document.getElementById( barcode_id );
+			barcode_input_element.value = user_info[ "barcodes" ][ i ];
+			window.BARCODES[ barcode_ulid ] = user_info[ "barcodes" ][ i ];
+		}
+	}
 }
