@@ -16,3 +16,13 @@ function convert_milliseconds_to_time_string( milliseconds ) {
 	let time_string = `${days} days , ${hours} hours , ${minutes} minutes , and ${seconds} seconds`;
 	return time_string;
 }
+
+function set_nested_property( obj , keys , value ) {
+	if ( keys.length === 1 ) {
+		obj[ keys[ 0 ] ] = value;
+	} else {
+		const key = keys.shift();
+		obj[ key ] = obj[ key ] || {};
+		set_nested_property( obj[ key ] , keys , value );
+	}
+}

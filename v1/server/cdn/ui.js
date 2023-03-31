@@ -149,12 +149,7 @@ function get_ui_user_balance_table() {
 			</div>
 		</div>
 		<div class="col-md-1"></div>
-		<center>
-			<button id="print-checkin-button" type="submit" class="btn btn-success">Print</button>
-		</center>
-	</div>
-
-	`;
+	</div>`;
 
 }
 function _add_balance_row( table_body_element , name , available , limit , used ) {
@@ -246,6 +241,234 @@ function populate_user_balance_table( shopping_for , balance , balance_config ) 
 		balance[ "accessories" ][ "used" ] ,
 	);
 
+}
+
+function get_ui_user_new_form() {
+	return `
+	<div class="row">
+		<center>
+			<form id="user-new-form" action="/admin/user/new" method="post">
+				<!-- Main Required Stuff -->
+				<div class="row g-2 mb-3">
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_first_name" type="text" class="form-control" name="user_first_name">
+							<label for="user_first_name">First Name</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_middle_name" type="text" class="form-control" name="user_middle_name">
+							<label for="user_middle_name">Middle Name</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_last_name" type="text" class="form-control" name="user_last_name">
+							<label for="user_last_name">Last Name</label>
+						</div>
+					</div>
+				</div>
+				<div class="row g-2 mb-3">
+						<div class="col-md-2"></div>
+						<div class="col-md-4">
+							<div class="form-floating">
+								<input id="user_email" type="email" class="form-control" name="user_email">
+								<label for="user_email">Email Address</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating">
+								<input id="user_phone_number" type="tel" class="form-control" name="user_phone_number">
+								<label for="user_phone_number">Phone Number</label>
+							</div>
+						</div>
+						<div class="col-md-2"></div>
+				</div>
+
+				<div class="row g-2 mb-3">
+					<div class="col-md-4"></div>
+					<div class="col-md-4">
+						<button id="add-barcode-button" class="btn btn-primary" onclick="on_add_barcode(event);">Add Barcode</button>
+					</div>
+					<div class="col-md-4"></div>
+				</div>
+
+				<div id="user_barcodes"></div>
+
+				<br>
+
+				<!-- Address - Part 1-->
+				<div class="row g-2 mb-3">
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_street_number" type="text" class="form-control" name="user_street_number">
+							<label for="user_street_number">Street Number</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_street_name" type="text" class="form-control" name="user_street_name">
+							<label for="user_street_name">Street Name</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_address_two" type="text" class="form-control" name="user_street_name">
+							<label for="user_address_two">Address 2</label>
+						</div>
+					</div>
+				</div>
+				<!-- Address - Part 2-->
+				<div class="row g-2 mb-3">
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_city" type="text" class="form-control" name="user_city">
+							<label for="user_city">City</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_state" type="text" class="form-control" name="user_state">
+							<label for="user_state">State</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_zip_code" type="text" class="form-control" name="user_zip_code">
+							<label for="user_zip_code">Zip Code</label>
+						</div>
+					</div>
+				</div>
+				<br>
+				<!-- Extras -->
+				<div class="row g-2 mb-3">
+
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_birth_day" type="number" min="1" max="31" class="form-control" name="user_birth_day">
+							<label for="user_birth_day">Birth Day</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<select id="user_birth_month" class="form-select" aria-label="User Birth Month" name="user_birth_month">
+								<option value="JAN">JAN = 1</option>
+								<option value="FEB">FEB = 2</option>
+								<option value="MAR">MAR = 3</option>
+								<option value="APR">APR = 4</option>
+								<option value="MAY">MAY = 5</option>
+								<option value="JUN">JUN = 6</option>
+								<option value="JUL">JUL = 7</option>
+								<option value="AUG">AUG = 8</option>
+								<option value="SEP">SEP = 9</option>
+								<option value="OCT">OCT = 10</option>
+								<option value="NOV">NOV = 11</option>
+								<option value="DEC">DEC = 12</option>
+							</select>
+							<label for="user_birth_month">Birth Month</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-floating">
+							<input id="user_birth_year" type="number" min="1900" max="2100" class="form-control" name="user_birth_year">
+							<label for="user_birth_year">Birth Year</label>
+						</div>
+					</div>
+				</div>
+
+				<br>
+
+				<div class="row g-2 mb-3">
+					<div class="col-md-4"></div>
+					<div class="col-md-4">
+						<button id="add-barcode-button" class="btn btn-primary" onclick="on_add_family_member(event);">Add Family Member</button>
+					</div>
+					<div class="col-md-4"></div>
+				</div>
+
+				<div id="user_family_members"></div>
+
+				<br>
+			</form>
+		</center>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div id="user-exists-error-modal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" >
+					<div class="modal-dialog">
+						<div class="modal-content bg-danger-subtle">
+							<div class="modal-header">
+								<h5 class="modal-title">User Already Exists !!!</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<p>Please Re-Scan this QR Code to Re-Login</p>
+								<center>
+									<div id="user-exists-qr-code"></div>
+								</center>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div id="user-handoff-modal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" >
+					<div class="modal-dialog">
+						<div class="modal-content bg-success-subtle">
+							<div class="modal-header">
+								<h5 class="modal-title">New User Created</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<p>Please Scan this QR Code to Login</p>
+								<center>
+									<div id="user-handoff-qr-code"></div>
+								</center>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>`;
+}
+function add_qr_code( text , element_id ) {
+	let x_element = document.getElementById( element_id );
+	x_element.innerHTML = "";
+	let user_qrcode = new QRCode( x_element , {
+		text: text ,
+		width: 256 ,
+		height: 256 ,
+		colorDark : "#000000" ,
+		colorLight : "#ffffff" ,
+		correctLevel : QRCode.CorrectLevel.H
+	});
+}
+function show_user_exists_modal( uuid ) {
+	let qr_code_link = `${window.location.protocol}//${window.location.host}/user/login/fresh/${uuid}`;
+	add_qr_code( qr_code_link , "user-exists-qr-code" );
+	let user_exists_modal = new bootstrap.Modal( "#user-exists-error-modal" , {
+		backdrop: "static" ,
+		focus: true ,
+		keyboard: true
+	});
+	user_exists_modal.show();
+}
+function show_user_handoff_modal( uuid ) {
+	let qr_code_link = `${window.location.protocol}//${window.location.host}/user/login/fresh/${uuid}`;
+	add_qr_code( qr_code_link , "user-handoff-qr-code" );
+	let user_handoff_modal = new bootstrap.Modal( "#user-handoff-modal" , {
+		backdrop: "static" ,
+		focus: true ,
+		keyboard: true
+	});
+	user_handoff_modal.show();
 }
 
 function get_ui_user_edit_form() {
@@ -396,22 +619,19 @@ function get_ui_user_edit_form() {
 
 				<br>
 
-				<div class="form-row">
-					<button id="save-button" type="submit" class="btn btn-success">Save</button>
-				</div>
-
 			</form>
 		</center>
 	</div>`;
 }
 
 function on_add_family_member( event ) {
+	if ( event ) { event.preventDefault(); }
 	console.log( "on_add_family_member()" );
 	let family_member_ulid = ULID.ulid();
 	let family_member_id = `user_family_member_${family_member_ulid}`;
 	window.FAMILY_MEMBERS[ family_member_id ] = "";
-	if ( event ) { event.preventDefault(); }
 	let current_family_members = document.querySelectorAll( ".user-family-member" );
+	if ( current_family_members.length > 5 ) { return; }
 	let holder = document.getElementById( "user_family_members" );
 
 	let new_row = document.createElement( "div" );
@@ -486,11 +706,11 @@ function on_add_family_member( event ) {
 }
 
 function on_add_barcode( event ) {
+	if ( event ) { event.preventDefault(); }
 	console.log( "on_add_barcode()" );
 	let barcode_ulid = ULID.ulid();
 	let barcode_id = `user_barcode_${barcode_ulid}`;
 	window.BARCODES[ barcode_id ] = "";
-	if ( event ) { event.preventDefault(); }
 	let current_barcodes = document.querySelectorAll( ".user-barcode" );
 	let holder = document.getElementById( "user_barcodes" );
 
