@@ -337,6 +337,12 @@ func ( u *User ) CheckInForce() ( check_in CheckIn ) {
 	return
 }
 
+func ( u *User ) AddBarcode( barcode string ) {
+	u.Barcodes = append( u.Barcodes , barcode )
+	u.Save()
+	return
+}
+
 func FormatUsername( x_user *User ) {
 	// username := fmt.Sprintf( "%s-%s-%s" , x_user.Identity.FirstName , x_user.Identity.MiddleName , x_user.Identity.LastName )
 	// username = strings.Join( strings.Fields( username ) , " " )

@@ -225,7 +225,7 @@
 				window.USER.family_members = window.USER.family_members.map( ( x ) => { return { "first_name": "" , "last_name": "" , "age": x } } );
 				let edit_result = await api_edit_user( window.USER );
 				console.log( edit_result );
-				window.USER = edit_result.result;
+				window.USER = edit_result.user;
 				// alert( "User Info Saved !" );
 				window.UI.render_active_user();
 			}
@@ -294,9 +294,12 @@
 				if ( valid_barcode ) {
 					let user = await get_user_from_barcode( typed_input );
 					if ( user ) {
-						console.log( "Barcode !" , typed_input );
-						window.USER = user;
-						await render_active_user();
+						if ( user.uuid ) {
+							console.log( "Barcode !" , typed_input );
+							console.log( user );
+							window.USER = user;
+							window.UI.render_active_user();
+						}
 					}
 					return;
 				}
