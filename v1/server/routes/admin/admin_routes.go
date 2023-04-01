@@ -33,6 +33,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Post( "/login" , HandleLogin )
 
 	admin_route_group.Post( "/user/new" , HandleNewUserJoin )
+	admin_route_group.Post( "/user/new2" , HandleNewUserJoin2 )
 	admin_route_group.Post( "/user/edit" , HandleUserEdit )
 	admin_route_group.Post( "/user/edit2" , HandleUserEdit2 )
 	admin_route_group.Get( "/user/delete/:uuid" , DeleteUser )

@@ -21,11 +21,12 @@ func HandleUserEdit2( context *fiber.Ctx ) ( error ) {
 	var viewed_user user.User
 	json.Unmarshal( context.Body() , &viewed_user )
 	// pp.Println( viewed_user )
+	viewed_user.FormatUsername()
 	viewed_user.Config = GlobalConfig
 	viewed_user.Save();
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/edit2" ,
-		"result": "saved" ,
+		"result": viewed_user ,
 	})
 }
 

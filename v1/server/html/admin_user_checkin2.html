@@ -19,7 +19,6 @@
 				<div class="col-lg-2 col-md-1"></div>
 				<div class="col-lg-8 col-md-10">
 					<div class="input-group mb-3">
-						<!-- <button class="btn btn-outline-secondary" type="button" id="search-button">Search</button> -->
 						<span class="input-group-text" id="search-button">Search</span>
 						<input id="user-search-input" type="text" class="form-control flex-grow-1">
 						<button class="btn btn-outline-secondary" type="button" id="search-clear-button">Clear</button>
@@ -28,11 +27,7 @@
 				<div class="col-lg-2 col-md-1"></div>
 			</div>
 			<div class="row" id="buttons-row">
-				<center id="buttons-content">
-					<!-- <button id="check-in-button" type="submit" class="btn btn-success">Check-In</button> -->
-					<!-- <button id="edit-user-button" type="submit" class="btn btn-primary">Edit</button> -->
-					<!-- <button id="new-user-button" type="submit" class="btn btn-warning">New</button> -->
-				</center>
+				<center id="buttons-content"></center>
 			</div>
 			<br>
 			<div class="row" id="main-row"></div>
@@ -58,17 +53,6 @@
 					this.clear();
 					this.render_buttons();
 				}
-
-				// hide_all_buttons() {
-				// 	for ( let i = 0; i < this.buttons.length; ++i ) {
-				// 		$( this.buttons[ i ] ).hide();
-				// 	}
-				// }
-				// show_all_buttons() {
-				// 	for ( let i = 0; i < this.buttons.length; ++i ) {
-				// 		$( this.buttons[ i ] ).show();
-				// 	}
-				// }
 				clear() {
 					$( "#user-search-input" ).val( "" );
 					$( this.options.anchor ).html( "" );
@@ -122,6 +106,11 @@
 				async render_active_user( user ) {
 					console.log( "render_active_user()" );
 
+					if ( !window.USER?.uuid ) {
+						this.clear();
+						return;
+					}
+
 					// 1.) Prep UI
 					this.buttons_stack = [ "check-in-print-button" , "edit-user-button" , "new-user-button" ];
 					this.render_buttons();
@@ -140,6 +129,7 @@
 
 					// 3.) Update Shopping-For Selector
 					let shopping_for_elem = document.getElementById( "shopping_for" );
+					if ( !check_in_test.user.family_members ) { check_in_test.user.family_members = []; }
 					let shopping_for_max = ( check_in_test.user.family_members.length + 1 );
 					let shopping_for_value = ( check_in_test.user.family_members.length + 1 );
 					$( "#shopping_for" ).val( shopping_for_value );
@@ -186,14 +176,13 @@
 					$( "#user_birth_day" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.day = event.target.value });
 					$( "#user_birth_month" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.month = event.target.value });
 					$( "#user_birth_year" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.year = event.target.value });
-					// user_family_size
-					// add-barcode-button
-					$( "#save-button" ).on( "click" , on_edit_save_button_click );
 				}
-
 				render_new_form() {
+					this.buttons_stack = [ "new-user-save-button" , "new-user-cancel-button" ];
+					this.render_buttons();
 					this.stack = [ "user_new_form" ];
 					this.render();
+					$( "#user-search-input" ).val( "" );
 					window.USER = {};
 					window.BARCODES = {};
 					window.FAMILY_MEMBERS = {};
@@ -210,12 +199,14 @@
 					$( "#user_birth_day" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "date_of_birth" , "day" ] , event.target.value ); });
 					$( "#user_birth_month" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "date_of_birth" , "month" ] , event.target.value ); });
 					$( "#user_birth_year" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "date_of_birth" , "year" ] , event.target.value ); });
-					// user_family_size
-					// add-barcode-button
-					$( "#save-button" ).on( "click" , on_edit_save_button_click );
 				}
 			}
 
+			function on_clear_button_click( event ) {
+				console.log( "on_clear_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				window.UI.clear();
+			}
 
 			function on_edit_button_click( event ) {
 				console.log( "on_edit_button_click()" );
@@ -224,7 +215,7 @@
 			}
 
 			async function on_edit_save_button_click( event ) {
-				console.log( "on_edit_save()" );
+				console.log( "on_edit_save_button_click()" );
 				if ( event ) { event.preventDefault(); }
 				// update dynamic form thing ?
 				window.USER.barcodes = Object.values( window.BARCODES );
@@ -234,7 +225,9 @@
 				window.USER.family_members = window.USER.family_members.map( ( x ) => { return { "first_name": "" , "last_name": "" , "age": x } } );
 				let edit_result = await api_edit_user( window.USER );
 				console.log( edit_result );
-				alert( "User Info Saved !" );
+				window.USER = edit_result.result;
+				// alert( "User Info Saved !" );
+				window.UI.render_active_user();
 			}
 
 			function on_edit_cancel_button_click( event ) {
@@ -247,12 +240,6 @@
 				console.log( "on_check_in_button_click()" );
 				if ( event ) { event.preventDefault(); }
 				window.UI.render_active_user();
-			}
-
-			function on_clear_button_click( event ) {
-				console.log( "on_clear_button_click()" );
-				if ( event ) { event.preventDefault(); }
-				window.UI.clear();
 			}
 
 			async function on_check_in_print_button_click( event ) {
@@ -275,12 +262,21 @@
 				window.UI.render_new_form();
 			}
 
-			function on_new_save_button_click( event ) {
+			async function on_new_save_button_click( event ) {
 				console.log( "on_new_save_button_click()" );
 				if ( event ) { event.preventDefault(); }
-				// window.UI.render_new_form();
+				let new_user_result = await api_new_user( window.USER );
+				if ( !new_user_result.result?.uuid ) { return false; }
+				window.USER = new_user_result.result;
+				console.log( window.USER );
+				window.UI.render_active_user();
 			}
 
+			function on_new_cancel_button_click( event ) {
+				console.log( "on_new_cancel_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				window.UI.render_active_user();
+			}
 
 			async function _on_check_in_input_change( typed_input="" ) {
 				console.log( "_on_check_in_input_change()" , typed_input );
@@ -380,8 +376,13 @@
 						} ,
 						"new-user-save-button": {
 							text: "Save" ,
-							color: "primary" ,
+							color: "success" ,
 							on_click: on_new_save_button_click ,
+						} ,
+						"new-user-cancel-button": {
+							text: "Cancel" ,
+							color: "warning" ,
+							on_click: on_new_cancel_button_click ,
 						} ,
 					} ,
 				});

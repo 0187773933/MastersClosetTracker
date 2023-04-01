@@ -107,8 +107,22 @@ function fuzzy_search_username( username ) {
 function api_edit_user( user_info ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
-			console.log( "Edited Barcodes ===" , user_info.barcodes );
 			let response = await fetch( `/admin/user/edit2` , {
+				method: "POST" ,
+				body: JSON.stringify( user_info )
+			});
+			let response_json = await response.json();
+			resolve( response_json );
+			return;
+		}
+		catch( error ) { console.log( error ); resolve( false ); return; }
+	});
+}
+
+function api_new_user( user_info ) {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			let response = await fetch( `/admin/user/new2` , {
 				method: "POST" ,
 				body: JSON.stringify( user_info )
 			});

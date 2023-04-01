@@ -93,6 +93,30 @@ func ProcessNewUserForm( context *fiber.Ctx ) ( new_user user.User ) {
 	return
 }
 
+func HandleNewUserJoin2( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+
+	var viewed_user user.User
+	json.Unmarshal( context.Body() , &viewed_user )
+	// pp.Println( viewed_user )
+	fmt.Println( viewed_user )
+	viewed_user.Config = GlobalConfig
+
+	viewed_user.FormatUsername()
+	new_user := user.New( viewed_user.Username , GlobalConfig )
+	fmt.Println( new_user )
+	viewed_user.UUID = new_user.UUID
+	viewed_user.CreatedDate = new_user.CreatedDate
+	viewed_user.CreatedTime = new_user.CreatedTime
+	viewed_user.Save()
+
+	// viewed_user.Save();
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/new2" ,
+		"result": viewed_user ,
+	})
+}
+
 func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
