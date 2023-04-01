@@ -40,7 +40,6 @@
 	- keeps only uuids as keys
 11. Make config editable via html
 12. Make tables sortable
-13. Change everything to user struct methods
 
 
 ## Misc
