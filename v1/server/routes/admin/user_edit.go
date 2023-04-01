@@ -21,64 +21,63 @@ func HandleUserEdit2( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 	var viewed_user user.User
 	json.Unmarshal( context.Body() , &viewed_user )
-	fmt.Println( viewed_user )
-	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
-	defer db.Close()
+	// db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	// defer db.Close()
 
 	// 1.) Grab Existing User Info
-	var existing_user user.User
-	db.View( func( tx *bolt_api.Tx ) error {
-		bucket := tx.Bucket( []byte( "users" ) )
-		bucket_value := bucket.Get( []byte( viewed_user.UUID ) )
-		if bucket_value == nil { return nil }
-		decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , bucket_value )
-		json.Unmarshal( decrypted_bucket_value , &existing_user )
-		return nil
-	})
-	fmt.Println( existing_user )
+	// var existing_user user.User
+	// db.View( func( tx *bolt_api.Tx ) error {
+	// 	bucket := tx.Bucket( []byte( "users" ) )
+	// 	bucket_value := bucket.Get( []byte( viewed_user.UUID ) )
+	// 	if bucket_value == nil { return nil }
+	// 	decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , bucket_value )
+	// 	json.Unmarshal( decrypted_bucket_value , &existing_user )
+	// 	return nil
+	// })
 	viewed_user.Config = GlobalConfig
 	viewed_user.FormatUsername()
+	fmt.Println( viewed_user )
 
 
 	// 2.) manual db edits
-	db_result := db.Update( func( tx *bolt_api.Tx ) error {
-		// a.)
-		viewed_user_byte_object , _ := json.Marshal( viewed_user )
-		viewed_user_byte_object_encrypted := encryption.ChaChaEncryptBytes( GlobalConfig.BoltDBEncryptionKey , viewed_user_byte_object )
-		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
-		users_bucket.Put( []byte( viewed_user.UUID ) , viewed_user_byte_object_encrypted )
+	// db_result := db.Update( func( tx *bolt_api.Tx ) error {
+	// 	// a.)
+	// 	viewed_user_byte_object , _ := json.Marshal( viewed_user )
+	// 	viewed_user_byte_object_encrypted := encryption.ChaChaEncryptBytes( GlobalConfig.BoltDBEncryptionKey , viewed_user_byte_object )
+	// 	users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
+	// 	users_bucket.Put( []byte( viewed_user.UUID ) , viewed_user_byte_object_encrypted )
 
-		// b.)
-		usernames_bucket , _ := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
-		if existing_user.Username != viewed_user.Username {
-			usernames_bucket.Delete( []byte( existing_user.Username ) )
-			search_index , _ := bleve.Open( GlobalConfig.BleveSearchPath )
-			defer search_index.Close()
-			edited_search_item := types.SearchItem{
-				UUID: viewed_user.UUID ,
-				Name: viewed_user.NameString ,
-			}
-			search_index.Index( viewed_user.UUID , edited_search_item )
-		}
-		usernames_bucket.Put( []byte( viewed_user.Username ) , []byte( viewed_user.UUID ) )
+	// 	// b.)
+	// 	usernames_bucket , _ := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
+	// 	if existing_user.Username != viewed_user.Username {
+	// 		usernames_bucket.Delete( []byte( existing_user.Username ) )
+	// 		search_index , _ := bleve.Open( GlobalConfig.BleveSearchPath )
+	// 		defer search_index.Close()
+	// 		edited_search_item := types.SearchItem{
+	// 			UUID: viewed_user.UUID ,
+	// 			Name: viewed_user.NameString ,
+	// 		}
+	// 		search_index.Index( viewed_user.UUID , edited_search_item )
+	// 	}
+	// 	usernames_bucket.Put( []byte( viewed_user.Username ) , []byte( viewed_user.UUID ) )
 
-		// c.)
-		barcodes_bucket , _ := tx.CreateBucketIfNotExists( []byte( "barcodes" ) )
-		for i := 0; i < len( viewed_user.Barcodes ); i++ {
-			barcodes_bucket.Put( []byte( viewed_user.Barcodes[ i ] ) , []byte( viewed_user.UUID ) )
-			// TODO , handle what happens if we remove a barcode from a user
-			// Not really that big of a problem , since this just updates the barcode for the right uuid anyway
-		}
-		return nil
-	})
+	// 	// c.)
+	// 	barcodes_bucket , _ := tx.CreateBucketIfNotExists( []byte( "barcodes" ) )
+	// 	for i := 0; i < len( viewed_user.Barcodes ); i++ {
+	// 		barcodes_bucket.Put( []byte( viewed_user.Barcodes[ i ] ) , []byte( viewed_user.UUID ) )
+	// 		// TODO , handle what happens if we remove a barcode from a user
+	// 		// Not really that big of a problem , since this just updates the barcode for the right uuid anyway
+	// 	}
+	// 	return nil
+	// })
 
 
 	// 3.) save and return
 	// already doing it inside the update function users_bucket.Put()
-	// viewed_user.Save();
+	viewed_user.Save();
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/edit2" ,
-		"result": db_result ,
+		"result": true ,
 		"user": viewed_user ,
 	})
 }

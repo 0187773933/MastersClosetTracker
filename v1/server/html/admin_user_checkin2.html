@@ -222,7 +222,7 @@
 				window.USER.barcodes = window.USER.barcodes.filter( ( x ) => { return x !== ""; } );
 				window.USER.family_members = Object.values( window.FAMILY_MEMBERS );
 				window.USER.family_members = window.USER.family_members.filter( ( x ) => { return x !== ""; } );
-				window.USER.family_members = window.USER.family_members.map( ( x ) => { return { "first_name": "" , "last_name": "" , "age": x } } );
+				window.USER.family_members = window.USER.family_members.map( ( x ) => { return { "first_name": "" , "last_name": "" , "age": parseInt( x ) } } );
 				let edit_result = await api_edit_user( window.USER );
 				console.log( edit_result );
 				window.USER = edit_result.user;
@@ -265,6 +265,15 @@
 			async function on_new_save_button_click( event ) {
 				console.log( "on_new_save_button_click()" );
 				if ( event ) { event.preventDefault(); }
+				// update dynamic form stuff
+				window.USER.barcodes = Object.values( window.BARCODES );
+				window.USER.barcodes = window.USER.barcodes.filter( ( x ) => { return x !== ""; } );
+				window.USER.family_members = Object.values( window.FAMILY_MEMBERS );
+				console.log( "Family Members ===" , window.USER.family_members );
+				window.USER.family_members = window.USER.family_members.filter( ( x ) => { return x !== ""; } );
+				console.log( "Family Members ===" , window.USER.family_members );
+				window.USER.family_members = window.USER.family_members.map( ( x ) => { return { "first_name": "" , "last_name": "" , "age": parseInt( x ) } } );
+				console.log( "Family Members ===" , window.USER.family_members );
 				let new_user_result = await api_new_user( window.USER );
 				if ( !new_user_result.result?.uuid ) { return false; }
 				window.USER = new_user_result.result;
@@ -286,7 +295,7 @@
 					if ( user ) {
 						console.log( "UUID !" , typed_input );
 						window.USER = user;
-						await render_active_user();
+						window.UI.render_active_user();
 					}
 					return;
 				}

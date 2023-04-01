@@ -8,7 +8,7 @@ import (
 	json "encoding/json"
 	// bolt "github.com/0187773933/MastersClosetTracker/v1/bolt"
 	bolt "github.com/boltdb/bolt"
-	// bleve "github.com/blevesearch/bleve/v2"
+	bleve "github.com/blevesearch/bleve/v2"
 	uuid "github.com/satori/go.uuid"
 	encrypt "github.com/0187773933/MastersClosetTracker/v1/encryption"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
@@ -152,9 +152,44 @@ func ( u *User ) Save() {
 	byte_object_encrypted := encrypt.ChaChaEncryptBytes( u.Config.BoltDBEncryptionKey , byte_object )
 	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
+	var existing_user *User
+	// u.FormatUsername()
 	db_result := db.Update( func( tx *bolt.Tx ) error {
+
+		// this was originally the only thing in here
 		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
 		users_bucket.Put( []byte( u.UUID ) , byte_object_encrypted )
+
+		// but we added stuff below now on every save
+
+		// Grab existing version of user to see if we need to make any adjacent db changes
+		existing_user_value := users_bucket.Get( []byte( u.UUID ) )
+		if existing_user_value == nil { return nil }
+		decrypted_bucket_value := encrypt.ChaChaDecryptBytes( u.Config.BoltDBEncryptionKey , existing_user_value )
+		json.Unmarshal( decrypted_bucket_value , &existing_user )
+
+		// such as the usernames bucket
+		usernames_bucket , _ := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
+		if existing_user.Username != u.Username {
+			usernames_bucket.Delete( []byte( existing_user.Username ) )
+			search_index , _ := bleve.Open( u.Config.BleveSearchPath )
+			defer search_index.Close()
+			edited_search_item := types.SearchItem{
+				UUID: u.UUID ,
+				Name: u.NameString ,
+			}
+			search_index.Index( u.UUID , edited_search_item )
+		}
+		usernames_bucket.Put( []byte( u.Username ) , []byte( u.UUID ) )
+
+		// and the barcode bucket
+		barcodes_bucket , _ := tx.CreateBucketIfNotExists( []byte( "barcodes" ) )
+		for i := 0; i < len( u.Barcodes ); i++ {
+			barcodes_bucket.Put( []byte( u.Barcodes[ i ] ) , []byte( u.UUID ) )
+			// TODO , handle what happens if we remove a barcode from a user
+			// Not really that big of a problem , since this just updates the barcode for the right uuid anyway
+		}
+
 		return nil
 	})
 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }

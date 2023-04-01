@@ -649,7 +649,7 @@ function on_add_family_member( event ) {
 	let label = document.createElement( "span" );
 	label.className = "input-group-text";
 	label.setAttribute( "id" , `user_family_member_label_${family_member_ulid}` );
-	label.textContent = `Family Member - ${(current_family_members.length + 1)}`;
+	label.textContent = `Family Member Age - ${(current_family_members.length + 1)}`;
 	let family_member_input = document.createElement( "input" );
 	family_member_input.className = "form-control user-family-member";
 	family_member_input.setAttribute( "placeholder" , "Age" );
@@ -661,8 +661,11 @@ function on_add_family_member( event ) {
 			event.preventDefault();
 			return;
 		}
+	});
+	family_member_input.addEventListener( "keyup" , ( event ) => {
 		window.FAMILY_MEMBERS[ family_member_ulid ] = event.target.value;
 	});
+
 	input_group.appendChild( label );
 	input_group.appendChild( family_member_input );
 
@@ -741,9 +744,12 @@ function on_add_barcode( event ) {
 			event.preventDefault();
 			return;
 		}
+	});
+	barcode_input.addEventListener( "keyup" , ( event ) => {
 		// window.USER.barcodes[ current_barcodes.length ] = event.target.value;
 		window.BARCODES[ barcode_ulid ] = event.target.value;
 	});
+
 	input_group.appendChild( label );
 	input_group.appendChild( barcode_input );
 
