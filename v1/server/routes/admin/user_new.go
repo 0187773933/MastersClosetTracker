@@ -3,18 +3,16 @@ package adminroutes
 import (
 	"fmt"
 	"time"
-	"strings"
-	"reflect"
 	"strconv"
 	json "encoding/json"
 	uuid "github.com/satori/go.uuid"
 	fiber "github.com/gofiber/fiber/v2"
-	types "github.com/0187773933/MastersClosetTracker/v1/types"
+	// types "github.com/0187773933/MastersClosetTracker/v1/types"
 	// bolt "github.com/0187773933/MastersClosetTracker/v1/bolt"
-	bolt_api "github.com/boltdb/bolt"
+	// bolt_api "github.com/boltdb/bolt"
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
-	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
-	bleve "github.com/blevesearch/bleve/v2"
+	// encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
+	// bleve "github.com/blevesearch/bleve/v2"
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
 )
 
@@ -93,7 +91,7 @@ func ProcessNewUserForm( context *fiber.Ctx ) ( new_user user.User ) {
 	return
 }
 
-func HandleNewUserJoin2( context *fiber.Ctx ) ( error ) {
+func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 
 	var viewed_user user.User
@@ -112,74 +110,7 @@ func HandleNewUserJoin2( context *fiber.Ctx ) ( error ) {
 
 	// viewed_user.Save();
 	return context.JSON( fiber.Map{
-		"route": "/admin/user/new2" ,
-		"result": viewed_user ,
-	})
-}
-
-func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
-
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
-
-	// 1.) Create New User From Uploaded Form Fields
-	new_user := ProcessNewUserForm( context )
-
-	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
-	defer db.Close()
-
-
-	// 2.) Early Return if User Already Exists
-	// TODO : Add more sophisticated exists? check
-	username_exists , exists_uuid := user.UserNameExists( new_user.Username , db )
-	if username_exists == true {
-		fmt.Printf( "User Already Exists with Username === %s === %s\n" , new_user.Username , exists_uuid )
-		return context.JSON( fiber.Map{
-			"route": "/admin/user/new" ,
-			"result": fiber.Map{
-				"error": "already exists" ,
-				"uuid": exists_uuid ,
-			} ,
-		})
-	}
-
-	fmt.Println( "New User Created :" )
-	fmt.Println( new_user )
-
-	// we just need a way to map multiple barcodes --> uuid
-
-	// 3.) Store User in DB
-	new_user_byte_object , _ := json.Marshal( new_user )
-	new_user_byte_object_encrypted := encryption.ChaChaEncryptBytes( GlobalConfig.BoltDBEncryptionKey , new_user_byte_object )
-	db_result := db.Update( func( tx *bolt_api.Tx ) error {
-		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
-		users_bucket.Put( []byte( new_user.UUID ) , new_user_byte_object_encrypted )
-		usernames_bucket , _ := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
-		// something something holographic encryption would be nice here
-		usernames_bucket.Put( []byte( new_user.Username ) , []byte( new_user.UUID ) )
-
-		barcodes_bucket , _ := tx.CreateBucketIfNotExists( []byte( "barcodes" ) )
-		for i := 0; i < len( new_user.Barcodes ); i++ {
-			barcodes_bucket.Put( []byte( new_user.Barcodes[ i ] ) , []byte( new_user.UUID ) )
-		}
-		return nil
-	})
-	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
-
-	// 4.) Update User Bleve Search Index
-	search_index , _ := bleve.Open( GlobalConfig.BleveSearchPath )
-	defer search_index.Close()
-	new_search_item := types.SearchItem{
-		UUID: new_user.UUID ,
-		Name: strings.ReplaceAll( new_user.Username , "-" , " " ) ,
-	}
-	fmt.Println( reflect.TypeOf( search_index ) )
-	search_index.Index( new_user.UUID , new_search_item )
-
-	//return context.Redirect( fmt.Sprintf( "/admin/user/new/handoff/%s" , new_user.UUID ) )
-	return context.JSON( fiber.Map{
 		"route": "/admin/user/new" ,
-		"result": fiber.Map{
-			"uuid": new_user.UUID ,
-		} ,
+		"result": viewed_user ,
 	})
 }

@@ -141,7 +141,7 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	})
 }
 
-func UserCheckInTestV2( context *fiber.Ctx ) ( error ) {
+func UserCheckInTest( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 	x_user_uuid := context.Params( "uuid" )
 	x_user := user.GetViaUUID( x_user_uuid , GlobalConfig )
@@ -151,29 +151,5 @@ func UserCheckInTestV2( context *fiber.Ctx ) ( error ) {
 		"result": check_in_test ,
 		"user": x_user ,
 		"balance_config": GlobalConfig.Balance ,
-	})
-}
-
-func UserCheckInTest( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
-	user_uuid := context.Params( "uuid" )
-
-	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
-	defer db.Close()
-	check_in_test_result , time_remaining , balance , name_string , family_size := user.CheckInTest( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
-
-	// idk where else to put this
-	// only other option is maybe on the new user create form
-	if check_in_test_result == true {
-		balance = user.RefillBalance( user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.Balance , family_size )
-	}
-
-	return context.JSON( fiber.Map{
-		"route": "/admin/user/checkin/test/:uuid" ,
-		"result": check_in_test_result ,
-		"time_remaining": time_remaining ,
-		"balance": balance ,
-		"name_string": name_string ,
-		"family_size": family_size ,
 	})
 }

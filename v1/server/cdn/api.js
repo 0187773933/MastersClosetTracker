@@ -20,7 +20,7 @@ function check_in_uuid_test( uuid ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
 			// let check_in_url = `/admin/user/checkin/test/${uuid}`;
-			let check_in_url = `/admin/user/checkin/testv2/${uuid}`;
+			let check_in_url = `/admin/user/checkin/test/${uuid}`;
 			let check_in_response = await fetch( check_in_url , {
 				method: "GET" ,
 				headers: { "Content-Type": "application/json" }
@@ -107,7 +107,7 @@ function fuzzy_search_username( username ) {
 function api_edit_user( user_info ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
-			let response = await fetch( `/admin/user/edit2` , {
+			let response = await fetch( `/admin/user/edit` , {
 				method: "POST" ,
 				body: JSON.stringify( user_info )
 			});
@@ -122,7 +122,7 @@ function api_edit_user( user_info ) {
 function api_new_user( user_info ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
-			let response = await fetch( `/admin/user/new2` , {
+			let response = await fetch( `/admin/user/new` , {
 				method: "POST" ,
 				body: JSON.stringify( user_info )
 			});

@@ -153,7 +153,7 @@ func ( u *User ) Save() {
 	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
 	var existing_user *User
-	// u.FormatUsername()
+	u.FormatUsername()
 	db_result := db.Update( func( tx *bolt.Tx ) error {
 
 		// this was originally the only thing in here

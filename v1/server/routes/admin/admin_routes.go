@@ -10,10 +10,9 @@ var GlobalConfig *types.ConfigFile
 var ui_html_pages = map[ string ]string {
 	"/": "./v1/server/html/admin.html" ,
 	"/users": "./v1/server/html/admin_view_users.html" ,
-	"/user/new": "./v1/server/html/admin_user_new.html" ,
+	// "/user/new": "./v1/server/html/admin_user_new.html" ,
 	"/user/new/handoff/:uuid": "./v1/server/html/admin_user_new_handoff.html" ,
 	"/user/checkin": "./v1/server/html/admin_user_checkin.html" ,
-	"/user/checkin2": "./v1/server/html/admin_user_checkin2.html" ,
 	"/user/edit/:uuid": "./v1/server/html/admin_user_edit.html" ,
 	"/checkins": "./v1/server/html/admin_view_total_checkins.html" ,
 }
@@ -33,15 +32,12 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Post( "/login" , HandleLogin )
 
 	admin_route_group.Post( "/user/new" , HandleNewUserJoin )
-	admin_route_group.Post( "/user/new2" , HandleNewUserJoin2 )
 	admin_route_group.Post( "/user/edit" , HandleUserEdit )
-	admin_route_group.Post( "/user/edit2" , HandleUserEdit2 )
 	admin_route_group.Get( "/user/delete/:uuid" , DeleteUser )
 	// admin_route_group.Get( "/user/check/username" , CheckIfFirstNameLastNameAlreadyExists )
 
 	admin_route_group.Post( "/user/checkin/:uuid" , UserCheckIn )
 	admin_route_group.Get( "/user/checkin/test/:uuid" , UserCheckInTest )
-	admin_route_group.Get( "/user/checkin/testv2/:uuid" , UserCheckInTestV2 )
 
 	admin_route_group.Get( "/user/get/all" , GetAllUsers )
 	admin_route_group.Get( "/user/get/all/checkins" , GetAllCheckIns )

@@ -16,38 +16,32 @@
 
 ---
 
-## DB Fixes
-
-1. manual family_size fix
-	- should equal family_members.length + 1
-
 ## TODO
 
-1. add barcodes quick edit menu popup
-1. Add "shopping for" drop down select on check-in page
-2. Build windows version
-	- printing
-3. Just let a barcode check-in a user. Avoids an extra call
+1. Verify windows printing
+2. Fix single pages ( edit and new ) to use new format
+3. Imprimir Boletos en Español
+4. Just let a barcode check-in a user. Avoids an extra call
 	- GET /admin/user/get/barcode/:barcode
 	- GET /admin/user/checkin/test/:uuid
 	- GET /admin/user/checkin/:uuid
-4. Add Admin Manual Override Routes
+5. Add Admin Manual Override Routes
 	- Override Check-In Too Soon
 	- User forgot phone
 	- User has new phone
 	- option to text hand-off link if user can't scan qrcode for some reason
-5. Add Spreadsheet Export
-6. Fix User Fields :
+6. Add Spreadsheet Export
+7. Fix User Fields :
 	- Authorized Aliases
-7. Fix Docker
-8. Use time functions
+8. Fix Docker
+9. Use time functions
 	- `time.Now().After(lastFetched.Add(CachePeriod))` ?
-9. Change "usernames" DB bucket for key=${uuid}_username , value=Username
+10. Change "usernames" DB bucket for key=${uuid}_username , value=Username
 	- keeps only uuids as keys
-10. Make config editable via html
-11. Make tables sortable
-12. Change everything to user struct methods
-13. Imprimir Boletos en Español
+11. Make config editable via html
+12. Make tables sortable
+13. Change everything to user struct methods
+
 
 ## Misc
 
