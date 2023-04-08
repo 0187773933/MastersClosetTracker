@@ -39,3 +39,35 @@ function add_qr_code( text , element_id ) {
 		correctLevel : QRCode.CorrectLevel.H
 	});
 }
+
+function set_url( new_url ) {
+	// no page reload ?
+	window.history.pushState( null , null , new_url );
+
+	// Update the query parameters
+	// url.searchParams.set("q", "example");
+
+	// Update the URL with a full page reload
+	// window.location.href = url.toString();
+}
+
+function user_checkin_detect_uuid() {
+	if ( !window.location?.href ) { return false; }
+	let url_parts = window.location.href.split( "/checkin/" );
+	if ( url_parts.length < 2 ) { return false; }
+	if ( url_parts[ 1 ].length < 36 ) { return false; }
+	let x_uuid = url_parts[ 1 ].substring( 0 , 36 );
+	if ( is_uuid( x_uuid ) === false ) { return false; }
+	return x_uuid;
+}
+
+function user_checkin_detect_state() {
+	if ( !window.location?.href ) { return false; }
+	let url_parts = window.location.href.split( "/" );
+	if ( url_parts.length < 2 ) { return false; }
+	if ( window.location.href.indexOf( "edit" ) ) {
+		return "edit";
+	}
+	return false;
+}
+

@@ -147,7 +147,7 @@ func UserCheckInTest( context *fiber.Ctx ) ( error ) {
 	x_user := user.GetViaUUID( x_user_uuid , GlobalConfig )
 	check_in_test := x_user.CheckInTest()
 	return context.JSON( fiber.Map{
-		"route": "/admin/user/checkin/testv2/:uuid" ,
+		"route": "/admin/user/checkin/test/:uuid" ,
 		"result": check_in_test ,
 		"user": x_user ,
 		"balance_config": GlobalConfig.Balance ,

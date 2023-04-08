@@ -115,6 +115,7 @@
 					// 1.) Prep UI
 					this.buttons_stack = [ "check-in-print-button" , "edit-user-button" , "new-user-button" ];
 					this.render_buttons();
+					set_url( `/admin/user/checkin/${window.USER.uuid}` );
 
 					$( "#check-in-button" ).on( "click" , on_check_in_button_click );
 					$( "#edit-user-button" ).on( "click" , on_edit_button_click );
@@ -159,6 +160,7 @@
 					}
 				}
 				render_edit_form() {
+					set_url( `/admin/user/checkin/${window.USER.uuid}/edit` );
 					this.buttons_stack = [ "edit-user-save-button" , "edit-user-cancel-button" , "edit-user-delete-button" ];
 					this.render_buttons();
 					this.stack = [ "user_edit_form" ];
@@ -294,6 +296,7 @@
 				if ( !new_user_result.result?.uuid ) { return false; }
 				window.USER = new_user_result.result;
 				console.log( window.USER );
+				document.getElementById( "user-search-input" ).value = window.USER.uuid;
 				let qr_code_link = `${window.location.protocol}//${window.location.host}/user/login/fresh/${window.USER.uuid}`;
 				add_qr_code( qr_code_link , "user-handoff-qr-code" );
 				let user_handoff_modal = new bootstrap.Modal( "#user-handoff-modal" , {
@@ -360,7 +363,6 @@
 					_on_check_in_input_change( typed_input );
 				} , debounce_time );
 			}
-
 			async function init() {
 				window.UI = new MCT_UI({
 					anchor: "#main-row" ,
@@ -431,6 +433,25 @@
 				// window.UI.hide_all_buttons();
 				$( "#user-search-input" ).on( "input" , on_check_in_input_change );
 				$( "#search-clear-button" ).on( "click" , on_clear_button_click );
+				let sent_uuid = user_checkin_detect_uuid();
+				if ( sent_uuid ) {
+					let user = await get_user_from_uuid( sent_uuid );
+					window.USER = user;
+					document.getElementById( "user-search-input" ).value = sent_uuid;
+					let sent_state = user_checkin_detect_state();
+					if ( sent_state ) {
+						switch( sent_state ) {
+							case "edit":
+								window.UI.render_edit_form();
+								break;
+							default:
+								window.UI.render_active_user();
+								break;
+						}
+					} else {
+						window.UI.render_active_user();
+					}
+				}
 			}
 			document.addEventListener( "DOMContentLoaded" , init );
 		</script>
