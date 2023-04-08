@@ -84,7 +84,8 @@
 					uuid_text.innerHTML += "&nbsp;&nbsp;"
 
 					let uuid_edit_button = document.createElement( "a" );
-					uuid_edit_button.setAttribute( "href" , `/admin/user/edit/${window.users[ i ][ "uuid" ]}` );
+					// uuid_edit_button.setAttribute( "href" , `/admin/user/edit/${window.users[ i ][ "uuid" ]}` );
+					uuid_edit_button.setAttribute( "href" , `/admin/user/checkin/${window.users[ i ][ "uuid" ]}/edit` );
 					uuid_edit_button.setAttribute( "target" , "_blank" );
 					uuid_edit_button.className = "btn btn-warning p-1";
 					let uuid_edit_button_icon = document.createElement( "i" );
