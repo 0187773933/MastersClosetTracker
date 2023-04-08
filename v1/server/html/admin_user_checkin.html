@@ -161,9 +161,9 @@
 				}
 				render_edit_form() {
 					set_url( `/admin/user/checkin/${window.USER.uuid}/edit` );
-					this.buttons_stack = [ "edit-user-save-button" , "edit-user-cancel-button" , "edit-user-delete-button" ];
+					this.buttons_stack = [ "edit-user-save-button" , "edit-user-cancel-button" , "edit-user-delete-button" , "show-handoff-qrc-button" ];
 					this.render_buttons();
-					this.stack = [ "user_edit_form" ];
+					this.stack = [ "user_edit_form" , "user_qr_code" ];
 					this.render();
 					populate_user_edit_form( window.USER );
 					$( "#user_first_name" ).on( "change" , ( event ) => { window.USER.identity.first_name = event.target.value });
@@ -307,6 +307,12 @@
 				window.UI.render_active_user();
 			}
 
+			function on_show_handoff_qrc_button_click( event ) {
+				console.log( "on_show_handoff_qrc_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				show_user_handoff_qrcode();
+			}
+
 			async function _on_check_in_input_change( typed_input="" ) {
 				console.log( "_on_check_in_input_change()" , typed_input );
 				let valid_uuid = is_uuid( typed_input );
@@ -420,6 +426,11 @@
 							text: "Cancel" ,
 							color: "warning" ,
 							on_click: on_new_cancel_button_click ,
+						} ,
+						"show-handoff-qrc-button": {
+							text: "QR Code" ,
+							color: "btn-secondary" ,
+							on_click: on_show_handoff_qrc_button_click ,
 						} ,
 					} ,
 				});
