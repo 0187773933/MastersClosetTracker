@@ -97,7 +97,7 @@ type User struct {
 	Balance Balance `json:"balance"`
 	TimeRemaining int `json:"time_remaining"`
 	AllowedToCheckIn bool `json:"allowed_to_checkin"`
-	Language string `json:"language"`
+	Spanish bool `json:"spanish"`
 }
 
 type GetUserResult struct {

@@ -7,11 +7,11 @@ function get_ui_user_qr_code_display() {
 					<div class="modal-dialog">
 						<div class="modal-content bg-success-subtle">
 							<div class="modal-header">
-								<h5 class="modal-title">User Login</h5>
+								<h5 class="modal-title">Masters Closet Login</h5>
 								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 							</div>
 							<div class="modal-body">
-								<p>Please Scan this QR Code to Login</p>
+								<!-- <p>Please take a picture of this QR Code to Login Next Time</p> -->
 								<center>
 									<div id="user-handoff-qr-code"></div>
 								</center>

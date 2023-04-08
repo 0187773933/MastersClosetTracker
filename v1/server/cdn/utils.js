@@ -71,10 +71,21 @@ function user_checkin_detect_state() {
 	return false;
 }
 
-function show_user_handoff_qrcode( x_qrcode=false ) {
-	if ( !x_qrcode ) { x_qrcode = window.USER.uuid; }
-	let qr_code_link = `${window.location.protocol}//${window.location.host}/user/login/fresh/${x_qrcode}`;
+function show_user_handoff_qrcode( x_uuid=false ) {
+	if ( !x_uuid ) { x_uuid = window.USER.uuid; }
+	let qr_code_link = `${window.location.protocol}//${window.location.host}/user/login/fresh/${x_uuid}`;
 	add_qr_code( qr_code_link , "user-handoff-qr-code" );
+	let user_handoff_modal = new bootstrap.Modal( "#user-handoff-modal" , {
+		backdrop: "static" ,
+		focus: true ,
+		keyboard: true
+	});
+	user_handoff_modal.show();
+}
+
+function show_user_uuid_qrcode( x_uuid=false ) {
+	if ( !x_uuid ) { x_uuid = window.USER.uuid; }
+	add_qr_code( x_uuid , "user-handoff-qr-code" );
 	let user_handoff_modal = new bootstrap.Modal( "#user-handoff-modal" , {
 		backdrop: "static" ,
 		focus: true ,
