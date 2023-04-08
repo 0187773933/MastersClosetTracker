@@ -133,3 +133,18 @@ function api_new_user( user_info ) {
 		catch( error ) { console.log( error ); resolve( false ); return; }
 	});
 }
+
+function api_delete_user( uuid ) {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			let response = await fetch( `/admin/user/delete/${uuid}` , {
+				method: "GET" ,
+				headers: { "Content-Type": "application/json" }
+			});
+			let response_json = await response.json();
+			resolve( response_json );
+			return;
+		}
+		catch( error ) { console.log( error ); resolve( false ); return; }
+	});
+}

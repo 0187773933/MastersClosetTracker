@@ -4,15 +4,19 @@ import (
 	"fmt"
 	"time"
 	"strconv"
+	"strings"
 	json "encoding/json"
 	uuid "github.com/satori/go.uuid"
+	// short_uuid "github.com/lithammer/shortuuid/v4"
+	// rid "github.com/solutionroute/rid"
+	aaa "github.com/nii236/adjectiveadjectiveanimal"
 	fiber "github.com/gofiber/fiber/v2"
-	// types "github.com/0187773933/MastersClosetTracker/v1/types"
+	types "github.com/0187773933/MastersClosetTracker/v1/types"
 	// bolt "github.com/0187773933/MastersClosetTracker/v1/bolt"
 	// bolt_api "github.com/boltdb/bolt"
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
 	// encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
-	// bleve "github.com/blevesearch/bleve/v2"
+	bleve "github.com/blevesearch/bleve/v2"
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
 )
 
@@ -96,17 +100,37 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 
 	var viewed_user user.User
 	json.Unmarshal( context.Body() , &viewed_user )
-	// pp.Println( viewed_user )
-	fmt.Println( viewed_user )
+
 	viewed_user.Config = GlobalConfig
 
+	// Treat this as a Temp User
+	if viewed_user.Identity.FirstName == "" && viewed_user.Identity.MiddleName == "" && viewed_user.Identity.LastName == "" {
+		fmt.Println( "this was a temp user" )
+		viewed_user.Identity.FirstName = "Temp"
+		temp_id := aaa.Generate( 1 , &aaa.Options{} )
+		viewed_user.Identity.MiddleName = strings.Title( temp_id[ 0 ] )
+		viewed_user.Identity.LastName = strings.Title( temp_id[ 1 ] )
+	}
+
 	viewed_user.FormatUsername()
+
 	new_user := user.New( viewed_user.Username , GlobalConfig )
 	fmt.Println( new_user )
+
 	viewed_user.UUID = new_user.UUID
 	viewed_user.CreatedDate = new_user.CreatedDate
 	viewed_user.CreatedTime = new_user.CreatedTime
 	viewed_user.Save()
+
+	// add to search index
+	search_index , _ := bleve.Open( GlobalConfig.BleveSearchPath )
+	defer search_index.Close()
+	search_item := types.SearchItem{
+		UUID: new_user.UUID ,
+		Name: viewed_user.NameString ,
+	}
+	fmt.Printf( "Updating Search Index with : %s\n" , viewed_user.NameString )
+	search_index.Index( new_user.UUID , search_item )
 
 	// viewed_user.Save();
 	return context.JSON( fiber.Map{

@@ -26,3 +26,16 @@ function set_nested_property( obj , keys , value ) {
 		set_nested_property( obj[ key ] , keys , value );
 	}
 }
+
+function add_qr_code( text , element_id ) {
+	let x_element = document.getElementById( element_id );
+	x_element.innerHTML = "";
+	let user_qrcode = new QRCode( x_element , {
+		text: text ,
+		width: 256 ,
+		height: 256 ,
+		colorDark : "#000000" ,
+		colorLight : "#ffffff" ,
+		correctLevel : QRCode.CorrectLevel.H
+	});
+}

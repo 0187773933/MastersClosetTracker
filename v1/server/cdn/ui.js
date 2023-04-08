@@ -1,4 +1,28 @@
-
+function get_ui_user_qr_code_display() {
+	return `
+	<div class="row">
+		<div class="col-md-6">
+			<div id="user-handoff-modal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" >
+					<div class="modal-dialog">
+						<div class="modal-content bg-success-subtle">
+							<div class="modal-header">
+								<h5 class="modal-title">User Login</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<p>Please Scan this QR Code to Login</p>
+								<center>
+									<div id="user-handoff-qr-code"></div>
+								</center>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>`;
+}
 
 function get_ui_alert_check_in_allowed() {
 	return `
@@ -392,50 +416,6 @@ function get_ui_user_new_form() {
 				<br>
 			</form>
 		</center>
-	</div>
-	<div class="row">
-		<div class="col-md-6">
-			<div id="user-exists-error-modal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-				<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" >
-					<div class="modal-dialog">
-						<div class="modal-content bg-danger-subtle">
-							<div class="modal-header">
-								<h5 class="modal-title">User Already Exists !!!</h5>
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-							</div>
-							<div class="modal-body">
-								<p>Please Re-Scan this QR Code to Re-Login</p>
-								<center>
-									<div id="user-exists-qr-code"></div>
-								</center>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-6">
-			<div id="user-handoff-modal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-				<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" >
-					<div class="modal-dialog">
-						<div class="modal-content bg-success-subtle">
-							<div class="modal-header">
-								<h5 class="modal-title">New User Created</h5>
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-							</div>
-							<div class="modal-body">
-								<p>Please Scan this QR Code to Login</p>
-								<center>
-									<div id="user-handoff-qr-code"></div>
-								</center>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
 	</div>`;
 }
 function add_qr_code( text , element_id ) {
