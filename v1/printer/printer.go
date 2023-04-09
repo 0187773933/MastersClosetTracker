@@ -89,6 +89,7 @@ type PrintJob struct {
 	SeasonalLimit int `json:"seasonal_limit"`
 	FamilyName string `json:"family_name"`
 	BarcodeNumber string `json:"barcode_number"`
+	Spanish bool `json:"spanish"`
 }
 
 func add_centered_text( pdf *gofpdf.Fpdf , text string , font_name string , font_size float64 , at_page_height float64 ) {
@@ -133,23 +134,45 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 	)
 
 	// 2.) Add Middle Text
-	add_centered_text( pdf , fmt.Sprintf( "Family Size ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
-	add_centered_text( pdf , fmt.Sprintf( "Total Clothing Items for Family ( %d )" , job.TotalClothingItems ) , config.FontName , 16 , 2.5 )
-	if job.Shoes > 1 {
-		add_centered_text( pdf , fmt.Sprintf( "%d pairs of shoes , %d Per Person" , job.Shoes , job.ShoesLimit ) , config.FontName , 14 , 3.0 )
+	if job.Spanish == true {
+		add_centered_text( pdf , fmt.Sprintf( "Tamaño Familiar ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
+		add_centered_text( pdf , fmt.Sprintf( "Total De Prendas De Vestir Para La Familia ( %d )" , job.TotalClothingItems ) , config.FontName , 16 , 2.5 )
+		if job.Shoes > 1 {
+			add_centered_text( pdf , fmt.Sprintf( "%d Pares De Zapatos  , %d Por Persona" , job.Shoes , job.ShoesLimit ) , config.FontName , 14 , 3.0 )
+		} else {
+			add_centered_text( pdf , fmt.Sprintf( "%d Par de Zapatos , %d Por Persona" , job.Shoes , job.ShoesLimit ) , config.FontName , 14 , 3.0 )
+		}
+		if job.Accessories > 1 {
+			add_centered_text( pdf , fmt.Sprintf( "%d Accesorios , %d Por Persona" , job.Accessories , job.AccessoriesLimit ) , config.FontName , 14 , 3.3 )
+		} else {
+			add_centered_text( pdf , fmt.Sprintf( "%d Accesorio , %d Por Persona" , job.Accessories , job.AccessoriesLimit ) , config.FontName , 14 , 3.3 )
+		}
+		if job.Seasonal > 1 {
+			add_centered_text( pdf , fmt.Sprintf( "%d Artículos De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+		} else {
+			add_centered_text( pdf , fmt.Sprintf( "%d Artículo De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+		}
 	} else {
-		add_centered_text( pdf , fmt.Sprintf( "%d pair of shoes , %d Per Person" , job.Shoes , job.ShoesLimit ) , config.FontName , 14 , 3.0 )
+		add_centered_text( pdf , fmt.Sprintf( "Family Size ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
+		add_centered_text( pdf , fmt.Sprintf( "Total Clothing Items for Family ( %d )" , job.TotalClothingItems ) , config.FontName , 16 , 2.5 )
+		if job.Shoes > 1 {
+			add_centered_text( pdf , fmt.Sprintf( "%d Pairs of Shoes , %d Per Person" , job.Shoes , job.ShoesLimit ) , config.FontName , 14 , 3.0 )
+		} else {
+			add_centered_text( pdf , fmt.Sprintf( "%d Pair of Shoes , %d Per Person" , job.Shoes , job.ShoesLimit ) , config.FontName , 14 , 3.0 )
+		}
+		if job.Accessories > 1 {
+			add_centered_text( pdf , fmt.Sprintf( "%d Accessories , %d Per Person" , job.Accessories , job.AccessoriesLimit ) , config.FontName , 14 , 3.3 )
+		} else {
+			add_centered_text( pdf , fmt.Sprintf( "%d Accessory , %d Per Person" , job.Accessories , job.AccessoriesLimit ) , config.FontName , 14 , 3.3 )
+		}
+		if job.Seasonal > 1 {
+			add_centered_text( pdf , fmt.Sprintf( "%d Seasonal items , %d Per Person" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+		} else {
+			add_centered_text( pdf , fmt.Sprintf( "%d Seasonal item , %d Per Person" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+		}
 	}
-	if job.Accessories > 1 {
-		add_centered_text( pdf , fmt.Sprintf( "%d accessories , %d Per Person" , job.Accessories , job.AccessoriesLimit ) , config.FontName , 14 , 3.3 )
-	} else {
-		add_centered_text( pdf , fmt.Sprintf( "%d accessory , %d Per Person" , job.Accessories , job.AccessoriesLimit ) , config.FontName , 14 , 3.3 )
-	}
-	if job.Seasonal > 1 {
-		add_centered_text( pdf , fmt.Sprintf( "%d seasonal items , %d Per Person" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
-	} else {
-		add_centered_text( pdf , fmt.Sprintf( "%d seasonal item , %d Per Person" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
-	}
+
+
 	add_centered_text( pdf , job.FamilyName , config.FontName , 16 , 4.4 )
 	// 3.) Gen and Add Barcode
 	barcode_temp_file , _ := ioutil.TempFile( "" , "barcode-*.png" )
@@ -180,7 +203,7 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 	}()
 	pdf.OutputFileAndClose( pdf_temp_file_path )
 	if runtime.GOOS == "windows" {
-		clear_printer_que_windows( config.PrinterName )
+		// clear_printer_que_windows( config.PrinterName )
 		print_pdf_windows( config.PrinterName , pdf_temp_file_path )
 	} else if runtime.GOOS == "darwin" {
 		clear_printer_que_mac_osx( config.PrinterName )

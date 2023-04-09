@@ -129,6 +129,7 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 		SeasonalLimit: GlobalConfig.Balance.Seasonals ,
 		FamilyName: family_name ,
 		BarcodeNumber: barcode_number ,
+		Spanish: viewed_user.Spanish ,
 	}
 	fmt.Println( "Printing :" )
 	fmt.Println( print_job )

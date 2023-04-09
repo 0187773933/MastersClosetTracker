@@ -402,11 +402,22 @@ function get_ui_user_new_form() {
 				</div>
 
 				<br>
+				<div class="row g-2 mb-3">
+					<div class="col-md-5 col-lg-5"></div>
+					<div class="col-md-2 col-lg-2">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" value="" id="user_spanish">
+							<label class="form-check-label" for="user_spanish">Español</label>
+						</div>
+					</div>
+					<div class="col-md-5 col-lg-5"></div>
+				</div>
+				<br>
 
 				<div class="row g-2 mb-3">
 					<div class="col-md-4"></div>
 					<div class="col-md-4">
-						<button id="add-barcode-button" class="btn btn-primary" onclick="on_add_family_member(event);">Add Family Member</button>
+						<button id="add-family-member-button" class="btn btn-primary" onclick="on_add_family_member(event);">Add Family Member</button>
 					</div>
 					<div class="col-md-4"></div>
 				</div>
@@ -586,11 +597,22 @@ function get_ui_user_edit_form() {
 				</div>
 
 				<br>
+				<div class="row g-2 mb-3">
+					<div class="col-md-5 col-lg-5"></div>
+					<div class="col-md-2 col-lg-2">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" value="" id="user_spanish">
+							<label class="form-check-label" for="user_spanish">Español</label>
+						</div>
+					</div>
+					<div class="col-md-5 col-lg-5"></div>
+				</div>
+				<br>
 
 				<div class="row g-2 mb-3">
 					<div class="col-md-4"></div>
 					<div class="col-md-4">
-						<button id="add-barcode-button" class="btn btn-primary" onclick="on_add_family_member(event);">Add Family Member</button>
+						<button id="add-family-member-button" class="btn btn-primary" onclick="on_add_family_member(event);">Add Family Member</button>
 					</div>
 					<div class="col-md-4"></div>
 				</div>
@@ -833,4 +855,9 @@ function populate_user_edit_form( user_info ) {
 			window.BARCODES[ barcode_ulid ] = user_info[ "barcodes" ][ i ];
 		}
 	}
+
+	if ( user_info[ "spanish" ] ) {
+		document.getElementById( "user_spanish" ).checked = user_info[ "spanish" ];
+	}
+
 }
