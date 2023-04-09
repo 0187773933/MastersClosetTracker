@@ -63,10 +63,11 @@
 						}
 					}
 					$( this.options.anchor ).on( "render_active_user" , this.render_active_user );
-					this.clear();
+					// this.clear();
 					this.render_buttons();
 				}
 				clear() {
+					set_url( `/admin/user/checkin` );
 					$( "#user-search-input" ).val( "" );
 					$( this.options.anchor ).html( "" );
 					$( "#user-search-input" ).focus();
@@ -194,6 +195,7 @@
 					$( "#user_spanish" ).on( "change" , ( event ) => { window.USER.spanish = event.target.checked; });
 				}
 				render_new_form() {
+					set_url( `/admin/user/checkin/new` );
 					this.buttons_stack = [ "new-user-save-button" , "new-user-cancel-button" ];
 					this.render_buttons();
 					this.stack = [ "user_new_form" , "user_qr_code" ];
@@ -372,20 +374,20 @@
 			const debounce_time = 200;
 			async function on_check_in_input_change( event ) {
 				if ( event ) { event.preventDefault(); }
-				clearTimeout( timeout_id );
+				// clearTimeout( timeout_id );
 				let typed_input = event?.target?.value;
 				if ( !typed_input ) { typed_input = document.getElementById( "user-search-input" ).value; }
-				if ( typed_input.length < 2 ) { return; }
-				timeout_id = setTimeout( () => {
-					_on_check_in_input_change( typed_input );
-				} , debounce_time );
+				_on_check_in_input_change( typed_input );
+				// if ( typed_input.length < 2 ) { return; }
+				// timeout_id = setTimeout( () => {
+				// 	_on_check_in_input_change( typed_input );
+				// } , debounce_time );
 			}
 			async function init() {
 				window.UI = new MCT_UI({
 					anchor: "#main-row" ,
 					// stack: [ "user_balance_table" , "user_search_table" , "shopping_for_selector" , "alert_check_in_allowed" , "alert_check_in_failed" ] ,
 					stack: [] ,
-
 					ids: {
 						"alert_check_in_allowed": get_ui_alert_check_in_allowed ,
 						"alert_check_in_failed": get_ui_alert_check_in_failed ,
@@ -455,25 +457,29 @@
 				// window.UI.hide_all_buttons();
 				$( "#user-search-input" ).on( "input" , on_check_in_input_change );
 				$( "#search-clear-button" ).on( "click" , on_clear_button_click );
-				let sent_uuid = user_checkin_detect_uuid();
-				if ( sent_uuid ) {
-					let user = await get_user_from_uuid( sent_uuid );
-					window.USER = user;
-					document.getElementById( "user-search-input" ).value = sent_uuid;
-					let sent_state = user_checkin_detect_state();
-					if ( sent_state ) {
-						switch( sent_state ) {
-							case "edit":
-								window.UI.render_edit_form();
-								break;
-							default:
-								window.UI.render_active_user();
-								break;
-						}
-					} else {
-						window.UI.render_active_user();
+
+				let sent_state = user_checkin_detect_state();
+				if ( sent_state ) {
+					switch( sent_state ) {
+						case "edit":
+							let sent_uuid = user_checkin_detect_uuid();
+							if ( !sent_uuid ) { break; }
+							let user = await get_user_from_uuid( sent_uuid );
+							window.USER = user;
+							document.getElementById( "user-search-input" ).value = sent_uuid;
+							window.UI.render_edit_form();
+							break;
+						case "new":
+							window.UI.render_new_form();
+							break;
+						default:
+							window.UI.render_active_user();
+							break;
 					}
+				} else {
+					window.UI.render_active_user();
 				}
+
 			}
 			document.addEventListener( "DOMContentLoaded" , init );
 		</script>

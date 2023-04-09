@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 	"strings"
+	"strconv"
 	json "encoding/json"
 	bolt_api "github.com/boltdb/bolt"
 	fiber "github.com/gofiber/fiber/v2"
@@ -47,6 +48,7 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	uploaded_uuid := context.Params( "uuid" )
 	x_uuid := utils.SanitizeInputString( uploaded_uuid )
 	var viewed_user user.User
+	viewed_user.Config = GlobalConfig
 	db.View( func( tx *bolt_api.Tx ) error {
 		bucket := tx.Bucket( []byte( "users" ) )
 		bucket_value := bucket.Get( []byte( x_uuid ) )
@@ -97,17 +99,7 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	fmt.Println( "Checking In With Balance :" )
 	fmt.Println( viewed_user.Balance )
 
-	// 5.) Re-Save the User
-	viewed_user_byte_object , _ := json.Marshal( viewed_user )
-	viewed_user_byte_object_encrypted := encryption.ChaChaEncryptBytes( GlobalConfig.BoltDBEncryptionKey , viewed_user_byte_object )
-	db_result := db.Update( func( tx *bolt_api.Tx ) error {
-		bucket := tx.Bucket( []byte( "users" ) )
-		bucket.Put( []byte( x_uuid ) , viewed_user_byte_object_encrypted )
-		return nil
-	})
-	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
-
-	// 6.) Print Ticket
+	// 5.) Print Ticket
 	// TODO : clarify calculation ????
 	// total_clothing_items := ( balance_form.TopsAvailable + balance_form.BottomsAvailable + balance_form.DressesAvailable )
 	// total_clothing_items := ( balance_form.TopsAvailable + balance_form.ShoesAvailable + balance_form.SeasonalsAvailable + balance_form.AccessoriesAvailable )
@@ -115,7 +107,32 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	family_size := viewed_user.FamilySize
 	if family_size < 1 { family_size = 1 } // this is what happens when you don't just use sql
 	barcode_number := ""
-	if len( viewed_user.Barcodes ) > 0 { barcode_number = viewed_user.Barcodes[ 0 ] }
+	if len( viewed_user.Barcodes ) > 0 {
+		barcode_number = viewed_user.Barcodes[ 0 ]
+	} else {
+		// Create a high number barcode
+		// barcode_number = viewed_user.AddVirtualBarcode()
+		db.Update( func( tx *bolt_api.Tx ) error {
+			misc_bucket , _ := tx.CreateBucketIfNotExists( []byte( "misc" ) )
+			vb_index_bucket_value := misc_bucket.Get( []byte( "virtual-barcode-index" ) )
+			fmt.Println( "vb_index_bucket_value" , vb_index_bucket_value )
+			vb_index := 9999999
+			if vb_index_bucket_value != nil {
+				vb_index , _ = strconv.Atoi( string( vb_index_bucket_value ) )
+			}
+			vb_index = vb_index + 1
+
+			fmt.Printf( "Adding Virtual Barcode : %s\n" , barcode_number )
+			barcode_number = strconv.Itoa( vb_index )
+			misc_bucket.Put( []byte( "virtual-barcode-index" ) , []byte( barcode_number ) )
+			viewed_user.Barcodes = append( viewed_user.Barcodes , barcode_number )
+
+			barcodes_bucket , _ := tx.CreateBucketIfNotExists( []byte( "barcodes" ) )
+			barcodes_bucket.Put( []byte( barcode_number ) , []byte( viewed_user.UUID ) )
+
+			return nil
+		})
+	}
 	family_name := viewed_user.NameString
 	// if len( family_name ) > 20 ? // TODO : Find max length of family string
 	print_job := printer.PrintJob{
@@ -134,6 +151,16 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	fmt.Println( "Printing :" )
 	fmt.Println( print_job )
 	printer.PrintTicket( GlobalConfig.Printer , print_job )
+
+	// 6.) Re-Save the User
+	viewed_user_byte_object , _ := json.Marshal( viewed_user )
+	viewed_user_byte_object_encrypted := encryption.ChaChaEncryptBytes( GlobalConfig.BoltDBEncryptionKey , viewed_user_byte_object )
+	db_result := db.Update( func( tx *bolt_api.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket.Put( []byte( x_uuid ) , viewed_user_byte_object_encrypted )
+		return nil
+	})
+	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
 
 	// 7.) Return Result
 	return context.JSON( fiber.Map{

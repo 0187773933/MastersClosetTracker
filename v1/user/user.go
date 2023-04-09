@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	// "reflect"
+	"strconv"
 	"strings"
 	"time"
 	json "encoding/json"
@@ -284,8 +285,8 @@ func ( u *User ) CheckInTest() ( check_in CheckIn ) {
 
 	// 1.) prelim
 	time_remaining := -1
-	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
-	defer db.Close()
+	// db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+	// defer db.Close()
 
 	// 2.) Test if Check-In is possible
 	now := time.Now()
@@ -375,6 +376,47 @@ func ( u *User ) CheckInForce() ( check_in CheckIn ) {
 func ( u *User ) AddBarcode( barcode string ) {
 	u.Barcodes = append( u.Barcodes , barcode )
 	u.Save()
+	return
+}
+
+func ( u *User ) AddVirtualBarcode() ( barcode string ) {
+
+	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+
+	// 00042
+	// 9999999
+	db.Update( func( tx *bolt.Tx ) error {
+		fmt.Println( "here - 1" )
+		misc_bucket , _ := tx.CreateBucketIfNotExists( []byte( "misc" ) )
+		vb_index_bucket_value := misc_bucket.Get( []byte( "virtualbarcodeindex" ) )
+		// vb_index_int , _ := strconv.Atoi( vb_index )
+		fmt.Println( "here - 2" )
+		vb_index := 9999999
+		if vb_index_bucket_value != nil {
+			vb_index , _ = strconv.Atoi( string( vb_index_bucket_value ) )
+		}
+		fmt.Println( "here - 3" )
+		vb_index = vb_index + 1
+		barcode = string( vb_index )
+
+		fmt.Println( "here - 4" )
+    	new_bucket_value := make( []byte , 0 )
+    	new_bucket_value = strconv.AppendInt( new_bucket_value , int64( vb_index ) , 10 )
+		fmt.Println( "here - 5" )
+		misc_bucket.Put( []byte( "virtualbarcodeindex" ) , new_bucket_value )
+		fmt.Println( "here - 6" )
+
+		// we just have to save the user here
+		u.Barcodes = append( u.Barcodes , barcode )
+		byte_object , _ := json.Marshal( u )
+		byte_object_encrypted := encrypt.ChaChaEncryptBytes( u.Config.BoltDBEncryptionKey , byte_object )
+		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
+		users_bucket.Put( []byte( u.UUID ) , byte_object_encrypted )
+
+		return nil
+	})
+
 	return
 }
 

@@ -49,14 +49,15 @@ func print_pdf_mac_osx( printer_name string , pdf_file_path string ) {
 	}
 }
 
+// Can't Clear Que Without Being Admin ?
 func clear_printer_que_windows( printer_name string ) {
-	cmd := exec.Command( "cancel" , "-a" , printer_name )
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	if err != nil {
-		fmt.Println( "Error Clearing Printer Que:", err )
-	}
+	// cmd := exec.Command( "cancel" , "-a" , printer_name )
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
+	// err := cmd.Run()
+	// if err != nil {
+	// 	fmt.Println( "Error Clearing Printer Que:", err )
+	// }
 }
 
 // Get Printer Names

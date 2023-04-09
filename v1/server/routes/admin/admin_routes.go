@@ -15,6 +15,7 @@ var ui_html_pages = map[ string ]string {
 	"/user/checkin": "./v1/server/html/admin_user_checkin.html" ,
 	"/user/checkin/:uuid": "./v1/server/html/admin_user_checkin.html" ,
 	"/user/checkin/:uuid/edit": "./v1/server/html/admin_user_checkin.html" ,
+	"/user/checkin/new": "./v1/server/html/admin_user_checkin.html" ,
 	"/user/edit/:uuid": "./v1/server/html/admin_user_edit.html" ,
 	"/checkins": "./v1/server/html/admin_view_total_checkins.html" ,
 }

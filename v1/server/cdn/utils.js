@@ -42,6 +42,7 @@ function add_qr_code( text , element_id ) {
 
 function set_url( new_url ) {
 	// no page reload ?
+	console.log( `Changing URL , FROM = ${window.location.href} || TO = ${new_url}` );
 	window.history.pushState( null , null , new_url );
 
 	// Update the query parameters
@@ -62,12 +63,24 @@ function user_checkin_detect_uuid() {
 }
 
 function user_checkin_detect_state() {
-	if ( !window.location?.href ) { return false; }
+	console.log( "1" );
+	let url = window.location.href;
+	console.log( url );
+	if ( !url ) { return false; }
+	console.log( "2" );
 	let url_parts = window.location.href.split( "/" );
+	console.log( "3" );
 	if ( url_parts.length < 2 ) { return false; }
-	if ( window.location.href.indexOf( "edit" ) ) {
+	console.log( "4" );
+	if ( window.location.href.indexOf( "edit" ) > -1 ) {
+		console.log( "5" );
 		return "edit";
 	}
+	if ( window.location.href.indexOf( "new" ) > -1 ) {
+		console.log( "6" );
+		return "new";
+	}
+	console.log( "7" );
 	return false;
 }
 
