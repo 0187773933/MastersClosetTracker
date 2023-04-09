@@ -143,7 +143,7 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 		if job.Shoes > 1 {
 			add_centered_text( pdf , fmt.Sprintf( "%d Pares De Zapatos  , %d Por Persona" , job.Shoes , job.ShoesLimit ) , config.FontName , 14 , 3.0 )
 		} else {
-			add_centered_text( pdf , fmt.Sprintf( "%d Par de Zapatos , %d Por Persona" , job.Shoes , job.ShoesLimit ) , config.FontName , 14 , 3.0 )
+			add_centered_text( pdf , fmt.Sprintf( "%d Par De Zapatos , %d Por Persona" , job.Shoes , job.ShoesLimit ) , config.FontName , 14 , 3.0 )
 		}
 		if job.Accessories > 1 {
 			add_centered_text( pdf , fmt.Sprintf( "%d Accesorios , %d Por Persona" , job.Accessories , job.AccessoriesLimit ) , config.FontName , 14 , 3.3 )
