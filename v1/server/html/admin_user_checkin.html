@@ -191,7 +191,7 @@
 					$( "#user_birth_day" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.day = event.target.value });
 					$( "#user_birth_month" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.month = event.target.value });
 					$( "#user_birth_year" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.year = event.target.value });
-					$$( "#user_spanish" ).on( "change" , ( event ) => { window.USER.spanish = event.target.checked; });
+					$( "#user_spanish" ).on( "change" , ( event ) => { window.USER.spanish = event.target.checked; });
 				}
 				render_new_form() {
 					this.buttons_stack = [ "new-user-save-button" , "new-user-cancel-button" ];

@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	// "reflect"
+	"path/filepath"
 	"image/png"
 	// "github.com/boombuler/barcode"
 	// "github.com/boombuler/barcode/code128"
@@ -68,7 +69,8 @@ func clear_printer_que_windows( printer_name string ) {
 // print /D:"printer_name" /o"option1=value1" /o"option2=value2" "file_name"
 // print.exe only prints fucking plaintext ????
 func print_pdf_windows( printer_name string , pdf_file_path string ) {
-	args := []string{ "print" , "/D:" , printer_name , "/o" , "PrintSpeed=2" , pdf_file_path }
+	sumatra_file_path  , _ := filepath.Abs( "SumatraPDF.exe" )
+	args := []string{ sumatra_file_path , "-print-to" , printer_name , pdf_file_path }
 	cmd := exec.Command( args[ 0 ] , args[ 1 : ]... )
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -135,8 +137,9 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 
 	// 2.) Add Middle Text
 	if job.Spanish == true {
-		add_centered_text( pdf , fmt.Sprintf( "Tamaño Familiar ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
-		add_centered_text( pdf , fmt.Sprintf( "Total De Prendas De Vestir Para La Familia ( %d )" , job.TotalClothingItems ) , config.FontName , 16 , 2.5 )
+		// add_centered_text( pdf , fmt.Sprintf( "Tamaño Familiar ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
+		add_centered_text( pdf , fmt.Sprintf( "Tamano Familiar ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
+		add_centered_text( pdf , fmt.Sprintf( "Total Vestir Para La Familia ( %d )" , job.TotalClothingItems ) , config.FontName , 16 , 2.5 )
 		if job.Shoes > 1 {
 			add_centered_text( pdf , fmt.Sprintf( "%d Pares De Zapatos  , %d Por Persona" , job.Shoes , job.ShoesLimit ) , config.FontName , 14 , 3.0 )
 		} else {
@@ -148,9 +151,11 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 			add_centered_text( pdf , fmt.Sprintf( "%d Accesorio , %d Por Persona" , job.Accessories , job.AccessoriesLimit ) , config.FontName , 14 , 3.3 )
 		}
 		if job.Seasonal > 1 {
-			add_centered_text( pdf , fmt.Sprintf( "%d Artículos De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+			// add_centered_text( pdf , fmt.Sprintf( "%d Artículos De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+			add_centered_text( pdf , fmt.Sprintf( "%d Articulos De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
 		} else {
-			add_centered_text( pdf , fmt.Sprintf( "%d Artículo De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+			// add_centered_text( pdf , fmt.Sprintf( "%d Artículo De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+			add_centered_text( pdf , fmt.Sprintf( "%d Articulo De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
 		}
 	} else {
 		add_centered_text( pdf , fmt.Sprintf( "Family Size ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
