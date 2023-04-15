@@ -18,6 +18,7 @@ var ui_html_pages = map[ string ]string {
 	"/user/checkin/new": "./v1/server/html/admin_user_checkin.html" ,
 	"/user/edit/:uuid": "./v1/server/html/admin_user_edit.html" ,
 	"/checkins": "./v1/server/html/admin_view_total_checkins.html" ,
+	"/emails": "./v1/server/html/admin_view_all_emails.html" ,
 }
 
 func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
@@ -44,6 +45,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 
 	admin_route_group.Get( "/user/get/all" , GetAllUsers )
 	admin_route_group.Get( "/user/get/all/checkins" , GetAllCheckIns )
+	admin_route_group.Get( "/user/get/all/emails" , GetAllEmails )
 	admin_route_group.Get( "/user/get/:uuid" , GetUser )
 	admin_route_group.Get( "/user/get/barcode/:barcode" , GetUserViaBarcode )
 

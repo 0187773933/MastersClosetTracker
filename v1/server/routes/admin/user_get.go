@@ -75,10 +75,38 @@ func GetAllCheckIns( context *fiber.Ctx ) ( error ) {
 		return nil
 	})
 	return context.JSON( fiber.Map{
-		"route": "/admin/user/get/all" ,
+		"route": "/admin/user/get/all/checkins" ,
 		"result": result ,
 	})
 }
+
+func GetAllEmails( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+
+	var result [][]string
+	db.View( func( tx *bolt_api.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket.ForEach( func( uuid , value []byte ) error {
+			var viewed_user user.User
+			decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , value )
+			json.Unmarshal( decrypted_bucket_value , &viewed_user )
+			if viewed_user.EmailAddress != "" {
+				x_user := []string{ viewed_user.UUID , viewed_user.NameString , viewed_user.EmailAddress }
+				result = append( result , x_user )
+			}
+			return nil
+		})
+		return nil
+	})
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/get/all/checkins" ,
+		"result": result ,
+	})
+}
+
 
 func GetUserViaBarcode( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
