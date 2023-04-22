@@ -164,7 +164,7 @@ function get_ui_user_balance_table() {
 						<tr>
 							<th scope="col">Item</th>
 							<th scope="col">Available</th>
-							<th scope="col">Limit</th>
+							<!-- <th scope="col">Limit</th> -->
 							<th scope="col">Total Used</th>
 						</tr>
 					</thead>
@@ -189,15 +189,15 @@ function _add_balance_row( table_body_element , name , available , limit , used 
 	available_input.setAttribute( "id" , `balance_${name.toLowerCase()}_available` );
 	_available.appendChild( available_input );
 	_tr.appendChild( _available );
-	let _limit = document.createElement( "td" );
-	let limit_input = document.createElement( "input" );
-	limit_input.setAttribute( "type" , "text" );
-	limit_input.className = "form-control";
-	limit_input.value = limit;
-	limit_input.setAttribute( "id" , `balance_${name.toLowerCase()}_limit` );
-	limit_input.setAttribute( "readonly" , "" );
-	_limit.appendChild( limit_input );
-	_tr.appendChild( _limit );
+	// let _limit = document.createElement( "td" );
+	// let limit_input = document.createElement( "input" );
+	// limit_input.setAttribute( "type" , "text" );
+	// limit_input.className = "form-control";
+	// limit_input.value = limit;
+	// limit_input.setAttribute( "id" , `balance_${name.toLowerCase()}_limit` );
+	// limit_input.setAttribute( "readonly" , "" );
+	// _limit.appendChild( limit_input );
+	// _tr.appendChild( _limit );
 	let _used = document.createElement( "td" );
 	let used_input = document.createElement( "input" );
 	used_input.setAttribute( "type" , "text" );

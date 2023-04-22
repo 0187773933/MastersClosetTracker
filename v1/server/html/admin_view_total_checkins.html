@@ -23,6 +23,7 @@
 							<tr>
 								<th scope="col">Date</th>
 								<th scope="col">Total Checkins</th>
+								<th scope="col">Total Shopped For</th>
 							</tr>
 						</thead>
 						<tbody id="check-in-table-body"></tbody>
@@ -53,8 +54,9 @@
 					for ( let j = 0; j < window.checkins[ i ].length; ++j ) { // Loop Through Each User's Check-Ins
 						let date_string = window.checkins[ i ][ j ].date;
 						let date = new Date( Date.parse( date_string.replace( /(\d{2})(\w{3})(\d{4})/ , "$2 $1, $3" ) ) );
-						if ( !dates[ date_string ] ) { dates[ date_string ] = { "date_obj": date , "times": [] }; }
+						if ( !dates[ date_string ] ) { dates[ date_string ] = { "date_obj": date , "times": [] , "shopped_for": 0 }; }
 						dates[ date_string ][ "times" ].push( window.checkins[ i ][ j ].time );
+						dates[ date_string ][ "shopped_for" ] += window.checkins[ i ][ j ].shopping_for;
 					}
 				}
 				let date_array = Object.entries( dates );
@@ -76,6 +78,11 @@
 					let total_checkins = document.createElement( "td" );
 					total_checkins.textContent = total_checkins_for_date;
 					_tr.appendChild( total_checkins );
+
+					let total_shopped_for = document.createElement( "td" );
+					total_shopped_for.textContent =  window.check_in_dates[ i ][ 1 ].shopped_for;
+					_tr.appendChild( total_shopped_for );
+
 					table_body_element.appendChild( _tr );
 				}
 			}

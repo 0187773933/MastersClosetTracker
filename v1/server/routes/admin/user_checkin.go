@@ -33,12 +33,30 @@ type CheckInBalanceForm struct {
 	AccessoriesAvailable int `json:"balance_accessories_available"`
 	AccessoriesLimit int `json:"balance_accessories_limit"`
 	AccessoriesUsed int `json:"balance_accessories_used"`
+	ShoppingFor int `json:"shopping_for"`
 }
 
+// Refill If Empty , Subtract Check-In Ticket
+func _ries( user_item *int , ticket_value int , limit int ) {
+	if *user_item < 1 {
+		*user_item = limit
+	}
+	*user_item = ( *user_item - ticket_value )
+}
+
+// Add To Total
+func _att( user_item *int , amount int ) {
+	// fmt.Println( "setting" , *user_item , amount )
+	*user_item = ( *user_item + amount )
+}
 
 // We changed this to a POST Form , so now we have to parse it
 func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+
+	var balance_form CheckInBalanceForm
+	json.Unmarshal( []byte( context.Body() ), &balance_form )
+	// fmt.Printf( "%+v\n" , balance_form )
 
 	// 1.) Prep
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
@@ -58,7 +76,7 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 		return nil
 	})
 
-	// 3.) Create a New Forced Check In
+	// 3.) Create a New Check In
 	var new_check_in user.CheckIn
 	now := time.Now()
 	// now_time_zone := now.Location()
@@ -66,44 +84,38 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	new_check_in.Time = now.Format( "15:04:05.000" )
 	new_check_in.Type = "forced"
 	new_check_in.Date = strings.ToUpper( new_check_in.Date )
+	new_check_in.ShoppingFor = balance_form.ShoppingFor
 	viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
 
+
 	// 4.) Update the Balance
-	var balance_form CheckInBalanceForm
-	json.Unmarshal( []byte( context.Body() ), &balance_form )
-	fmt.Println( balance_form )
-	viewed_user.Balance.General.Tops.Available = balance_form.TopsAvailable
-	viewed_user.Balance.General.Tops.Limit = balance_form.TopsLimit
-	viewed_user.Balance.General.Tops.Used = balance_form.TopsUsed
+	_att( &viewed_user.Balance.General.Tops.Used , balance_form.TopsAvailable )
+	_ries( &viewed_user.Balance.General.Tops.Available , balance_form.TopsAvailable , ( GlobalConfig.Balance.General.Tops * balance_form.ShoppingFor ) )
 
-	viewed_user.Balance.General.Bottoms.Available = balance_form.BottomsAvailable
-	viewed_user.Balance.General.Bottoms.Limit = balance_form.BottomsLimit
-	viewed_user.Balance.General.Bottoms.Used = balance_form.BottomsUsed
+	_att( &viewed_user.Balance.General.Bottoms.Used , balance_form.BottomsAvailable )
+	_ries( &viewed_user.Balance.General.Bottoms.Available , balance_form.BottomsAvailable , ( GlobalConfig.Balance.General.Bottoms * balance_form.ShoppingFor ) )
 
-	viewed_user.Balance.General.Dresses.Available = balance_form.DressesAvailable
-	viewed_user.Balance.General.Dresses.Limit = balance_form.DressesLimit
-	viewed_user.Balance.General.Dresses.Used = balance_form.DressesUsed
+	_att( &viewed_user.Balance.General.Dresses.Used , balance_form.DressesAvailable )
+	_ries( &viewed_user.Balance.General.Dresses.Available , balance_form.DressesAvailable , ( GlobalConfig.Balance.General.Dresses * balance_form.ShoppingFor ) )
 
-	viewed_user.Balance.Shoes.Available = balance_form.ShoesAvailable
-	viewed_user.Balance.Shoes.Limit = balance_form.ShoesLimit
-	viewed_user.Balance.Shoes.Used = balance_form.ShoesUsed
+	_att( &viewed_user.Balance.Shoes.Used , balance_form.ShoesAvailable )
+	_ries( &viewed_user.Balance.Shoes.Available , balance_form.ShoesAvailable , ( GlobalConfig.Balance.Shoes * balance_form.ShoppingFor ) )
 
-	viewed_user.Balance.Seasonals.Available = balance_form.SeasonalsAvailable
-	viewed_user.Balance.Seasonals.Limit = balance_form.SeasonalsLimit
-	viewed_user.Balance.Seasonals.Used = balance_form.SeasonalsUsed
+	_att( &viewed_user.Balance.Seasonals.Used , balance_form.SeasonalsAvailable )
+	_ries( &viewed_user.Balance.Seasonals.Available , balance_form.SeasonalsAvailable , ( GlobalConfig.Balance.Seasonals * balance_form.ShoppingFor ) )
 
-	viewed_user.Balance.Accessories.Available = balance_form.AccessoriesAvailable
-	viewed_user.Balance.Accessories.Limit = balance_form.AccessoriesLimit
-	viewed_user.Balance.Accessories.Used = balance_form.AccessoriesUsed
+	_att( &viewed_user.Balance.Accessories.Used , balance_form.AccessoriesAvailable )
+	_ries( &viewed_user.Balance.Accessories.Available , balance_form.AccessoriesAvailable , ( GlobalConfig.Balance.Accessories * balance_form.ShoppingFor ) )
 
-	fmt.Println( "Checking In With Balance :" )
-	fmt.Println( viewed_user.Balance )
+	// fmt.Println( "Checking In With Balance :" )
+	// fmt.Printf( "%+v\n" , viewed_user.Balance )
 
 	// 5.) Print Ticket
 	// TODO : clarify calculation ????
 	// total_clothing_items := ( balance_form.TopsAvailable + balance_form.BottomsAvailable + balance_form.DressesAvailable )
 	// total_clothing_items := ( balance_form.TopsAvailable + balance_form.ShoesAvailable + balance_form.SeasonalsAvailable + balance_form.AccessoriesAvailable )
-	total_clothing_items := ( balance_form.TopsAvailable )
+	// total_clothing_items := ( balance_form.TopsAvailable )
+	total_clothing_items := ( balance_form.ShoppingFor * 6 )
 	family_size := viewed_user.FamilySize
 	if family_size < 1 { family_size = 1 } // this is what happens when you don't just use sql
 	barcode_number := ""
@@ -136,7 +148,7 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	family_name := viewed_user.NameString
 	// if len( family_name ) > 20 ? // TODO : Find max length of family string
 	print_job := printer.PrintJob{
-		FamilySize: family_size ,
+		FamilySize: balance_form.ShoppingFor ,
 		TotalClothingItems: total_clothing_items ,
 		Shoes: balance_form.ShoesAvailable ,
 		ShoesLimit: GlobalConfig.Balance.Shoes ,
@@ -148,8 +160,8 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 		BarcodeNumber: barcode_number ,
 		Spanish: viewed_user.Spanish ,
 	}
-	fmt.Println( "Printing :" )
-	fmt.Println( print_job )
+	fmt.Println( "Printing Ticket :" )
+	utils.PrettyPrint( print_job )
 	printer.PrintTicket( GlobalConfig.Printer , print_job )
 
 	// 6.) Re-Save the User

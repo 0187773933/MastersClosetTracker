@@ -281,7 +281,8 @@
 				if ( event ) { event.preventDefault(); }
 				let balance_table = document.getElementById( "user-balance-table-body" );
 				let balance_inputs = balance_table.querySelectorAll( "input" );
-				let form_data = { "uuid": window.USER.uuid };
+				let shopping_for = parseInt( document.getElementById( "shopping_for" ).value );
+				let form_data = { "uuid": window.USER.uuid , "shopping_for": shopping_for };
 				for ( let i = 0; i < balance_inputs.length; ++i ) {
 					form_data[ balance_inputs[ i ].id ] = parseInt( balance_inputs[ i ].value );
 				}
@@ -473,10 +474,15 @@
 							window.UI.render_new_form();
 							break;
 						default:
-							window.UI.render_active_user();
+							// window.UI.render_active_user();
 							break;
 					}
 				} else {
+					let sent_uuid = user_checkin_detect_uuid();
+					if ( !sent_uuid ) { return; }
+					let user = await get_user_from_uuid( sent_uuid );
+					window.USER = user;
+					document.getElementById( "user-search-input" ).value = sent_uuid;
 					window.UI.render_active_user();
 				}
 

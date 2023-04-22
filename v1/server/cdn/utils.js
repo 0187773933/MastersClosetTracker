@@ -80,7 +80,7 @@ function user_checkin_detect_state() {
 		console.log( "6" );
 		return "new";
 	}
-	console.log( "7" );
+	console.log( "7" )
 	return false;
 }
 

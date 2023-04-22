@@ -159,3 +159,7 @@ func GenerateNewKeys() {
 	fmt.Printf( "\tAdmin Password === %s\n\n" , admin_password )
 }
 
+func PrettyPrint( x_input interface{} ) {
+	pretty_json , _ := json.MarshalIndent( x_input , "" , "  " )
+	fmt.Println( string( pretty_json ) )
+}

@@ -19,6 +19,7 @@ type CheckIn struct {
 	Date string `json:"date"`
 	Time string `json:"time"`
 	Type string `json:"type"`
+	ShoppingFor int `json:"shopping_for"`
 	Result bool `json:"result"`
 	TimeRemaining int `json:"time_remaining"`
 }

@@ -178,7 +178,6 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 		}
 	}
 
-
 	add_centered_text( pdf , job.FamilyName , config.FontName , 16 , 4.4 )
 	// 3.) Gen and Add Barcode
 	barcode_temp_file , _ := ioutil.TempFile( "" , "barcode-*.png" )
@@ -187,7 +186,10 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 	defer func() {
 		os.Remove( barcode_temp_file_path )
 	}()
-	write_barcode_image( barcode_temp_file_path , "123456" )
+
+	to_write_barcode_number := "123456"
+	if job.BarcodeNumber != "" { to_write_barcode_number = job.BarcodeNumber }
+	write_barcode_image( barcode_temp_file_path , to_write_barcode_number )
 	pdf.ImageOptions(
 		barcode_temp_file_path ,
 		1.23 , 4.5 ,
