@@ -24,6 +24,29 @@ func GetUser( context *fiber.Ctx ) ( error ) {
 	})
 }
 
+func GetUserViaBarcode( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+	barcode := context.Params( "barcode" )
+	var viewed_user user.User
+	db.View( func( tx *bolt_api.Tx ) error {
+		barcode_bucket := tx.Bucket( []byte( "barcodes" ) )
+		x_uuid := barcode_bucket.Get( []byte( barcode ) )
+		if x_uuid == nil { return nil }
+		fmt.Printf( "Barcode : %s || UUID : %s\n" , barcode , x_uuid )
+		user_bucket := tx.Bucket( []byte( "users" ) )
+		x_user := user_bucket.Get( []byte( x_uuid ) )
+		decrypted_user := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , x_user )
+		json.Unmarshal( decrypted_user , &viewed_user )
+		return nil
+	})
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/get/barcode" ,
+		"result": viewed_user ,
+	})
+}
+
 func GetAllUsers( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
 
@@ -93,40 +116,76 @@ func GetAllEmails( context *fiber.Ctx ) ( error ) {
 			var viewed_user user.User
 			decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , value )
 			json.Unmarshal( decrypted_bucket_value , &viewed_user )
-			if viewed_user.EmailAddress != "" {
-				x_user := []string{ viewed_user.UUID , viewed_user.NameString , viewed_user.EmailAddress }
-				result = append( result , x_user )
-			}
+			if viewed_user.EmailAddress == "" { return nil }
+			x_user := []string{ viewed_user.UUID , viewed_user.NameString , viewed_user.EmailAddress }
+			result = append( result , x_user )
 			return nil
 		})
 		return nil
 	})
 	return context.JSON( fiber.Map{
-		"route": "/admin/user/get/all/checkins" ,
+		"route": "/admin/user/get/all/emails" ,
 		"result": result ,
 	})
 }
 
-
-func GetUserViaBarcode( context *fiber.Ctx ) ( error ) {
+func GetAllPhoneNumbers( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
-	barcode := context.Params( "barcode" )
-	var viewed_user user.User
+
+	var result [][]string
 	db.View( func( tx *bolt_api.Tx ) error {
-		barcode_bucket := tx.Bucket( []byte( "barcodes" ) )
-		x_uuid := barcode_bucket.Get( []byte( barcode ) )
-		if x_uuid == nil { return nil }
-		fmt.Printf( "Barcode : %s || UUID : %s\n" , barcode , x_uuid )
-		user_bucket := tx.Bucket( []byte( "users" ) )
-		x_user := user_bucket.Get( []byte( x_uuid ) )
-		decrypted_user := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , x_user )
-		json.Unmarshal( decrypted_user , &viewed_user )
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket.ForEach( func( uuid , value []byte ) error {
+			var viewed_user user.User
+			decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , value )
+			json.Unmarshal( decrypted_bucket_value , &viewed_user )
+			if viewed_user.PhoneNumber == "" { return nil; }
+			x_user := []string{ viewed_user.UUID , viewed_user.NameString , viewed_user.PhoneNumber }
+			result = append( result , x_user )
+			return nil
+		})
 		return nil
 	})
 	return context.JSON( fiber.Map{
-		"route": "/admin/user/get/barcode" ,
-		"result": viewed_user ,
+		"route": "/admin/user/get/all/phone-numbers" ,
+		"result": result ,
+	})
+}
+
+type UserBarcodeData struct {
+	UUID string `json:"uuid"`
+	Name string `json:"name"`
+	Barcodes []string `json:"barcodes"`
+}
+func GetAllBarcodes( context *fiber.Ctx ) ( error ) {
+	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+
+	var result []UserBarcodeData
+	db.View( func( tx *bolt_api.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket.ForEach( func( uuid , value []byte ) error {
+			var viewed_user user.User
+			decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , value )
+			json.Unmarshal( decrypted_bucket_value , &viewed_user )
+			if len( viewed_user.Barcodes ) < 1 { return nil }
+			x_user := UserBarcodeData{
+				UUID: viewed_user.UUID ,
+				Name: viewed_user.NameString ,
+				Barcodes: viewed_user.Barcodes ,
+			}
+			result = append( result , x_user )
+			return nil
+		})
+		return nil
+	})
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/get/all/barcodes" ,
+		"result": result ,
 	})
 }

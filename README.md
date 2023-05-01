@@ -19,27 +19,24 @@
 ## TODO
 
 1. Fix spanish font
-2. Add Name/Barcode Page , Similar to Emails Page
-3. Add Name/Phone-Number Page , Similar to Emails Page
-4. Just let a barcode check-in a user. Avoids an extra call
+2. Just let a barcode check-in a user. Avoids an extra call
 	- GET /admin/user/get/barcode/:barcode
 	- GET /admin/user/checkin/test/:uuid
 	- GET /admin/user/checkin/:uuid
-5. Add Admin Manual Override Routes
+3. Add Admin Manual Override Routes
 	- Override Check-In Too Soon
 	- User forgot phone
 	- User has new phone
 	- option to text hand-off link if user can't scan qrcode for some reason
-6. Add Spreadsheet Export
-7. Fix User Fields :
+4. Fix User Fields :
 	- Authorized Aliases
-8. Fix Docker
-9. Use time functions
+5. Fix Docker
+6. Use time functions
 	- `time.Now().After(lastFetched.Add(CachePeriod))` ?
-10. Change "usernames" DB bucket for key=${uuid}_username , value=Username
+7. Change "usernames" DB bucket for key=${uuid}_username , value=Username
 	- keeps only uuids as keys
-11. Make config editable via html
-12. Make tables sortable
+8. Make config editable via html
+9. Make tables sortable
 
 
 ## Misc

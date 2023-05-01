@@ -19,6 +19,8 @@ var ui_html_pages = map[ string ]string {
 	"/user/edit/:uuid": "./v1/server/html/admin_user_edit.html" ,
 	"/checkins": "./v1/server/html/admin_view_total_checkins.html" ,
 	"/emails": "./v1/server/html/admin_view_all_emails.html" ,
+	"/phone-numbers": "./v1/server/html/admin_view_all_phone_numbers.html" ,
+	"/barcodes": "./v1/server/html/admin_view_all_barcodes.html" ,
 }
 
 func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
@@ -46,10 +48,15 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/user/get/all" , GetAllUsers )
 	admin_route_group.Get( "/user/get/all/checkins" , GetAllCheckIns )
 	admin_route_group.Get( "/user/get/all/emails" , GetAllEmails )
+	admin_route_group.Get( "/user/get/all/phone-numbers" , GetAllPhoneNumbers )
+	admin_route_group.Get( "/user/get/all/barcodes" , GetAllBarcodes )
 	admin_route_group.Get( "/user/get/:uuid" , GetUser )
 	admin_route_group.Get( "/user/get/barcode/:barcode" , GetUserViaBarcode )
 
 	admin_route_group.Get( "/user/search/username/:username" , UserSearch )
 	admin_route_group.Get( "/user/search/username/fuzzy/:username" , UserSearchFuzzy )
 	admin_route_group.Get( "/print-test" , PrintTest )
+
+	admin_route_group.Get( "/user/reports/main" , GetReportMain )
+	admin_route_group.Get( "/user/reports/mail-chimp" , GetReportMailChimp )
 }
