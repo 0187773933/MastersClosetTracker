@@ -47,6 +47,9 @@ type ConfigFile struct {
 	BoltDBEncryptionKey string `json:"bolt_db_encryption_key"`
 	BleveSearchPath string `json:"bleve_search_path"`
 	CheckInCoolOffDays int `json:"check_in_cooloff_days"`
+	TwilioClientID string `json:"twilio_client_id"`
+	TwilioAuthToken string `json:"twilio_auth_token"`
+	TwilioSMSFromNumber string `json:"twilio_sms_from_number"`
 	Redis RedisConfig `json:"redis"`
 	IPBlacklist []string `json:"ip_blacklist"`
 	IPInfoToken string `json:"ip_info_token"`

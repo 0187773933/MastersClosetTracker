@@ -14,6 +14,7 @@ require (
 	github.com/nii236/adjectiveadjectiveanimal v0.0.1
 	github.com/ppsleep/barcode v0.0.0-20180824070850-4a54f72b39bc
 	github.com/satori/go.uuid v1.2.0
+	github.com/sfreiberg/gotwilio v1.0.0
 	github.com/yeqown/go-qrcode/v2 v2.2.1
 	github.com/yeqown/go-qrcode/writer/standard v1.2.1
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292
