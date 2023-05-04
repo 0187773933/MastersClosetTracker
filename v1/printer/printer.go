@@ -121,6 +121,7 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 	})
 	pdf.SetMargins( 0.5 , 1 , 0.5 )
 	pdf.AddPage()
+	pdf.AddUTF8Font( "ComicNeue" , "" , "ComicNeue-Regular.ttf" )
 
 	// 1.) Add Logo
 	pdf.ImageOptions(
@@ -138,8 +139,8 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 
 	// 2.) Add Middle Text
 	if job.Spanish == true {
-		// add_centered_text( pdf , fmt.Sprintf( "Tamaño Familiar ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
-		add_centered_text( pdf , fmt.Sprintf( "Tamano Familiar ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
+		add_centered_text( pdf , fmt.Sprintf( "Tamaño Familiar ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
+		// add_centered_text( pdf , fmt.Sprintf( "Tamano Familiar ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
 		add_centered_text( pdf , fmt.Sprintf( "Total Vestir Para La Familia ( %d )" , job.TotalClothingItems ) , config.FontName , 16 , 2.5 )
 		if job.Shoes > 1 {
 			add_centered_text( pdf , fmt.Sprintf( "%d Pares De Zapatos  , %d Por Persona" , job.Shoes , job.ShoesLimit ) , config.FontName , 14 , 3.0 )
@@ -152,11 +153,11 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 			add_centered_text( pdf , fmt.Sprintf( "%d Accesorio , %d Por Persona" , job.Accessories , job.AccessoriesLimit ) , config.FontName , 14 , 3.3 )
 		}
 		if job.Seasonal > 1 {
-			// add_centered_text( pdf , fmt.Sprintf( "%d Artículos De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
-			add_centered_text( pdf , fmt.Sprintf( "%d Articulos De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+			add_centered_text( pdf , fmt.Sprintf( "%d Artículos De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+			// add_centered_text( pdf , fmt.Sprintf( "%d Articulos De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
 		} else {
-			// add_centered_text( pdf , fmt.Sprintf( "%d Artículo De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
-			add_centered_text( pdf , fmt.Sprintf( "%d Articulo De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+			add_centered_text( pdf , fmt.Sprintf( "%d Artículo De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+			// add_centered_text( pdf , fmt.Sprintf( "%d Articulo De Temporada , %d Por Persona" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
 		}
 	} else {
 		add_centered_text( pdf , fmt.Sprintf( "Family Size ( %d )" , job.FamilySize ) , config.FontName , 20 , 2.0 )
