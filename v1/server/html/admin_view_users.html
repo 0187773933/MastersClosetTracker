@@ -25,7 +25,7 @@
 									<th scope="col">#</th>
 									<th scope="col">Username <button class="btn btn-secondary btn-small" onclick="sort_table( 1 , 'alphabetical' )" data-sort="desc"><i class="bi bi-sort-down"></i></button></th>
 									<th scope="col">UUID <button class="btn btn-secondary btn-small" onclick="sort_table( 2 , 'alphabetical' )" data-sort="desc"><i class="bi bi-sort-down"></i></button></i></th>
-									<th scope="col">Last Check-In <button class="btn btn-secondary btn-small" onclick="sort_table( 3 , 'date' )" data-sort="asc"><i class="bi bi-sort-down"></i></button></i></th>
+									<th scope="col">Last Check-In <button class="btn btn-secondary btn-small" onclick="sort_table( 3 , 'date' )" data-sort="desc"><i class="bi bi-sort-down"></i></button></i></th>
 								</tr>
 							</thead>
 							<tbody id="users-table-body"></tbody>
@@ -90,14 +90,16 @@
 							break;
 						case "date":
 							if ( sort_direction === "asc" ) {
+								console.log( "asc" );
 								if ( aValue === "" ) { result = 1; break; }
 								if ( bValue === "" ) { result = -1; break; }
 								const aDate = parse_custom_date_time_string( aValue );
 								const bDate = parse_custom_date_time_string( bValue );
 								result = ( aDate - bDate );
 							} else if ( sort_direction === "desc" ) {
-								if ( aValue === "" ) { result = -1; break; }
-								if ( bValue === "" ) { result = 1; break; }
+								console.log( "desc" );
+								if ( aValue === "" ) { result = 1; break; }
+								if ( bValue === "" ) { result = -1; break; }
 								const aDate = parse_custom_date_time_string( aValue );
 								const bDate = parse_custom_date_time_string( bValue );
 								result = ( bDate - aDate );
@@ -208,7 +210,7 @@
 				let stop = new Date();
 				print_duration( start , stop );
 				populate_table();
-				sort_table( 3 , method="alphabetical" , true );
+				sort_table( 3 , method="date" , true );
 			}
 			$( document ).ready( init );
 		</script>

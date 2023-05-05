@@ -66,7 +66,7 @@
 			}
 			function parse_custom_date_time_string( dts ) {
 				let parsable_string = `${dts.slice(0,2)} ${dts[2]}${dts.slice(3,5).toLowerCase()} ${dts.slice(5,9)}`;
-				console.log( parsable_string );
+				// console.log( parsable_string );
 				return Date.parse( parsable_string );
 			}
 			function sort_table( column_index , method="alphabetical" , fresh=false ) {
