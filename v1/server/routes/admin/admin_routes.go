@@ -63,5 +63,6 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/user/reports/mail-chimp" , GetReportMailChimp )
 
 	admin_route_group.Post( "/user/sms/all" , SMSAllUsers )
+	admin_route_group.Post( "/user/email/all" , EmailAllUsers )
 
 }
