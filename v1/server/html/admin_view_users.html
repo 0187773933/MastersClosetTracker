@@ -67,7 +67,7 @@
 			}
 			function parse_custom_date_time_string( dts ) {
 				let time = dts.split( " @ " )[ 1 ];
-				let parsable_string = `${dts.slice(0,2)} ${dts.slice(2)}${dts.slice(3,5).toLowerCase()} ${dts.slice(5,9)} ${time.slice(0,7)}`;
+				let parsable_string = `${dts.slice(0,2)} ${dts[2]}${dts.slice(3,5).toLowerCase()} ${dts.slice(5,9)} ${time.slice(0,8)}`;
 				console.log( parsable_string );
 				return Date.parse( parsable_string );
 			}
