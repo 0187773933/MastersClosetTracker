@@ -25,7 +25,7 @@
 									<th scope="col">#</th>
 									<th scope="col">Username <button class="btn btn-secondary btn-small" onclick="sort_table( 1 , 'alphabetical' )" data-sort="desc"><i class="bi bi-sort-down"></i></button></th>
 									<th scope="col">UUID <button class="btn btn-secondary btn-small" onclick="sort_table( 2 , 'alphabetical' )" data-sort="desc"><i class="bi bi-sort-down"></i></button></i></th>
-									<th scope="col">Last Check-In <button class="btn btn-secondary btn-small" onclick="sort_table( 3 , 'date' )" data-sort="desc"><i class="bi bi-sort-down"></i></button></i></th>
+									<th scope="col">Last Check-In <button class="btn btn-secondary btn-small" onclick="sort_table( 3 , 'date' )" data-sort="asc"><i class="bi bi-sort-down"></i></button></i></th>
 								</tr>
 							</thead>
 							<tbody id="users-table-body"></tbody>
@@ -68,7 +68,7 @@
 			function parse_custom_date_time_string( dts ) {
 				let time = dts.split( " @ " )[ 1 ];
 				let parsable_string = `${dts.slice(0,2)} ${dts[2]}${dts.slice(3,5).toLowerCase()} ${dts.slice(5,9)} ${time.slice(0,8)}`;
-				console.log( parsable_string );
+				// console.log( parsable_string );
 				return Date.parse( parsable_string );
 			}
 			function sort_table( column_index , method="alphabetical" , fresh=false ) {
@@ -208,7 +208,7 @@
 				let stop = new Date();
 				print_duration( start , stop );
 				populate_table();
-				sort_table( 1 , method="alphabetical" , true );
+				sort_table( 3 , method="alphabetical" , true );
 			}
 			$( document ).ready( init );
 		</script>
