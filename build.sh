@@ -44,3 +44,9 @@ done
 # 	echo "Building Web: $architecture"
 # 	GOOS=js GOARCH=$architecture go build -o bin/windows/$architecture/$BinaryName.wasm
 # done
+
+
+cp ./bin/windows/amd64/mct.exe "/Users/morpheous/Library/CloudStorage/Dropbox/Parking/PERMANENT/Masters Closet Tracker/.files"
+cp ./bin/darwin/amd64/mct "/Users/morpheous/Library/CloudStorage/Dropbox/Parking/PERMANENT/Masters Closet Tracker/.files"
+cp -r v1/server/cdn "/Users/morpheous/Library/CloudStorage/Dropbox/Parking/PERMANENT/Masters Closet Tracker/.files/v1/server"
+cp -r v1/server/html "/Users/morpheous/Library/CloudStorage/Dropbox/Parking/PERMANENT/Masters Closet Tracker/.files/v1/server"
