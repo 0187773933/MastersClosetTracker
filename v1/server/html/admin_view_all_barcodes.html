@@ -26,8 +26,8 @@
 					<table id="barcodes-table" class="table table-hover table-striped-columns">
 						<thead>
 							<tr>
-								<th scope="col">Barcode</th>
-								<th scope="col">Name</th>
+								<th scope="col">Barcode <button class="btn btn-secondary btn-small" onclick="sort_table( 0 , 'alphabetical' )" data-sort="desc"><i class="bi bi-sort-down"></i></button></th>
+								<th scope="col">Name <button class="btn btn-secondary btn-small" onclick="sort_table( 1 , 'alphabetical' )" data-sort="desc"><i class="bi bi-sort-down"></i></button></th>
 							</tr>
 						</thead>
 						<tbody id="barcodes-table-body"></tbody>
@@ -89,7 +89,57 @@
 			// 	console.log( clipboard_text );
 			// 	// window.barcodes_clipboard_text = clipboard_text;
 			// }
+			function sort_table( column_index , method="alphabetical" , fresh=false ) {
+				const table = document.getElementById( "barcodes-table" );
+				const rows = Array.from( table.rows ).slice( 1 ); // exclude header row
+				let sorting_button = table.rows[ 0 ].querySelectorAll( '[data-sort]' )[ ( column_index ) ];
+				let sort_direction = sorting_button.getAttribute( "data-sort" );
+				const sortedRows = rows.slice().sort( ( a , b ) => {
+					const aValue = a.cells[ column_index ].innerText;
+					const bValue = b.cells[ column_index ].innerText;
+					let result;
+					switch( method ) {
+						case "alphabetical":
+							if ( sort_direction === "asc" ) {
+								result = bValue.localeCompare( aValue );
+							} else if ( sort_direction === "desc" ) {
+								result = aValue.localeCompare( bValue );
+							}
+							break;
+						case "date":
+							if ( sort_direction === "asc" ) {
+								if ( aValue === "" ) { result = 1; break; }
+								if ( bValue === "" ) { result = -1; break; }
+								const aDate = parse_custom_date_time_string( aValue );
+								const bDate = parse_custom_date_time_string( bValue );
+								result = ( aDate - bDate );
+							} else if ( sort_direction === "desc" ) {
+								if ( aValue === "" ) { result = -1; break; }
+								if ( bValue === "" ) { result = 1; break; }
+								const aDate = parse_custom_date_time_string( aValue );
+								const bDate = parse_custom_date_time_string( bValue );
+								result = ( bDate - aDate );
+							}
+							break;
+						default:
+							break;
+					}
+					return result;
+				});
 
+				let new_sort_direction = sort_direction === 'asc' ? 'desc' : 'asc';
+				sorting_button.setAttribute( "data-sort" , new_sort_direction );
+				if ( !fresh ) {
+					let sorting_icon = sorting_button.querySelector( "i" );
+					sorting_icon.classList.toggle( "bi-sort-down" );
+					sorting_icon.classList.toggle( "bi-sort-up" );
+				}
+
+				for ( let i = 0; i < sortedRows.length; ++i ) {
+					table.tBodies[ 0 ].appendChild( sortedRows[ i ] );
+					// sortedRows[ i ].childNodes[ 0 ].innerText = ( i + 1 )
+				}
+			}
 			function populate_table() {
 				let table_body_element = document.getElementById( "barcodes-table-body" );
 				for ( let i = 0; i < window.barcodes.length; ++i ) {
@@ -132,6 +182,7 @@
 				print_duration( start , stop );
 				// parse_barcodes();
 				populate_table();
+				sort_table( 0 , method="alphabetical" , true );
 			}
 			$( document ).ready( init );
 		</script>
