@@ -2,22 +2,29 @@ package utils
 
 import (
 	"os"
+	"os/user"
+	"runtime"
 	"bufio"
 	"time"
 	tz "4d63.com/tz"
 	"net"
 	"fmt"
+	sha256 "crypto/sha256"
+	hex "encoding/hex"
 	// index_sort "github.com/mkmik/argsort"
 	"sort"
 	"strconv"
 	"strings"
+	json "encoding/json"
 	"unicode"
 	"io/ioutil"
-	"encoding/json"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
 	fiber "github.com/gofiber/fiber/v2"
 	fiber_cookie "github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
+	cpu "github.com/shirou/gopsutil/cpu"
+	bolt_api "github.com/boltdb/bolt"
+	uuid "github.com/satori/go.uuid"
 )
 
 func ParseConfig( file_path string ) ( result types.ConfigFile ) {
@@ -86,6 +93,12 @@ func ReverseInts( input []int ) []int {
 		return input
 	}
 	return append(ReverseInts(input[1:]), input[0])
+}
+
+func Sha256Sum( input string ) ( result string ) {
+	hash := sha256.Sum256( []byte( input ) )
+	result = hex.EncodeToString( hash[ : ] )
+	return
 }
 
 func CountUniqueViewsInRecords( records []string ) ( result int ) {
@@ -163,3 +176,91 @@ func PrettyPrint( x_input interface{} ) {
 	pretty_json , _ := json.MarshalIndent( x_input , "" , "  " )
 	fmt.Println( string( pretty_json ) )
 }
+
+func _finger_print_cpu() ( result string ) {
+	cpu_info , _ := cpu.Info()
+	result = fmt.Sprintf( "%s === %s === %s === %d === %s" ,
+		cpu_info[ 0 ].VendorID ,
+		cpu_info[ 0 ].Family ,
+		cpu_info[ 0 ].Model ,
+		cpu_info[ 0 ].Cores ,
+		cpu_info[ 0 ].ModelName ,
+	)
+	return
+}
+
+func _finger_print_mac_address() ( []string ) {
+	net_interfaces , _ := net.Interfaces()
+	var mac_addresses []string
+	for _ , net_interface := range net_interfaces {
+		mac_addr := net_interface.HardwareAddr.String()
+		if len( mac_addr ) == 0 { continue }
+		mac_addresses = append( mac_addresses , mac_addr )
+	}
+	return mac_addresses
+}
+
+type FingerPrintStore struct {
+	UUID string `json:"uuid"`
+	FingerPrint string `json:"finger_print"`
+}
+func FingerPrint( config *types.ConfigFile  ) ( result string ) {
+
+	db , _ := bolt_api.Open( config.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+
+	x_cpu_info := _finger_print_cpu()
+	x_os := runtime.GOOS
+	x_arch := runtime.GOARCH
+	x_hostname , _ := os.Hostname()
+	x_user , _ := user.Current()
+	x_username := x_user.Username
+	// x_ip_addresses := GetLocalIPAddresses()
+	// x_mac_addresses := _finger_print_mac_address()
+	// fmt.Println( x_cpu_info )
+	// fmt.Println( x_os )
+	// fmt.Println( x_arch )
+	// fmt.Println( x_hostname )
+	// fmt.Println( x_username )
+	// fmt.Println( x_ip_addresses )
+	// fmt.Println( x_mac_addresses )
+	finger_print_string := fmt.Sprintf( "%s === %s === %s === %s === %s" ,
+		x_username ,
+		x_os ,
+		x_arch ,
+		x_hostname ,
+		x_cpu_info ,
+	)
+	finger_print_sha_256 := Sha256Sum( finger_print_string )
+
+	var x_finger_print FingerPrintStore
+	db.Update( func( tx *bolt_api.Tx ) error {
+		finger_prints_bucket , _ := tx.CreateBucketIfNotExists( []byte( "fingerprints" ) )
+		finger_print := finger_prints_bucket.Get( []byte( finger_print_sha_256 ) )
+		if finger_print == nil { // Store new fingerprint
+			// fmt.Println( "Storing New Finger Print" )
+			x_finger_print.UUID = uuid.NewV4().String()
+			x_finger_print.FingerPrint = finger_print_string
+			x_finger_print_byte_object , _ := json.Marshal( x_finger_print )
+			x_finger_print_byte_object_encrypted := encryption.ChaChaEncryptBytes( config.BoltDBEncryptionKey , x_finger_print_byte_object )
+			finger_prints_bucket.Put( []byte( finger_print_sha_256 ) , x_finger_print_byte_object_encrypted )
+		} else { // Retrieve existing fingerprint
+			// fmt.Println( "Retrieving Existing Finger Print" )
+			decrypted_bucket_value := encryption.ChaChaDecryptBytes( config.BoltDBEncryptionKey , finger_print )
+			json.Unmarshal( decrypted_bucket_value , &x_finger_print )
+		}
+		return nil
+	})
+	fmt.Println( x_finger_print )
+	result = x_finger_print.UUID
+	return
+}
+
+
+
+
+
+
+
+
+

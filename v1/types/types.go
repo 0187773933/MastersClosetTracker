@@ -55,6 +55,7 @@ type ConfigFile struct {
 	IPInfoToken string `json:"ip_info_token"`
 	Balance BalanceConfig `json:"balance"`
 	Printer PrinterConfig `json:"printer"`
+	FingerPrint string `json:"finger_print"`
 }
 
 type AListResponse struct {

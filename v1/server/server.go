@@ -12,7 +12,12 @@ import (
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
 	user_routes "github.com/0187773933/MastersClosetTracker/v1/server/routes/user"
 	admin_routes "github.com/0187773933/MastersClosetTracker/v1/server/routes/admin"
+	// "os"
+	"log"
+	lumberjack "github.com/natefinch/lumberjack"
 )
+
+var GlobalConfig *types.ConfigFile
 
 type Server struct {
 	FiberApp *fiber.App `json:"fiber_app"`
@@ -23,18 +28,30 @@ func request_logging_middleware( context *fiber.Ctx ) ( error ) {
 	time_string := utils.GetFormattedTimeString()
 	ip_address := context.Get( "x-forwarded-for" )
 	if ip_address == "" { ip_address = context.IP() }
-	fmt.Printf( "%s === %s === %s === %s\n" , time_string , ip_address , context.Method() , context.Path() )
+	// log_message := fmt.Sprintf( "%s === %s === %s === %s === %s" , time_string , GlobalConfig.FingerPrint , ip_address , context.Method() , context.Path() )
+	log_message := fmt.Sprintf( "%s === %s === %s === %s" , time_string , GlobalConfig.FingerPrint , context.Method() , context.Path() )
+	fmt.Println( log_message )
+	log.Println( log_message )
 	return context.Next()
 }
-
 
 func New( config types.ConfigFile ) ( server Server ) {
 
 	server.FiberApp = fiber.New()
 	server.Config = config
+	GlobalConfig = &config
 
-	ip_addresses := utils.GetLocalIPAddresses()
-	fmt.Println( "Server's IP Addresses === " , ip_addresses )
+	log.SetFlags( 0 )
+	log.SetOutput( &lumberjack.Logger{
+		Filename: "./logs/log.log" ,
+		MaxSize: 100 , // megabytes
+		MaxBackups: 3 ,   // number of backups
+		MaxAge: 1 , // days
+		Compress: true , // compress the rotated log files
+	})
+
+	// ip_addresses := utils.GetLocalIPAddresses()
+	// fmt.Println( "Server's IP Addresses === " , ip_addresses )
 	// https://docs.gofiber.io/api/middleware/limiter
 	server.FiberApp.Use( request_logging_middleware )
 	server.FiberApp.Use( favicon.New() )
@@ -84,7 +101,11 @@ func ( s *Server ) SetupRoutes() {
 }
 
 func ( s *Server ) Start() {
-	fmt.Printf( "Listening on %s\n" , s.Config.ServerPort )
+	fmt.Println( "\n" )
+	fmt.Printf( "Listening on http://localhost:%s\n" , s.Config.ServerPort )
+	fmt.Printf( "Admin Login @ http://localhost:%s/admin/login\n" , s.Config.ServerPort )
+	fmt.Printf( "Admin Username === %s\n" , s.Config.AdminUsername )
+	fmt.Printf( "Admin Password === %s\n" , s.Config.AdminPassword )
 	s.FiberApp.Listen( fmt.Sprintf( ":%s" , s.Config.ServerPort ) )
 }
 
