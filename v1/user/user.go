@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	"log"
 	// "reflect"
 	// "strconv"
 	"strings"
@@ -303,21 +304,21 @@ func ( u *User ) CheckInTest() ( check_in CheckIn ) {
 		// only comparing the dates , not the times
 		last_check_in := u.CheckIns[ len( u.CheckIns ) - 1 ]
 		last_check_in_date , _ := time.ParseInLocation( "02Jan2006" , last_check_in.Date , now_time_zone )
-		fmt.Println( "Now ===" , now )
-		fmt.Println( "Last ===" , last_check_in_date )
+		// fmt.Println( "Now ===" , now )
+		// fmt.Println( "Last ===" , last_check_in_date )
 
 		cool_off_hours := ( 24 * u.Config.CheckInCoolOffDays )
-		fmt.Println( "Cooloff Hours ===" , cool_off_hours )
+		// fmt.Println( "Cooloff Hours ===" , cool_off_hours )
 		cool_off_duration , _ := time.ParseDuration( fmt.Sprintf( "%dh" , cool_off_hours ) )
-		fmt.Println( "Cooloff Duration ===" , cool_off_duration )
+		// fmt.Println( "Cooloff Duration ===" , cool_off_duration )
 
 		check_in_date_difference := now.Sub( last_check_in_date )
-		fmt.Println( "Difference ===" , check_in_date_difference )
+		// fmt.Println( "Difference ===" , check_in_date_difference )
 
 		// Negative Values Mean The User Has Waited Long Enough
 		// Positive Values Mean the User Still has to wait
 		time_remaining_duration := ( cool_off_duration - check_in_date_difference )
-		fmt.Println( "Time Remaining ===" , time_remaining_duration )
+		// fmt.Println( "Time Remaining ===" , time_remaining_duration )
 
 		if time_remaining_duration < 0 {
 			// "the user waited long enough before checking in again"
@@ -327,7 +328,10 @@ func ( u *User ) CheckInTest() ( check_in CheckIn ) {
 
 			days_remaining := int( time_remaining_duration.Hours() / 24 )
 			time_remaining_string := time_remaining_duration.String()
-			fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait : %d days , or %s\n" , days_remaining , time_remaining_string )
+
+			lockout_message := fmt.Sprintf( "The user did NOT wait long enough before checking in again , has to wait : %d days , or %s\n" , days_remaining , time_remaining_string )
+			fmt.Printf( lockout_message )
+			log.Printf( lockout_message )
 
 			check_in.Result = false
 			time_remaining = int( time_remaining_duration.Milliseconds() )

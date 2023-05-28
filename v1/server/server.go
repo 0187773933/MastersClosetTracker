@@ -41,11 +41,12 @@ func New( config types.ConfigFile ) ( server Server ) {
 	server.Config = config
 	GlobalConfig = &config
 
+	prepended_timestamp := time.Now().Format( "20060102" )
 	log.SetFlags( 0 )
 	log.SetOutput( &lumberjack.Logger{
-		Filename: "./logs/log.log" ,
+		Filename: fmt.Sprintf( "./logs/%s-%s.log" , prepended_timestamp , config.FingerPrint ) ,
 		MaxSize: 100 , // megabytes
-		MaxBackups: 3 ,   // number of backups
+		// MaxBackups: 3 ,   // number of backups
 		MaxAge: 1 , // days
 		Compress: true , // compress the rotated log files
 	})

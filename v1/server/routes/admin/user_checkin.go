@@ -3,6 +3,7 @@ package adminroutes
 import (
 	"fmt"
 	"time"
+	"log"
 	"strings"
 	"strconv"
 	json "encoding/json"
@@ -162,6 +163,7 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	}
 	fmt.Println( "Printing Ticket :" )
 	utils.PrettyPrint( print_job )
+	log.Println( "Printing Ticket :" , print_job )
 	printer.PrintTicket( GlobalConfig.Printer , print_job )
 
 	// 6.) Re-Save the User

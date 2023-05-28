@@ -1,6 +1,7 @@
 package printer
 
 import (
+	"log"
 	"fmt"
 	"github.com/jung-kurt/gofpdf"
 	// "bufio"
@@ -109,7 +110,6 @@ func add_centered_text( pdf *gofpdf.Fpdf , text string , font_name string , font
 	pdf.Text( starting_x , at_page_height , text )
 }
 
-
 // https://pkg.go.dev/github.com/jung-kurt/gofpdf#example-Fpdf.PageSize
 // https://pkg.go.dev/github.com/jung-kurt/gofpdf#Fpdf.ImageOptions
 // https://pkg.go.dev/github.com/jung-kurt/gofpdf#Fpdf.Text
@@ -121,7 +121,7 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 	})
 	pdf.SetMargins( 0.5 , 1 , 0.5 )
 	pdf.AddPage()
-	pdf.AddUTF8Font( "ComicNeue" , "" , "ComicNeue-Regular.ttf" )
+	pdf.AddUTF8Font( "ComicNeue" , "" , "./v1/printer/ComicNeue-Regular.ttf" )
 
 	// 1.) Add Logo
 	pdf.ImageOptions(
@@ -210,7 +210,12 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 	defer func() {
 		os.Remove( pdf_temp_file_path )
 	}()
-	pdf.OutputFileAndClose( pdf_temp_file_path )
+	err := pdf.OutputFileAndClose( pdf_temp_file_path )
+	if err != nil {
+		fmt.Println( err )
+		log.Println( err )
+		return
+	}
 	if runtime.GOOS == "windows" {
 		// clear_printer_que_windows( config.PrinterName )
 		print_pdf_windows( config.PrinterName , pdf_temp_file_path )
