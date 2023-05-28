@@ -14,7 +14,6 @@ import (
 	admin_routes "github.com/0187773933/MastersClosetTracker/v1/server/routes/admin"
 	// "os"
 	"log"
-	lumberjack "github.com/natefinch/lumberjack"
 )
 
 var GlobalConfig *types.ConfigFile
@@ -40,16 +39,6 @@ func New( config types.ConfigFile ) ( server Server ) {
 	server.FiberApp = fiber.New()
 	server.Config = config
 	GlobalConfig = &config
-
-	prepended_timestamp := time.Now().Format( "20060102" )
-	log.SetFlags( 0 )
-	log.SetOutput( &lumberjack.Logger{
-		Filename: fmt.Sprintf( "./logs/%s-%s.log" , prepended_timestamp , config.FingerPrint ) ,
-		MaxSize: 100 , // megabytes
-		// MaxBackups: 3 ,   // number of backups
-		MaxAge: 1 , // days
-		Compress: true , // compress the rotated log files
-	})
 
 	// ip_addresses := utils.GetLocalIPAddresses()
 	// fmt.Println( "Server's IP Addresses === " , ip_addresses )
