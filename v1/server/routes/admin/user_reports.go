@@ -13,6 +13,7 @@ import (
 	bolt_api "github.com/boltdb/bolt"
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
 	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
+	log "github.com/0187773933/MastersClosetTracker/v1/log"
 )
 
 // https://mailchimp.com/help/import-contacts-mailchimp/
@@ -50,6 +51,7 @@ func GetReportMailChimp( context *fiber.Ctx ) ( error ) {
 	context.Set( "Content-Type", "text/csv" )
 	context.Set( "Content-Disposition", "attachment;filename=masters_closet_contacts_mail_chimp.csv" )
 	context.Set( "Content-Length", strconv.Itoa( len( csv_bytes ) ) )
+	log.PrintlnConsole( "Downloaded Report-MailChimp" , strconv.Itoa( len( csv_bytes ) ) )
 	return context.Send( csv_bytes )
 
 }
@@ -138,6 +140,7 @@ func GetReportMain( context *fiber.Ctx ) ( error ) {
 	context.Set( "Content-Type", "text/csv" )
 	context.Set( "Content-Disposition", "attachment;filename=masters_closet_users.csv" )
 	context.Set( "Content-Length", strconv.Itoa( len( csv_bytes ) ) )
+	log.PrintlnConsole( "Downloaded Report-Main" , strconv.Itoa( len( csv_bytes ) ) )
 	return context.Send( csv_bytes )
 
 }

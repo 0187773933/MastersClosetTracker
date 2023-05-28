@@ -18,7 +18,7 @@ func GetUser( context *fiber.Ctx ) ( error ) {
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
 	viewed_user := user.GetByUUID( user_uuid , db , GlobalConfig.BoltDBEncryptionKey )
-	log.PrintlnConsole( "Selected :" , viewed_user.UUID )
+	log.PrintlnConsole( viewed_user.UUID , "===" , "Selected" )
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/get/:uuid" ,
 		"result": viewed_user ,

@@ -6,6 +6,7 @@ import (
 	bleve "github.com/blevesearch/bleve/v2"
 	bolt_api "github.com/boltdb/bolt"
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
+	log "github.com/0187773933/MastersClosetTracker/v1/log"
 )
 
 func DeleteUser( context *fiber.Ctx ) ( error ) {
@@ -26,6 +27,7 @@ func DeleteUser( context *fiber.Ctx ) ( error ) {
 		usernames_bucket.Delete( []byte( viewed_user.Username ) )
 		return nil
 	})
+	log.PrintlnConsole( viewed_user.UUID , "===" , "Deleted" )
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/delete/:uuid" ,
 		"result": "deleted" ,

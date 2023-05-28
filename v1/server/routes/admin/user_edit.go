@@ -7,6 +7,7 @@ import (
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
 	// pp "github.com/k0kubun/pp/v3"
 	// pp.Println( viewed_user )
+	log "github.com/0187773933/MastersClosetTracker/v1/log"
 )
 
 // could move to user , but edit should be the only thing like this
@@ -16,6 +17,7 @@ func HandleUserEdit( context *fiber.Ctx ) ( error ) {
 	json.Unmarshal( context.Body() , &viewed_user )
 	viewed_user.Config = GlobalConfig
 	viewed_user.Save();
+	log.PrintlnConsole( viewed_user.UUID , "===" , "Updated" )
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/edit" ,
 		"result": true ,
