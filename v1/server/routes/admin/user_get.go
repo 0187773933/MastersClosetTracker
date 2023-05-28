@@ -2,13 +2,13 @@ package adminroutes
 
 import (
 	"time"
-	"fmt"
 	json "encoding/json"
 	fiber "github.com/gofiber/fiber/v2"
 	// bolt "github.com/0187773933/MastersClosetTracker/v1/bolt"
 	bolt_api "github.com/boltdb/bolt"
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
 	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
+	log "github.com/0187773933/MastersClosetTracker/v1/log"
 )
 
 // http://localhost:5950/user/get/04b5fba6-6d76-42e0-a543-863c3f0c252c
@@ -34,7 +34,7 @@ func GetUserViaBarcode( context *fiber.Ctx ) ( error ) {
 		barcode_bucket := tx.Bucket( []byte( "barcodes" ) )
 		x_uuid := barcode_bucket.Get( []byte( barcode ) )
 		if x_uuid == nil { return nil }
-		fmt.Printf( "Barcode : %s || UUID : %s\n" , barcode , x_uuid )
+		log.Printf( "Barcode : %s || UUID : %s\n" , barcode , x_uuid )
 		user_bucket := tx.Bucket( []byte( "users" ) )
 		x_user := user_bucket.Get( []byte( x_uuid ) )
 		decrypted_user := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , x_user )

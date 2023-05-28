@@ -1,9 +1,8 @@
 package adminroutes
 
 import (
-	"fmt"
+	// "fmt"
 	"time"
-	"log"
 	"strings"
 	"strconv"
 	json "encoding/json"
@@ -13,6 +12,7 @@ import (
 	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
 	printer "github.com/0187773933/MastersClosetTracker/v1/printer"
+	log "github.com/0187773933/MastersClosetTracker/v1/log"
 )
 
 type CheckInBalanceForm struct {
@@ -120,7 +120,7 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	family_size := viewed_user.FamilySize
 	if family_size < 1 { family_size = 1 } // this is what happens when you don't just use sql
 	barcode_number := ""
-	if len( viewed_user.Barcodes ) > 0 {
+	if len( viewed_user.Barcodes ) > 0 && len( viewed_user.Barcodes[ 0 ] ) > 1 {
 		barcode_number = viewed_user.Barcodes[ 0 ]
 	} else {
 		// Create a high number barcode
@@ -128,15 +128,15 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 		db.Update( func( tx *bolt_api.Tx ) error {
 			misc_bucket , _ := tx.CreateBucketIfNotExists( []byte( "misc" ) )
 			vb_index_bucket_value := misc_bucket.Get( []byte( "virtual-barcode-index" ) )
-			fmt.Println( "vb_index_bucket_value" , vb_index_bucket_value )
+			// fmt.Println( "vb_index_bucket_value" , vb_index_bucket_value )
 			vb_index := 9999999
 			if vb_index_bucket_value != nil {
 				vb_index , _ = strconv.Atoi( string( vb_index_bucket_value ) )
 			}
 			vb_index = vb_index + 1
 
-			fmt.Printf( "Adding Virtual Barcode : %s\n" , barcode_number )
 			barcode_number = strconv.Itoa( vb_index )
+			log.PrintlnConsole( "Adding Virtual Barcode :" , barcode_number )
 			misc_bucket.Put( []byte( "virtual-barcode-index" ) , []byte( barcode_number ) )
 			viewed_user.Barcodes = append( viewed_user.Barcodes , barcode_number )
 
@@ -161,9 +161,8 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 		BarcodeNumber: barcode_number ,
 		Spanish: viewed_user.Spanish ,
 	}
-	fmt.Println( "Printing Ticket :" )
+	log.PrintlnConsole( "Printing Ticket :" , print_job )
 	utils.PrettyPrint( print_job )
-	log.Println( "Printing Ticket :" , print_job )
 	printer.PrintTicket( GlobalConfig.Printer , print_job )
 
 	// 6.) Re-Save the User

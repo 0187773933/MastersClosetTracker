@@ -1,7 +1,6 @@
 package printer
 
 import (
-	"log"
 	"fmt"
 	"github.com/jung-kurt/gofpdf"
 	// "bufio"
@@ -17,6 +16,7 @@ import (
 	"github.com/ppsleep/barcode"
 	"github.com/ppsleep/barcode/code128"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
+	log "github.com/0187773933/MastersClosetTracker/v1/log"
 )
 
 func write_barcode_image( image_path string , barcode_number string ) {
@@ -33,7 +33,7 @@ func clear_printer_que_mac_osx( printer_name string ) {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		fmt.Println( "Error Clearing Printer Que:", err )
+		log.Error( "Error Clearing Printer Que:" , err )
 	}
 }
 
@@ -46,7 +46,7 @@ func print_pdf_mac_osx( printer_name string , pdf_file_path string ) {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		fmt.Println( "Error Printing PDF: " , err )
+		log.Error( "Error Printing PDF" , err )
 	}
 }
 
@@ -78,7 +78,7 @@ func print_pdf_windows( printer_name string , pdf_file_path string ) {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		fmt.Println( "Error Printing PDF: " , err )
+		log.Error( "Error Printing PDF" , err )
 	}
 }
 
@@ -212,8 +212,7 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 	}()
 	err := pdf.OutputFileAndClose( pdf_temp_file_path )
 	if err != nil {
-		fmt.Println( err )
-		log.Println( err )
+		log.Error( err )
 		return
 	}
 	if runtime.GOOS == "windows" {

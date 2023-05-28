@@ -1,7 +1,7 @@
 package adminroutes
 
 import (
-	fmt "fmt"
+	"fmt"
 	time "time"
 	json "encoding/json"
 	fiber "github.com/gofiber/fiber/v2"
@@ -9,6 +9,7 @@ import (
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
 	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
 	twilio "github.com/sfreiberg/gotwilio"
+	log "github.com/0187773933/MastersClosetTracker/v1/log"
 )
 
 func SMSAllUsers( context *fiber.Ctx ) ( error ) {
@@ -31,7 +32,7 @@ func SMSAllUsers( context *fiber.Ctx ) ( error ) {
 			to_number := fmt.Sprintf( "+1%s" , viewed_user.PhoneNumber )
 			// https://github.com/sfreiberg/gotwilio/blob/master/sms.go#L12
 			result , _ , _ := twilio_client.SendSMS( GlobalConfig.TwilioSMSFromNumber , to_number , sms_message , "" , "" )
-			fmt.Printf( "%s === %s\n" , to_number , result.Status )
+			log.Printf( "%s === %s\n" , to_number , result.Status )
 			return nil
 		})
 		return nil

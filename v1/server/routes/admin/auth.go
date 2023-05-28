@@ -1,22 +1,23 @@
 package adminroutes
 
 import (
-	"fmt"
+	// "fmt"
 	"time"
 	fiber "github.com/gofiber/fiber/v2"
 	bcrypt "golang.org/x/crypto/bcrypt"
 	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
+	log "github.com/0187773933/MastersClosetTracker/v1/log"
 )
 
 func validate_login_credentials( context *fiber.Ctx ) ( result bool ) {
 	result = false
 	uploaded_username := context.FormValue( "username" )
-	if uploaded_username == "" { fmt.Println( "username empty" ); return }
-	if uploaded_username != GlobalConfig.AdminUsername { fmt.Println( "username not correct" ); return }
+	if uploaded_username == "" { log.Println( "username empty" ); return }
+	if uploaded_username != GlobalConfig.AdminUsername { log.Println( "username not correct" ); return }
 	uploaded_password := context.FormValue( "password" )
-	if uploaded_password == "" { fmt.Println( "password empty" ); return }
+	if uploaded_password == "" { log.Println( "password empty" ); return }
 	password_matches := bcrypt.CompareHashAndPassword( []byte( uploaded_password ) , []byte( GlobalConfig.AdminPassword ) )
-	if password_matches != nil { fmt.Println( "bcrypted password doesn't match" ); return }
+	if password_matches != nil { log.Println( "bcrypted password doesn't match" ); return }
 	result = true
 	return
 }
@@ -55,9 +56,9 @@ func HandleLogin( context *fiber.Ctx ) ( error ) {
 func validate_admin_cookie( context *fiber.Ctx ) ( result bool ) {
 	result = false
 	admin_cookie := context.Cookies( "the-masters-closet-admin" )
-	if admin_cookie == "" { fmt.Println( "admin cookie was blank" ); return }
+	if admin_cookie == "" { log.Println( "admin cookie was blank" ); return }
 	admin_cookie_value := encryption.SecretBoxDecrypt( GlobalConfig.BoltDBEncryptionKey , admin_cookie )
-	if admin_cookie_value != GlobalConfig.ServerCookieAdminSecretMessage { fmt.Println( "admin cookie secret message was not equal" ); return }
+	if admin_cookie_value != GlobalConfig.ServerCookieAdminSecretMessage { log.Println( "admin cookie secret message was not equal" ); return }
 	result = true
 	return
 }

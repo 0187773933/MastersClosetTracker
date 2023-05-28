@@ -2,7 +2,6 @@ package user
 
 import (
 	"fmt"
-	"log"
 	// "reflect"
 	// "strconv"
 	"strings"
@@ -14,6 +13,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 	encrypt "github.com/0187773933/MastersClosetTracker/v1/encryption"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
+	log "github.com/0187773933/MastersClosetTracker/v1/log"
 )
 
 type CheckIn struct {
@@ -296,6 +296,7 @@ func ( u *User ) CheckInTest() ( check_in CheckIn ) {
 	check_in.Date = now.Format( "02Jan2006" )
 	check_in.Time = now.Format( "15:04:05.000" )
 
+	var lockout_message string
 	if len( u.CheckIns ) < 1 {
 		check_in.Result = true
 		time_remaining = 0
@@ -304,21 +305,21 @@ func ( u *User ) CheckInTest() ( check_in CheckIn ) {
 		// only comparing the dates , not the times
 		last_check_in := u.CheckIns[ len( u.CheckIns ) - 1 ]
 		last_check_in_date , _ := time.ParseInLocation( "02Jan2006" , last_check_in.Date , now_time_zone )
-		// fmt.Println( "Now ===" , now )
-		// fmt.Println( "Last ===" , last_check_in_date )
+		// log.Debug( "Now ===" , now )
+		// log.Debug( "Last ===" , last_check_in_date )
 
 		cool_off_hours := ( 24 * u.Config.CheckInCoolOffDays )
-		// fmt.Println( "Cooloff Hours ===" , cool_off_hours )
+		// log.Debug( "Cooloff Hours ===" , cool_off_hours )
 		cool_off_duration , _ := time.ParseDuration( fmt.Sprintf( "%dh" , cool_off_hours ) )
-		// fmt.Println( "Cooloff Duration ===" , cool_off_duration )
+		// log.Debug( "Cooloff Duration ===" , cool_off_duration )
 
 		check_in_date_difference := now.Sub( last_check_in_date )
-		// fmt.Println( "Difference ===" , check_in_date_difference )
+		// log.Debug( "Difference ===" , check_in_date_difference )
 
 		// Negative Values Mean The User Has Waited Long Enough
 		// Positive Values Mean the User Still has to wait
 		time_remaining_duration := ( cool_off_duration - check_in_date_difference )
-		// fmt.Println( "Time Remaining ===" , time_remaining_duration )
+		// log.Debug( "Time Remaining ===" , time_remaining_duration )
 
 		if time_remaining_duration < 0 {
 			// "the user waited long enough before checking in again"
@@ -329,9 +330,8 @@ func ( u *User ) CheckInTest() ( check_in CheckIn ) {
 			days_remaining := int( time_remaining_duration.Hours() / 24 )
 			time_remaining_string := time_remaining_duration.String()
 
-			lockout_message := fmt.Sprintf( "The user did NOT wait long enough before checking in again , has to wait : %d days , or %s\n" , days_remaining , time_remaining_string )
-			fmt.Printf( lockout_message )
-			log.Printf( lockout_message )
+			// lockout_message := fmt.Sprintf( "The user did NOT wait long enough before checking in again , has to wait : %d days , or %s" , days_remaining , time_remaining_string )
+			lockout_message = fmt.Sprintf( "=== has to wait : %d days , or %s" , days_remaining , time_remaining_string )
 
 			check_in.Result = false
 			time_remaining = int( time_remaining_duration.Milliseconds() )
@@ -339,6 +339,7 @@ func ( u *User ) CheckInTest() ( check_in CheckIn ) {
 	}
 	u.TimeRemaining = time_remaining
 	u.AllowedToCheckIn = check_in.Result
+	log.PrintlnConsole( "Allowed To Check In ===" , check_in.Result , lockout_message )
 	check_in.Date = strings.ToUpper( check_in.Date )
 	check_in.TimeRemaining = time_remaining
 	return
@@ -347,7 +348,7 @@ func ( u *User ) CheckInTest() ( check_in CheckIn ) {
 func ( u *User ) CheckIn() ( check_in CheckIn ) {
 	check_in = u.CheckInTest()
 	if ( u.AllowedToCheckIn == false ) {
-		fmt.Println( "User timed out" )
+		log.Debug( "User timed out" )
 		u.FailedCheckIns = append( u.FailedCheckIns , check_in )
 		u.Save()
 		return
@@ -362,7 +363,7 @@ func ( u *User ) CheckIn() ( check_in CheckIn ) {
 		// fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait : %d days , or %s\n" , days_remaining , time_remaining_string )
 		// time_remaining = int( time_remaining_duration.Milliseconds() )
 		// new_check_in.TimeRemaining = time_remaining
-		fmt.Println( "time remaining ===" , check_in.TimeRemaining )
+		log.Debug( "time remaining ===" , check_in.TimeRemaining )
 	}
 	u.Save()
 	return
@@ -392,25 +393,25 @@ func ( u *User ) AddBarcode( barcode string ) {
 // 	// 00042
 // 	// 9999999
 // 	db.Update( func( tx *bolt.Tx ) error {
-// 		fmt.Println( "here - 1" )
+// 		log.Debug( "here - 1" )
 // 		misc_bucket , _ := tx.CreateBucketIfNotExists( []byte( "misc" ) )
 // 		vb_index_bucket_value := misc_bucket.Get( []byte( "virtualbarcodeindex" ) )
 // 		// vb_index_int , _ := strconv.Atoi( vb_index )
-// 		fmt.Println( "here - 2" )
+// 		log.Debug( "here - 2" )
 // 		vb_index := 9999999
 // 		if vb_index_bucket_value != nil {
 // 			vb_index , _ = strconv.Atoi( string( vb_index_bucket_value ) )
 // 		}
-// 		fmt.Println( "here - 3" )
+// 		log.Debug( "here - 3" )
 // 		vb_index = vb_index + 1
 // 		barcode = string( vb_index )
 
-// 		fmt.Println( "here - 4" )
+// 		log.Debug( "here - 4" )
 //     	new_bucket_value := make( []byte , 0 )
 //     	new_bucket_value = strconv.AppendInt( new_bucket_value , int64( vb_index ) , 10 )
-// 		fmt.Println( "here - 5" )
+// 		log.Debug( "here - 5" )
 // 		misc_bucket.Put( []byte( "virtualbarcodeindex" ) , new_bucket_value )
-// 		fmt.Println( "here - 6" )
+// 		log.Debug( "here - 6" )
 
 // 		// we just have to save the user here
 // 		u.Barcodes = append( u.Barcodes , barcode )
@@ -478,7 +479,7 @@ func UserNameExists( username string , db *bolt.DB ) ( result bool , uuid string
 	result = false
 	db.Update( func( tx *bolt.Tx ) error {
 		bucket , tx_error := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
-		if tx_error != nil { fmt.Println( tx_error ); return nil }
+		if tx_error != nil { log.Debug( tx_error ); return nil }
 		bucket_value := bucket.Get( []byte( username ) )
 		if bucket_value == nil { return nil }
 		result = true
@@ -495,7 +496,7 @@ func GetByUUID( user_uuid string , db *bolt.DB , encryption_key string ) ( viewe
 		bucket_value := bucket.Get( []byte( user_uuid ) )
 		if bucket_value == nil { return nil }
 		decrypted_bucket_value := encrypt.ChaChaDecryptBytes( encryption_key , bucket_value )
-		// fmt.Println( string( decrypted_bucket_value ) )
+		// log.Debug( string( decrypted_bucket_value ) )
 		json.Unmarshal( decrypted_bucket_value , &viewed_user )
 		return nil
 	})
@@ -510,7 +511,7 @@ func GetViaUUID( user_uuid string , config *types.ConfigFile ) ( viewed_user Use
 		bucket_value := bucket.Get( []byte( user_uuid ) )
 		if bucket_value == nil { return nil }
 		decrypted_bucket_value := encrypt.ChaChaDecryptBytes( config.BoltDBEncryptionKey , bucket_value )
-		// fmt.Println( string( decrypted_bucket_value ) )
+		// log.Debug( string( decrypted_bucket_value ) )
 		json.Unmarshal( decrypted_bucket_value , &viewed_user )
 		return nil
 	})
@@ -569,7 +570,7 @@ func CheckInTest( user_uuid string , db *bolt.DB , encryption_key string , cool_
 		json.Unmarshal( decrypted_bucket_value , &viewed_user )
 		return nil
 	})
-	if viewed_user.UUID == "" { fmt.Println( "user UUID doesn't exist" ); result = false; return }
+	if viewed_user.UUID == "" { log.Debug( "user UUID doesn't exist" ); result = false; return }
 
 	// 2.) Test if Check-In is possible
 	var new_check_in CheckIn
@@ -586,21 +587,21 @@ func CheckInTest( user_uuid string , db *bolt.DB , encryption_key string , cool_
 		// only comparing the dates , not the times
 		last_check_in := viewed_user.CheckIns[ len( viewed_user.CheckIns ) - 1 ]
 		last_check_in_date , _ := time.ParseInLocation( "02Jan2006" , last_check_in.Date , now_time_zone )
-		fmt.Println( "Now ===" , now )
-		fmt.Println( "Last ===" , last_check_in_date )
+		log.Debug( "Now ===" , now )
+		log.Debug( "Last ===" , last_check_in_date )
 
 		cool_off_hours := ( 24 * cool_off_days )
-		fmt.Println( "Cooloff Hours ===" , cool_off_hours )
+		log.Debug( "Cooloff Hours ===" , cool_off_hours )
 		cool_off_duration , _ := time.ParseDuration( fmt.Sprintf( "%dh" , cool_off_hours ) )
-		fmt.Println( "Cooloff Duration ===" , cool_off_duration )
+		log.Debug( "Cooloff Duration ===" , cool_off_duration )
 
 		check_in_date_difference := now.Sub( last_check_in_date )
-		fmt.Println( "Difference ===" , check_in_date_difference )
+		log.Debug( "Difference ===" , check_in_date_difference )
 
 		// Negative Values Mean The User Has Waited Long Enough
 		// Positive Values Mean the User Still has to wait
 		time_remaining_duration := ( cool_off_duration - check_in_date_difference )
-		fmt.Println( "Time Remaining ===" , time_remaining_duration )
+		log.Debug( "Time Remaining ===" , time_remaining_duration )
 
 		if time_remaining_duration < 0 {
 			// "the user waited long enough before checking in again"
@@ -638,7 +639,7 @@ func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_
 		json.Unmarshal( decrypted_bucket_value , &viewed_user )
 		return nil
 	})
-	if viewed_user.UUID == "" { fmt.Println( "user UUID doesn't exist" ); result = false; return }
+	if viewed_user.UUID == "" { log.Debug( "user UUID doesn't exist" ); result = false; return }
 	var new_check_in CheckIn
 	now := time.Now()
 	now_time_zone := now.Location()
@@ -655,21 +656,21 @@ func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_
 		// only comparing the dates , not the times
 		last_check_in := viewed_user.CheckIns[ len( viewed_user.CheckIns ) - 1 ]
 		last_check_in_date , _ := time.ParseInLocation( "02Jan2006" , last_check_in.Date , now_time_zone )
-		fmt.Println( "Now/New ===" , now )
-		fmt.Println( "Last ===" , last_check_in_date )
+		log.Debug( "Now/New ===" , now )
+		log.Debug( "Last ===" , last_check_in_date )
 
 		cool_off_hours := ( 24 * cool_off_days )
-		fmt.Println( "Cooloff Hours ===" , cool_off_hours )
+		log.Debug( "Cooloff Hours ===" , cool_off_hours )
 		cool_off_duration , _ := time.ParseDuration( fmt.Sprintf( "%dh" , cool_off_hours ) )
-		fmt.Println( "Cooloff Duration ===" , cool_off_duration )
+		log.Debug( "Cooloff Duration ===" , cool_off_duration )
 
 		check_in_date_difference := now.Sub( last_check_in_date )
-		fmt.Println( "Difference ===" , check_in_date_difference )
+		log.Debug( "Difference ===" , check_in_date_difference )
 
 		// Negative Values Mean The User Has Waited Long Enough
 		// Positive Values Mean the User Still has to wait
 		time_remaining_duration := ( cool_off_duration - check_in_date_difference )
-		fmt.Println( "Time Remaining ===" , time_remaining_duration )
+		log.Debug( "Time Remaining ===" , time_remaining_duration )
 
 		if time_remaining_duration < 0 {
 			// "the user waited long enough before checking in again"

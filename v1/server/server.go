@@ -9,11 +9,10 @@ import (
 	favicon "github.com/gofiber/fiber/v2/middleware/favicon"
 	// try "github.com/manucorporat/try"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
-	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
 	user_routes "github.com/0187773933/MastersClosetTracker/v1/server/routes/user"
 	admin_routes "github.com/0187773933/MastersClosetTracker/v1/server/routes/admin"
 	// "os"
-	"log"
+	log "github.com/0187773933/MastersClosetTracker/v1/log"
 )
 
 var GlobalConfig *types.ConfigFile
@@ -24,12 +23,12 @@ type Server struct {
 }
 
 func request_logging_middleware( context *fiber.Ctx ) ( error ) {
-	time_string := utils.GetFormattedTimeString()
 	ip_address := context.Get( "x-forwarded-for" )
 	if ip_address == "" { ip_address = context.IP() }
 	// log_message := fmt.Sprintf( "%s === %s === %s === %s === %s" , time_string , GlobalConfig.FingerPrint , ip_address , context.Method() , context.Path() )
-	log_message := fmt.Sprintf( "%s === %s === %s === %s" , time_string , GlobalConfig.FingerPrint , context.Method() , context.Path() )
-	fmt.Println( log_message )
+	// log_message := fmt.Sprintf( "%s === %s === %s === %s" , time_string , GlobalConfig.FingerPrint , context.Method() , context.Path() )
+	log_message := fmt.Sprintf( "%s === %s" , context.Method() , context.Path() )
+	// fmt.Println( log_message )
 	log.Println( log_message )
 	return context.Next()
 }
@@ -92,7 +91,7 @@ func ( s *Server ) SetupRoutes() {
 
 func ( s *Server ) Start() {
 	fmt.Println( "\n" )
-	fmt.Printf( "Listening on http://localhost:%s\n" , s.Config.ServerPort )
+	log.PrintfConsole( "Listening on http://localhost:%s\n" , s.Config.ServerPort )
 	fmt.Printf( "Admin Login @ http://localhost:%s/admin/login\n" , s.Config.ServerPort )
 	fmt.Printf( "Admin Username === %s\n" , s.Config.AdminUsername )
 	fmt.Printf( "Admin Password === %s\n" , s.Config.AdminPassword )

@@ -1,9 +1,6 @@
 package main
 
 import (
-	"log"
-	lumberjack "github.com/natefinch/lumberjack"
-	"time"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,6 +8,7 @@ import (
 	"path/filepath"
 	server "github.com/0187773933/MastersClosetTracker/v1/server"
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
+	log "github.com/0187773933/MastersClosetTracker/v1/log"
 )
 
 var s server.Server
@@ -20,10 +18,8 @@ func SetupCloseHandler() {
 	signal.Notify( c , os.Interrupt , syscall.SIGTERM , syscall.SIGINT )
 	go func() {
 		<-c
-		fmt.Println( "\r- Ctrl+C pressed in Terminal" )
-		log.Println( "\r- Ctrl+C pressed in Terminal" )
-		fmt.Println( "Shutting Down Master's Closet Tracking Server" )
-		log.Println( "Shutting Down Master's Closet Tracking Server" )
+		log.PrintlnConsole( "\r- Ctrl+C pressed in Terminal" )
+		log.PrintlnConsole( "Shutting Down Master's Closet Tracking Server" )
 		s.FiberApp.Shutdown()
 		os.Exit( 0 )
 	}()
@@ -37,18 +33,8 @@ func main() {
 	config := utils.ParseConfig( config_file_path )
 	config.FingerPrint = utils.FingerPrint( &config )
 	fmt.Println( config )
-
-	prepended_timestamp := time.Now().Format( "20060102" )
-	log.SetFlags( 0 )
-	log.SetOutput( &lumberjack.Logger{
-		Filename: fmt.Sprintf( "./logs/%s-%s.log" , prepended_timestamp , config.FingerPrint ) ,
-		MaxSize: 100 , // megabytes
-		// MaxBackups: 3 ,   // number of backups
-		MaxAge: 1 , // days
-		Compress: true , // compress the rotated log files
-	})
-
-	log.Println( "Starting Server" )
+	log.Init( config )
+	log.PrintlnConsole( "Starting Server" )
 	s = server.New( config )
 	s.Start()
 }

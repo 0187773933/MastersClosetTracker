@@ -1,7 +1,7 @@
 package adminroutes
 
 import (
-	"fmt"
+	// "fmt"
 	"bytes"
 	"time"
 	"strings"
@@ -12,6 +12,7 @@ import (
 	bleve "github.com/blevesearch/bleve/v2"
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
 	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
+	log "github.com/0187773933/MastersClosetTracker/v1/log"
 )
 
 func UserSearch( context *fiber.Ctx ) ( error ) {
@@ -34,7 +35,7 @@ func UserSearch( context *fiber.Ctx ) ( error ) {
 		})
 		return nil
 	})
-	fmt.Printf( "Searched : %s || Result === %s\n" , formated_username , found_uuid )
+	log.Printf( "Searched : %s || Result === %s\n" , formated_username , found_uuid )
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/search/username/:username" ,
 		"result": found_uuid ,

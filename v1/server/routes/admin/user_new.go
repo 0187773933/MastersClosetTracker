@@ -18,6 +18,7 @@ import (
 	// encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
 	bleve "github.com/blevesearch/bleve/v2"
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
+	log "github.com/0187773933/MastersClosetTracker/v1/log"
 )
 
 func ProcessNewUserForm( context *fiber.Ctx ) ( new_user user.User ) {
@@ -105,7 +106,7 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 
 	// Treat this as a Temp User
 	if viewed_user.Identity.FirstName == "" && viewed_user.Identity.MiddleName == "" && viewed_user.Identity.LastName == "" {
-		fmt.Println( "this was a temp user" )
+		// log.PrintlnConsole( "this was a temp user" )
 		viewed_user.Identity.FirstName = "Temp"
 		temp_id := aaa.Generate( 1 , &aaa.Options{} )
 		viewed_user.Identity.MiddleName = strings.Title( temp_id[ 0 ] )
@@ -115,7 +116,7 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 	viewed_user.FormatUsername()
 
 	new_user := user.New( viewed_user.Username , GlobalConfig )
-	fmt.Println( new_user )
+	log.Println( new_user )
 
 	viewed_user.UUID = new_user.UUID
 	viewed_user.CreatedDate = new_user.CreatedDate
@@ -129,8 +130,10 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 		UUID: new_user.UUID ,
 		Name: viewed_user.NameString ,
 	}
-	fmt.Printf( "Updating Search Index with : %s\n" , viewed_user.NameString )
+	log.Printf( "Updating Search Index with : %s\n" , viewed_user.NameString )
 	search_index.Index( new_user.UUID , search_item )
+
+	log.PrintlnConsole( "Created New User :" , viewed_user.NameString )
 
 	// viewed_user.Save();
 	return context.JSON( fiber.Map{
