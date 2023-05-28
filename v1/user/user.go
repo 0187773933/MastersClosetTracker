@@ -339,7 +339,8 @@ func ( u *User ) CheckInTest() ( check_in CheckIn ) {
 	}
 	u.TimeRemaining = time_remaining
 	u.AllowedToCheckIn = check_in.Result
-	log.PrintlnConsole( "Allowed To Check In ===" , check_in.Result , lockout_message )
+	// log.PrintlnConsole( u.NameString , "===" , "Allowed To Check In ===" , check_in.Result , lockout_message )
+	log.PrintlnConsole( u.UUID , "===" , "Allowed To Check In ===" , check_in.Result , lockout_message )
 	check_in.Date = strings.ToUpper( check_in.Date )
 	check_in.TimeRemaining = time_remaining
 	return
