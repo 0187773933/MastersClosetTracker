@@ -34,7 +34,6 @@ func main() {
 	config.FingerPrint = utils.FingerPrint( &config )
 	fmt.Println( config )
 	log.Init( config )
-	log.PrintlnConsole( "Starting Server" )
 	s = server.New( config )
 	s.Start()
 }
