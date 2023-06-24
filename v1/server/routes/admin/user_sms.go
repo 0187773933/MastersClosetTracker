@@ -2,6 +2,8 @@ package adminroutes
 
 import (
 	"fmt"
+	"strings"
+	"regexp"
 	time "time"
 	json "encoding/json"
 	fiber "github.com/gofiber/fiber/v2"
@@ -10,7 +12,16 @@ import (
 	encryption "github.com/0187773933/MastersClosetTracker/v1/encryption"
 	twilio "github.com/sfreiberg/gotwilio"
 	log "github.com/0187773933/MastersClosetTracker/v1/log"
+	try "github.com/manucorporat/try"
 )
+
+
+func validate_us_phone_number( input string ) ( result string ) {
+	input = strings.ReplaceAll( input , "-" , "" )
+	r := regexp.MustCompile( "^\\+1[0-9]{10}$" )
+	if !r.MatchString( input ) { result = "" } else { result = input }
+	return result
+}
 
 func SMSAllUsers( context *fiber.Ctx ) ( error ) {
 	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
@@ -30,9 +41,19 @@ func SMSAllUsers( context *fiber.Ctx ) ( error ) {
 			if viewed_user.PhoneNumber == "" { return nil; }
 
 			to_number := fmt.Sprintf( "+1%s" , viewed_user.PhoneNumber )
+			validated_phone := validate_us_phone_number( to_number )
+			if validated_phone == "" {
+				log.PrintlnConsole( "%s Has an Invalid phone number: %s" , viewed_user.NameString , to_number )
+				return nil
+			}
 			// https://github.com/sfreiberg/gotwilio/blob/master/sms.go#L12
-			result , _ , _ := twilio_client.SendSMS( GlobalConfig.TwilioSMSFromNumber , to_number , sms_message , "" , "" )
-			log.Printf( "%s === %s\n" , to_number , result.Status )
+			try.This( func() {
+				result , _ , _ := twilio_client.SendSMS( GlobalConfig.TwilioSMSFromNumber , to_number , sms_message , "" , "" )
+				log.PrintfConsole( "Texting === %s === %s\n" , validated_phone , result.Status )
+			}).Catch(func(e try.E) {
+				log.PrintfConsole( "Failed to Text === %s === %s\n" , viewed_user.NameString , validated_phone )
+			})
+
 			return nil
 		})
 		return nil

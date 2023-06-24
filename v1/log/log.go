@@ -47,19 +47,16 @@ func Println( args ...interface{} ) {
 	log.Println( args... )
 }
 
-func PrintlnConsole( args ...interface{} ) {
-	time_string := utils.GetFormattedTimeString()
-	args = append( []interface{}{ time_string , "===" } , args... )
-	// fields := logrus.Fields{ "time": time_string , }
-	// log.Logrus.WithFields( fields ).Println( args... )
-	// log.Logrus.Println( args... )
-	log.Println( args... )
-	fmt.Println( args... )
+func PrintlnConsole(format string, args ...interface{}) {
+    time_string := utils.GetFormattedTimeString()
+    msg := fmt.Sprintf(format, args...)
+    log.Println(time_string, "===", msg)
+    fmt.Println(time_string, "===", msg)
 }
 
 func Printf( format_string string , args ...interface{} ) {
 	time_string := utils.GetFormattedTimeString()
-	sent_format := fmt.Sprintf( format_string , args )
+	sent_format := fmt.Sprintf( format_string , args... )
 	log.Printf( "%s === %s" , time_string , sent_format )
 }
 
