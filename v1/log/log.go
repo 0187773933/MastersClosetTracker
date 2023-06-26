@@ -25,6 +25,7 @@ func Init( config types.ConfigFile ) {
 		MaxAge: 1 , // days
 		Compress: true , // compress the rotated log files
 	}
+	defer rotator.Close()
 	// mw := io.MultiWriter( os.Stdout , rotator )
 	// log = Logger{}
 	// log.Logrus = logrus.New()
@@ -47,11 +48,14 @@ func Println( args ...interface{} ) {
 	log.Println( args... )
 }
 
-func PrintlnConsole(format string, args ...interface{}) {
-    time_string := utils.GetFormattedTimeString()
-    msg := fmt.Sprintf(format, args...)
-    log.Println(time_string, "===", msg)
-    fmt.Println(time_string, "===", msg)
+func PrintlnConsole(args ...interface{}) {
+	if len(args) < 1 { return }
+	time_string := utils.GetFormattedTimeString()
+	final_msg := make( []interface{} , 0 )
+	final_msg = append( final_msg , time_string , "===" )
+	final_msg = append( final_msg , args... )
+	log.Println( final_msg... )
+	fmt.Println( final_msg... )
 }
 
 func Printf( format_string string , args ...interface{} ) {

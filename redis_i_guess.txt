@@ -1,0 +1,191 @@
+Searching 66 files for "defer db.Close()"
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/test/bleve_init/main.go:
+   18  	bolt_db_path := "/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/mct.db"
+   19  	db , _ := bolt_api.Open( bolt_db_path , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   20: 	defer db.Close()
+   21
+   22  	index_path := "/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/mct.bleve"
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/test/empty/main.go:
+   25  	// bolt_db_key := ""
+   26  	db , _ := bolt_api.Open( bolt_db_path , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   27: 	defer db.Close()
+   28
+   29  	db.Update( func( tx *bolt_api.Tx ) error {
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/test/namestring/main.go:
+   16  	bolt_db_key := ""
+   17  	db , _ := bolt_api.Open( bolt_db_path , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   18: 	defer db.Close()
+   19
+   20  	db.Update( func( tx *bolt_api.Tx ) error {
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/test/print/main.go:
+   27  	bolt_db_key := ""
+   28  	db , _ := bolt_api.Open( bolt_db_path , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   29: 	defer db.Close()
+   30
+   31  	user_uuid := ""
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/v1/server/routes/admin/user_checkin.go:
+   62  	// 1.) Prep
+   63  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   64: 	defer db.Close()
+   65
+   66  	// 2.) Grab the User
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/v1/server/routes/admin/user_delete.go:
+   19
+   20  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   21: 	defer db.Close()
+   22  	viewed_user := user.GetByUUID( user_uuid , db , GlobalConfig.BoltDBEncryptionKey )
+   23  	db.Update( func( tx *bolt_api.Tx ) error {
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/v1/server/routes/admin/user_email.go:
+   18
+   19  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   20: 	defer db.Close()
+   21  	db.View( func( tx *bolt_api.Tx ) error {
+   22  		bucket := tx.Bucket( []byte( "users" ) )
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/v1/server/routes/admin/user_get.go:
+   17  	user_uuid := context.Params( "uuid" )
+   18  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   19: 	defer db.Close()
+   20  	viewed_user := user.GetByUUID( user_uuid , db , GlobalConfig.BoltDBEncryptionKey )
+   21  	log.PrintlnConsole( viewed_user.UUID , "===" , "Selected" )
+   ..
+   29  	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+   30  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   31: 	defer db.Close()
+   32  	barcode := context.Params( "barcode" )
+   33  	var viewed_user user.User
+   ..
+   53
+   54  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   55: 	defer db.Close()
+   56
+   57  	var result []user.GetUserResult
+   ..
+   83
+   84  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   85: 	defer db.Close()
+   86
+   87  	var result [][]user.CheckIn
+   ..
+  109
+  110  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+  111: 	defer db.Close()
+  112
+  113  	var result [][]string
+  ...
+  135
+  136  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+  137: 	defer db.Close()
+  138
+  139  	var result [][]string
+  ...
+  166
+  167  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+  168: 	defer db.Close()
+  169
+  170  	var result []UserBarcodeData
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/v1/server/routes/admin/user_reports.go:
+   23
+   24  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   25: 	defer db.Close()
+   26
+   27  	// Get Data from DB
+   ..
+   88
+   89  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   90: 	defer db.Close()
+   91
+   92  	var csv_lines [][]string
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/v1/server/routes/admin/user_search.go:
+   24  	formated_username_bytes := []byte( formated_username )
+   25  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   26: 	defer db.Close()
+   27
+   28  	found_uuid := "not found"
+   ..
+   70
+   71  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   72: 	defer db.Close()
+   73
+   74  	var search_results_users []user.User
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/v1/server/routes/admin/user_sms.go:
+   32
+   33  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   34: 	defer db.Close()
+   35  	db.View( func( tx *bolt_api.Tx ) error {
+   36  		bucket := tx.Bucket( []byte( "users" ) )
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/v1/server/routes/user/user_routes.go:
+   71  func LoginFresh( context *fiber.Ctx ) ( error ) {
+   72  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+   73: 	defer db.Close()
+   74
+   75  	x_user_uuid := context.Params( "uuid" )
+   ..
+  102  	x_user_uuid := context.Params( "uuid" )
+  103  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+  104: 	defer db.Close()
+  105  	check_in_result , milliseconds_remaining , balance , name_string , family_size := user.CheckInTest( x_user_uuid , db , GlobalConfig.BoltDBEncryptionKey , GlobalConfig.CheckInCoolOffDays )
+  106  	return context.JSON( fiber.Map{
+  ...
+  121
+  122  	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+  123: 	defer db.Close()
+  124
+  125  	// validate they have a stored user cookie
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/v1/user/user.go:
+  140  func ( u *User ) UpdateSelfFromDB() {
+  141  	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+  142: 	defer db.Close()
+  143  	db_result := db.View( func( tx *bolt.Tx ) error {
+  144  		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
+  ...
+  155  	byte_object_encrypted := encrypt.ChaChaEncryptBytes( u.Config.BoltDBEncryptionKey , byte_object )
+  156  	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+  157: 	defer db.Close()
+  158  	var existing_user *User
+  159  	u.FormatUsername()
+  ...
+  203  	// byte_object_encrypted := encrypt.ChaChaEncryptBytes( u.Config.BoltDBEncryptionKey , byte_object )
+  204  	// db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+  205: 	// defer db.Close()
+  206  	// db_result := db.Update( func( tx *bolt.Tx ) error {
+  207  	// 	users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
+  ...
+  289  	time_remaining := -1
+  290  	// db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+  291: 	// defer db.Close()
+  292
+  293  	// 2.) Test if Check-In is possible
+  ...
+  390
+  391  // 	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+  392: // 	defer db.Close()
+  393
+  394  // 	// 00042
+  ...
+  507  func GetViaUUID( user_uuid string , config *types.ConfigFile ) ( viewed_user User ) {
+  508  	db , _ := bolt.Open( config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
+  509: 	defer db.Close()
+  510  	db.View( func( tx *bolt.Tx ) error {
+  511  		bucket := tx.Bucket( []byte( "users" ) )
+
+/Users/morpheous/WORKSPACE/GO/MastersClosetTracker/v1/utils/utils.go:
+  208
+  209  	db , _ := bolt_api.Open( config.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+  210: 	defer db.Close()
+  211
+  212  	x_cpu_info := _finger_print_cpu()
+
+29 matches across 14 files

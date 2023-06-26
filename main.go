@@ -18,7 +18,7 @@ func SetupCloseHandler() {
 	signal.Notify( c , os.Interrupt , syscall.SIGTERM , syscall.SIGINT )
 	go func() {
 		<-c
-		log.PrintlnConsole( "\r- Ctrl+C pressed in Terminal" )
+		fmt.Println( "\r- Ctrl+C pressed in Terminal" )
 		log.PrintlnConsole( "Shutting Down Master's Closet Tracking Server" )
 		s.FiberApp.Shutdown()
 		os.Exit( 0 )
