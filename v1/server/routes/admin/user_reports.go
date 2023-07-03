@@ -19,7 +19,7 @@ import (
 // https://mailchimp.com/help/import-contacts-mailchimp/
 // https://mailchimp.com/help/format-guidelines-for-your-import-file/#Email_address
 func GetReportMailChimp( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
 
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
@@ -84,7 +84,7 @@ func its( i int ) ( s string ) {
 }
 
 func GetReportMain( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
 
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()

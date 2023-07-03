@@ -53,7 +53,7 @@ func _att( user_item *int , amount int ) {
 
 // We changed this to a POST Form , so now we have to parse it
 func UserCheckIn( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
 
 	var balance_form CheckInBalanceForm
 	json.Unmarshal( []byte( context.Body() ), &balance_form )
@@ -183,7 +183,7 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 }
 
 func UserCheckInTest( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
 	x_user_uuid := context.Params( "uuid" )
 	x_user := user.GetViaUUID( x_user_uuid , GlobalConfig )
 	check_in_test := x_user.CheckInTest()

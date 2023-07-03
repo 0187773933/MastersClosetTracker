@@ -15,8 +15,8 @@ import (
 	try "github.com/manucorporat/try"
 )
 
-
 func validate_us_phone_number( input string ) ( result string ) {
+	if !strings.HasPrefix( input , "+1" ) { input = fmt.Sprintf( "+1%s" , input ) }
 	input = strings.ReplaceAll( input , "-" , "" )
 	r := regexp.MustCompile( "^\\+1[0-9]{10}$" )
 	if !r.MatchString( input ) { result = "" } else { result = input }
@@ -24,11 +24,17 @@ func validate_us_phone_number( input string ) ( result string ) {
 }
 
 func SMSAllUsers( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
 	// fmt.Println( context.GetReqHeaders() )
 	sms_message := context.FormValue( "sms_message" )
 
 	twilio_client := twilio.NewTwilioClient( GlobalConfig.TwilioClientID , GlobalConfig.TwilioAuthToken )
+
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/sms/all" ,
+		"sms_message": sms_message ,
+		"result": "success" ,
+	})
 
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
@@ -40,15 +46,14 @@ func SMSAllUsers( context *fiber.Ctx ) ( error ) {
 			json.Unmarshal( decrypted_bucket_value , &viewed_user )
 			if viewed_user.PhoneNumber == "" { return nil; }
 
-			to_number := fmt.Sprintf( "+1%s" , viewed_user.PhoneNumber )
-			validated_phone := validate_us_phone_number( to_number )
+			validated_phone := validate_us_phone_number( viewed_user.PhoneNumber )
 			if validated_phone == "" {
-				log.PrintlnConsole( "%s Has an Invalid phone number: %s" , viewed_user.NameString , to_number )
+				log.PrintlnConsole( "%s Has an Invalid phone number: %s" , viewed_user.NameString , viewed_user.PhoneNumber )
 				return nil
 			}
 			// https://github.com/sfreiberg/gotwilio/blob/master/sms.go#L12
 			try.This( func() {
-				result , _ , _ := twilio_client.SendSMS( GlobalConfig.TwilioSMSFromNumber , to_number , sms_message , "" , "" )
+				result , _ , _ := twilio_client.SendSMS( GlobalConfig.TwilioSMSFromNumber , viewed_user.PhoneNumber , sms_message , "" , "" )
 				log.PrintfConsole( "Texting === %s === %s\n" , validated_phone , result.Status )
 			}).Catch(func(e try.E) {
 				log.PrintfConsole( "Failed to Text === %s === %s\n" , viewed_user.NameString , validated_phone )
@@ -62,6 +67,41 @@ func SMSAllUsers( context *fiber.Ctx ) ( error ) {
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/sms/all" ,
 		"sms_message": sms_message ,
+		"result": "success" ,
+	})
+}
+
+
+func SMSUser( context *fiber.Ctx ) ( error ) {
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
+	// fmt.Println( context.GetReqHeaders() )
+	sms_message := context.FormValue( "sms_message" )
+	sms_number := context.FormValue( "sms_number" )
+	validated_phone := validate_us_phone_number( sms_number )
+
+	twilio_client := twilio.NewTwilioClient( GlobalConfig.TwilioClientID , GlobalConfig.TwilioAuthToken )
+
+	if validated_phone == "" {
+		log.PrintlnConsole( "Invalid phone number: %s" , sms_number )
+		return context.JSON( fiber.Map{
+			"route": "/admin/user/sms" ,
+			"sms_message": sms_message ,
+			"to_number": sms_number ,
+			"result": "invalid phone number" ,
+		})
+	}
+	// https://github.com/sfreiberg/gotwilio/blob/master/sms.go#L12
+	try.This( func() {
+		result , _ , _ := twilio_client.SendSMS( GlobalConfig.TwilioSMSFromNumber , sms_number , sms_message , "" , "" )
+		log.PrintfConsole( "Texting === %s === %s\n" , validated_phone , result.Status )
+	}).Catch(func(e try.E) {
+		log.PrintfConsole( "Failed to Text === %s\n" , validated_phone )
+	})
+
+	return context.JSON( fiber.Map{
+		"route": "/admin/user/sms" ,
+		"sms_message": sms_message ,
+		"to_number": validated_phone ,
 		"result": "success" ,
 	})
 }

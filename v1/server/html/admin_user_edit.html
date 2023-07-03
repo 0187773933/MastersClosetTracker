@@ -7,6 +7,9 @@
 		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js" integrity="sha256-xUHvBjJ4hahBW8qN9gceFBibSFUzbe9PNttUvehITzY=" crossorigin="anonymous"></script>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css">
+		<script src="/cdn/api.js" crossorigin="anonymous"></script>
+<!-- 		<script src="/cdn/utils.js" crossorigin="anonymous"></script>
+		<script src="/cdn/ui.js" crossorigin="anonymous"></script> -->
 	</head>
 	<body>
 		<div class="container">
@@ -275,24 +278,24 @@
 					element.value = '';
 				}
 			}
-			function check_if_username_exists() {
-				return new Promise( async function( resolve , reject ) {
-					try {
-						let form = document.getElementById( "user-edit-form" );
-						let first_name = form.elements[ "user_first_name" ].value;
-						let last_name = form.elements[ "user_last_name" ].value;
-						let username_exists_url = `/admin/user/check/username?fn=${first_name}&ln=${last_name}`;
-						let username_exists_response = await fetch( username_exists_url , {
-							method: "GET" ,
-							headers: { "Content-Type": "application/json" }
-						});
-						let username_exists = await username_exists_response.json();
-						resolve( username_exists[ "result" ] );
-						return;
-					}
-					catch( error ) { console.log( error ); reject( error ); return; }
-				});
-			}
+			// function check_if_username_exists() {
+			// 	return new Promise( async function( resolve , reject ) {
+			// 		try {
+			// 			let form = document.getElementById( "user-edit-form" );
+			// 			let first_name = form.elements[ "user_first_name" ].value;
+			// 			let last_name = form.elements[ "user_last_name" ].value;
+			// 			let username_exists_url = `/admin/user/check/username?fn=${first_name}&ln=${last_name}`;
+			// 			let username_exists_response = await fetch( username_exists_url , {
+			// 				method: "GET" ,
+			// 				headers: { "Content-Type": "application/json" }
+			// 			});
+			// 			let username_exists = await username_exists_response.json();
+			// 			resolve( username_exists[ "result" ] );
+			// 			return;
+			// 		}
+			// 		catch( error ) { console.log( error ); reject( error ); return; }
+			// 	});
+			// }
 			function show_user_exists_toast() {
 				// https://getbootstrap.com/docs/5.3/components/toasts/
 				let error_toast_element = document.getElementById( "user-exists-error" );
@@ -325,10 +328,8 @@
 				form_data.append( "editing_uuid" , window.passed_uuid );
 				let total_barcodes = document.querySelectorAll( ".user-barcode" ).length;
 				form_data.append( "total_barcodes" , total_barcodes );
-				let form_post_response = await fetch( "/admin/user/edit" , { method: "POST" , body: form_data });
-				let form_post_response_json = await form_post_response.json();
-				if ( !form_post_response_json[ "result" ] ) { return false; }
-				return form_post_response_json[ "result" ];
+				let result = await api_submit_form( "https://live.masterscloset.cc/admin/user/edit" , form_data )
+				return result;
 			}
 			async function on_submit( event ) {
 				event.preventDefault();

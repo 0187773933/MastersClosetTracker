@@ -5,6 +5,7 @@ import (
 	"time"
 	fiber "github.com/gofiber/fiber/v2"
 	fiber_cookie "github.com/gofiber/fiber/v2/middleware/encryptcookie"
+	fiber_cors "github.com/gofiber/fiber/v2/middleware/cors"
 	rate_limiter "github.com/gofiber/fiber/v2/middleware/limiter"
 	favicon "github.com/gofiber/fiber/v2/middleware/favicon"
 	// try "github.com/manucorporat/try"
@@ -73,10 +74,15 @@ func New( config types.ConfigFile ) ( server Server ) {
 		Key: server.Config.ServerCookieSecret ,
 		// Key: temp_key ,
 	}))
+
+    server.FiberApp.Use( fiber_cors.New( fiber_cors.Config{
+		AllowOrigins: server.Config.ServerBaseUrl ,
+    }))
+
 	// server.FiberApp.Static( "/cdn" , "./v1/server/cdn" )
 	// just white-list static stuff
 	server.FiberApp.Get( "/logo.png" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/logo.png" ) } )
-	server.FiberApp.Get( "/cdn/api.js" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/api.js" ) } )
+	// server.FiberApp.Get( "/cdn/api.js" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/api.js" ) } )
 	server.FiberApp.Get( "/cdn/utils.js" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/utils.js" ) } )
 	server.FiberApp.Get( "/cdn/ui.js" , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/ui.js" ) } )
 	server.SetupRoutes()

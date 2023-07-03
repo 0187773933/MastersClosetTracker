@@ -16,7 +16,7 @@ import (
 )
 
 func UserSearch( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
 
 	username := context.Params( "username" )
 	escaped_username , _ := net_url.QueryUnescape( username )
@@ -43,7 +43,7 @@ func UserSearch( context *fiber.Ctx ) ( error ) {
 }
 
 func UserSearchFuzzy( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
 
 	username := context.Params( "username" )
 	escaped_username , _ := net_url.QueryUnescape( username )

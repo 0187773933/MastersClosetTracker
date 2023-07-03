@@ -29,7 +29,7 @@ func ServeLoginPage( context *fiber.Ctx ) ( error ) {
 }
 
 func ServeAuthenticatedPage( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
 	x_path := context.Route().Path
 	url_key := strings.Split( x_path , "/admin" )
 	if len( url_key ) < 2 { return context.SendFile( "./v1/server/html/admin_login.html" ) }
@@ -38,7 +38,7 @@ func ServeAuthenticatedPage( context *fiber.Ctx ) ( error ) {
 }
 
 func PrintTest( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
 	printer.PrintTicket( GlobalConfig.Printer , printer.PrintJob{
 		FamilySize: 5 ,
 		TotalClothingItems: 23 ,

@@ -10,7 +10,7 @@ import (
 )
 
 func DeleteUser( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
 	user_uuid := context.Params( "uuid" )
 
 	search_index , _ := bleve.Open( GlobalConfig.BleveSearchPath )

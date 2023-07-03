@@ -62,3 +62,30 @@ func validate_admin_cookie( context *fiber.Ctx ) ( result bool ) {
 	result = true
 	return
 }
+
+func validate_admin_session( context *fiber.Ctx ) ( result bool ) {
+	result = false
+	admin_cookie := context.Cookies( "the-masters-closet-admin" )
+	if admin_cookie != "" {
+		admin_cookie_value := encryption.SecretBoxDecrypt( GlobalConfig.BoltDBEncryptionKey , admin_cookie )
+		if admin_cookie_value == GlobalConfig.ServerCookieAdminSecretMessage {
+			result = true
+			return
+		}
+	}
+	admin_api_key_header := context.Get( "key" )
+	if admin_api_key_header != "" {
+		if admin_api_key_header == GlobalConfig.ServerAPIKey {
+			result = true
+			return
+		}
+	}
+	admin_api_key_query := context.Query( "k" )
+	if admin_api_key_query != "" {
+		if admin_api_key_query == GlobalConfig.ServerAPIKey {
+			result = true
+			return
+		}
+	}
+	return
+}

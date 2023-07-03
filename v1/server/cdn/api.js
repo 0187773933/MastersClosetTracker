@@ -1,10 +1,13 @@
-function check_in_uuid( uuid , balance_form_data ) {
+const ServerAPIKey = "f8964567e3280c5e4ab0f028aa18e61b";
+
+function api_check_in_uuid( uuid , balance_form_data ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
 			let json_balance_form_data = JSON.stringify( balance_form_data );
-			let check_in_url = `/admin/user/checkin/${uuid}`;
+			let check_in_url = `https://live.masterscloset.cc/admin/user/checkin/${uuid}`;
 			let check_in_response = await fetch( check_in_url , {
 				method: "POST" ,
+				headers: { "key": ServerAPIKey } ,
 				body: json_balance_form_data
 			});
 			let response_json = await check_in_response.json();
@@ -16,14 +19,14 @@ function check_in_uuid( uuid , balance_form_data ) {
 	});
 }
 
-function check_in_uuid_test( uuid ) {
+function api_check_in_uuid_test( uuid ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
-			// let check_in_url = `/admin/user/checkin/test/${uuid}`;
-			let check_in_url = `/admin/user/checkin/test/${uuid}`;
+			// let check_in_url = `https://live.masterscloset.cc/admin/user/checkin/test/${uuid}`;
+			let check_in_url = `https://live.masterscloset.cc/admin/user/checkin/test/${uuid}`;
 			let check_in_response = await fetch( check_in_url , {
 				method: "GET" ,
-				headers: { "Content-Type": "application/json" }
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
 			});
 			let response_json = await check_in_response.json();
 			resolve( response_json );
@@ -33,13 +36,13 @@ function check_in_uuid_test( uuid ) {
 	});
 }
 
-function get_user_from_barcode( barcode ) {
+function api_get_user_from_barcode( barcode ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
-			let check_in_url = `/admin/user/get/barcode/${barcode}`;
+			let check_in_url = `https://live.masterscloset.cc/admin/user/get/barcode/${barcode}`;
 			let check_in_response = await fetch( check_in_url , {
 				method: "GET" ,
-				headers: { "Content-Type": "application/json" }
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
 			});
 			let response_json = await check_in_response.json();
 			let user = response_json[ "result" ];
@@ -50,13 +53,13 @@ function get_user_from_barcode( barcode ) {
 	});
 }
 
-function get_user_from_uuid( uuid ) {
+function api_get_user_from_uuid( uuid ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
-			let check_in_url = `/admin/user/get/${uuid}`;
+			let check_in_url = `https://live.masterscloset.cc/admin/user/get/${uuid}`;
 			let check_in_response = await fetch( check_in_url , {
 				method: "GET" ,
-				headers: { "Content-Type": "application/json" }
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
 			});
 			let response_json = await check_in_response.json();
 			let user = response_json[ "result" ];
@@ -67,14 +70,14 @@ function get_user_from_uuid( uuid ) {
 	});
 }
 
-function search_username( username ) {
+function api_search_username( username ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
 			if ( !username ) { resolve( false ); return; }
-			let search_url = `/admin/user/search/username/${username}`;
+			let search_url = `https://live.masterscloset.cc/admin/user/search/username/${username}`;
 			let check_in_response = await fetch( search_url , {
 				method: "GET" ,
-				headers: { "Content-Type": "application/json" }
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
 			});
 			let response_json = await check_in_response.json();
 			let result = response_json[ "result" ];
@@ -86,14 +89,30 @@ function search_username( username ) {
 	});
 }
 
-function fuzzy_search_username( username ) {
+function api_fuzzy_search_username( username ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
 			if ( !username ) { resolve( false ); return; }
-			let search_url = `/admin/user/search/username/fuzzy/${username}`;
+			let search_url = `https://live.masterscloset.cc/admin/user/search/username/fuzzy/${username}`;
 			let check_in_response = await fetch( search_url , {
 				method: "GET" ,
-				headers: { "Content-Type": "application/json" }
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
+			});
+			let response_json = await check_in_response.json();
+			let result = response_json[ "result" ];
+			resolve( result );
+			return;
+		}
+		catch( error ) { console.log( error ); resolve( false ); return; }
+	});
+}
+
+function api_get_all_users() {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			let check_in_response = await fetch( "https://live.masterscloset.cc/admin/user/get/all" , {
+				method: "GET" ,
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
 			});
 			let response_json = await check_in_response.json();
 			let result = response_json[ "result" ];
@@ -107,9 +126,10 @@ function fuzzy_search_username( username ) {
 function api_edit_user( user_info ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
-			let response = await fetch( `/admin/user/edit` , {
+			let response = await fetch( `https://live.masterscloset.cc/admin/user/edit` , {
 				method: "POST" ,
-				body: JSON.stringify( user_info )
+				body: JSON.stringify( user_info ) ,
+				headers: { "key": ServerAPIKey }
 			});
 			let response_json = await response.json();
 			resolve( response_json );
@@ -119,12 +139,78 @@ function api_edit_user( user_info ) {
 	});
 }
 
+function api_get_all_emails() {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			let check_in_response = await fetch( "https://live.masterscloset.cc/admin/user/get/all/emails" , {
+				method: "GET" ,
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
+			});
+			let response_json = await check_in_response.json();
+			let result = response_json[ "result" ];
+			resolve( result );
+			return;
+		}
+		catch( error ) { console.log( error ); resolve( false ); return; }
+	});
+}
+
+function api_get_all_barcodes() {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			let check_in_response = await fetch( "https://live.masterscloset.cc/admin/user/get/all/barcodes" , {
+				method: "GET" ,
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
+			});
+			let response_json = await check_in_response.json();
+			let result = response_json[ "result" ];
+			resolve( result );
+			return;
+		}
+		catch( error ) { console.log( error ); resolve( false ); return; }
+	});
+}
+
+
+function api_get_all_checkins() {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			let check_in_response = await fetch( "https://live.masterscloset.cc/admin/user/get/all/checkins" , {
+				method: "GET" ,
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
+			});
+			let response_json = await check_in_response.json();
+			let result = response_json[ "result" ];
+			resolve( result );
+			return;
+		}
+		catch( error ) { console.log( error ); resolve( false ); return; }
+	});
+}
+
+function api_get_all_phone_numbers() {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			let check_in_response = await fetch( "https://live.masterscloset.cc/admin/user/get/all/phone-numbers" , {
+				method: "GET" ,
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
+			});
+			let response_json = await check_in_response.json();
+			let result = response_json[ "result" ];
+			resolve( result );
+			return;
+		}
+		catch( error ) { console.log( error ); resolve( false ); return; }
+	});
+}
+
 function api_new_user( user_info ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
-			let response = await fetch( `/admin/user/new` , {
+			let response = await fetch( `https://live.masterscloset.cc/admin/user/new` , {
 				method: "POST" ,
-				body: JSON.stringify( user_info )
+				body: JSON.stringify( user_info ) ,
+				headers: { "key": ServerAPIKey }
 			});
 			let response_json = await response.json();
 			resolve( response_json );
@@ -137,12 +223,29 @@ function api_new_user( user_info ) {
 function api_delete_user( uuid ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
-			let response = await fetch( `/admin/user/delete/${uuid}` , {
+			let response = await fetch( `https://live.masterscloset.cc/admin/user/delete/${uuid}` , {
 				method: "GET" ,
-				headers: { "Content-Type": "application/json" }
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
 			});
 			let response_json = await response.json();
 			resolve( response_json );
+			return;
+		}
+		catch( error ) { console.log( error ); resolve( false ); return; }
+	});
+}
+
+function api_submit_form( url , form_data ) {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			let response = await fetch( url , {
+				method: "POST" ,
+				body: form_data ,
+				headers: { "key": ServerAPIKey }
+			});
+			let response_json = await response.json();
+			if ( !response_json[ "result" ] ) { resolve( false ); return; }
+			resolve( response_json[ "result" ] );
 			return;
 		}
 		catch( error ) { console.log( error ); resolve( false ); return; }

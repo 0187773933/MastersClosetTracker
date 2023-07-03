@@ -6,6 +6,9 @@
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css">
 		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+		<script src="/cdn/api.js" crossorigin="anonymous"></script>
+<!-- 		<script src="/cdn/utils.js" crossorigin="anonymous"></script>
+		<script src="/cdn/ui.js" crossorigin="anonymous"></script> -->
 	</head>
 	<body>
 		<div class="container">
@@ -64,21 +67,7 @@
 			// 	}
 			// 	textArea.parentNode.removeChild( textArea );
 			// }
-			function get_all_barcodes() {
-				return new Promise( async function( resolve , reject ) {
-					try {
-						let check_in_response = await fetch( "/admin/user/get/all/barcodes" , {
-							method: "GET" ,
-							headers: { "Content-Type": "application/json" }
-						});
-						let response_json = await check_in_response.json();
-						let result = response_json[ "result" ];
-						resolve( result );
-						return;
-					}
-					catch( error ) { console.log( error ); resolve( false ); return; }
-				});
-			}
+
 
 			// function parse_barcodes() {
 			// 	let clipboard_text = "";
@@ -172,11 +161,11 @@
 			}
 			function print_duration( start , stop ) {
 				let duration = ( stop - start );
-				console.log( `get_all_barcodes() took : ${duration} milliseconds` );
+				console.log( `api_get_all_barcodes() took : ${duration} milliseconds` );
 			}
 			async function init() {
 				let start = new Date();
-				window.barcodes = await get_all_barcodes();
+				window.barcodes = await api_get_all_barcodes();
 				let stop = new Date();
 				console.log( window.barcodes );
 				print_duration( start , stop );

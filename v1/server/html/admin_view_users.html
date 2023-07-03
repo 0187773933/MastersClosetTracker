@@ -7,6 +7,9 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css">
 		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js" integrity="sha256-xUHvBjJ4hahBW8qN9gceFBibSFUzbe9PNttUvehITzY=" crossorigin="anonymous"></script>
+		<script src="/cdn/api.js" crossorigin="anonymous"></script>
+<!-- 		<script src="/cdn/utils.js" crossorigin="anonymous"></script>
+		<script src="/cdn/ui.js" crossorigin="anonymous"></script> -->
 	</head>
 	<body>
 		<div class="container">
@@ -35,36 +38,6 @@
 			</div>
 		</div>
 		<script>
-			function get_all_users() {
-				return new Promise( async function( resolve , reject ) {
-					try {
-						let check_in_response = await fetch( "/admin/user/get/all" , {
-							method: "GET" ,
-							headers: { "Content-Type": "application/json" }
-						});
-						let response_json = await check_in_response.json();
-						let result = response_json[ "result" ];
-						resolve( result );
-						return;
-					}
-					catch( error ) { console.log( error ); resolve( false ); return; }
-				});
-			}
-			function delete_user( uuid ) {
-				return new Promise( async function( resolve , reject ) {
-					try {
-						let response = await fetch( `/admin/user/delete/${uuid}` , {
-							method: "GET" ,
-							headers: { "Content-Type": "application/json" }
-						});
-						let response_json = await check_in_response.json();
-						let result = response_json[ "result" ];
-						resolve( result );
-						return;
-					}
-					catch( error ) { console.log( error ); resolve( false ); return; }
-				});
-			}
 			function parse_custom_date_time_string( dts ) {
 				let time = dts.split( " @ " )[ 1 ];
 				let parsable_string = `${dts.slice(0,2)} ${dts[2]}${dts.slice(3,5).toLowerCase()} ${dts.slice(5,9)} ${time.slice(0,8)}`;
@@ -160,7 +133,7 @@
 						let result = confirm( `Are You Absolutely Sure You Want to Delete : ${window.users[ i ][ "username" ]} ???` );
 						if ( result === true ) {
 							console.log( "delete confimed" );
-							await delete_user( window.users[ i ][ "uuid" ] );
+							await api_delete_user( window.users[ i ][ "uuid" ] );
 							// could just cross out this table row ,
 							// but lets just trigger a refresh
 							// setTimeout( function() {
@@ -201,12 +174,12 @@
 				let duration = ( stop - start );
 				// let minutes = Math.floor( duration / 60000 );
 				// let seconds = ( Math.floor( duration / 1000 ) % 60 );
-				// console.log( `get_all_users() took : ${minutes} minutes and ${seconds} seconds` );
-				console.log( `get_all_users() took : ${duration} milliseconds` );
+				// console.log( `api_get_all_users() took : ${minutes} minutes and ${seconds} seconds` );
+				console.log( `api_get_all_users() took : ${duration} milliseconds` );
 			}
 			async function init() {
 				let start = new Date();
-				window.users = await get_all_users();
+				window.users = await api_get_all_users();
 				let stop = new Date();
 				print_duration( start , stop );
 				populate_table();

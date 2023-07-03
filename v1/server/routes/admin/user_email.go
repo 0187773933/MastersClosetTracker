@@ -12,7 +12,7 @@ import (
 )
 
 func EmailAllUsers( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
 	// fmt.Println( context.GetReqHeaders() )
 	email_message := context.FormValue( "email_message" )
 

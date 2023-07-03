@@ -12,7 +12,7 @@ import (
 
 // could move to user , but edit should be the only thing like this
 func HandleUserEdit( context *fiber.Ctx ) ( error ) {
-	if validate_admin_cookie( context ) == false { return serve_failed_attempt( context ) }
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
 	var viewed_user user.User
 	json.Unmarshal( context.Body() , &viewed_user )
 	viewed_user.Config = GlobalConfig

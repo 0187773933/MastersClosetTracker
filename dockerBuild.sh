@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo docker build -t "public-analytics-server" .
+sudo docker build -t "public-mct-db-server" .

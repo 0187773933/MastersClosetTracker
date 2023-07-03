@@ -22,6 +22,16 @@
 				background-color: #138496;
 				border-color: #117a8b;
 			}
+			.btn-sms {
+				color: #fff;
+				background-color: #00D8AE;
+				border-color: #00D8AE;
+			}
+			.btn-sms:hover {
+				color: #fff;
+				background-color: #00D8AE;
+				border-color: #00D8AE;
+			}
 		</style>
 	</head>
 	<body>
@@ -139,7 +149,7 @@
 
 					// 2.) Pre-Check the Current Check-In Status of the User
 					console.log( window.USER );
-					let check_in_test = await check_in_uuid_test( window.USER.uuid );
+					let check_in_test = await api_check_in_uuid_test( window.USER.uuid );
 					console.log( check_in_test );
 
 					// 3.) Update Shopping-For Selector
@@ -174,7 +184,7 @@
 				}
 				render_edit_form() {
 					set_url( `/admin/user/checkin/${window.USER.uuid}/edit` );
-					this.buttons_stack = [ "edit-user-save-button" , "edit-user-cancel-button" , "edit-user-delete-button" , "show-handoff-qrc-button" ];
+					this.buttons_stack = [ "edit-user-save-button" , "edit-user-cancel-button" , "edit-user-delete-button" , "show-handoff-qrc-button" , "sms-user-button" ];
 					this.render_buttons();
 					this.stack = [ "user_edit_form" , "user_qr_code" ];
 					this.render();
@@ -286,7 +296,7 @@
 				for ( let i = 0; i < balance_inputs.length; ++i ) {
 					form_data[ balance_inputs[ i ].id ] = parseInt( balance_inputs[ i ].value );
 				}
-				let valid_check_in = await check_in_uuid( window.USER.uuid , form_data );
+				let valid_check_in = await api_check_in_uuid( window.USER.uuid , form_data );
 				console.log( `${window.USER.uuid} === Checked In === ${valid_check_in}` );
 				window.UI.clear();
 			}
@@ -334,11 +344,26 @@
 				show_user_uuid_qrcode();
 			}
 
+			function on_sms_user_button_click( event ) {
+				console.log( "on_sms_user_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				let link = document.createElement('a');
+				link.href = `/admin/user/sms/${window.USER.uuid}`;
+				link.target = '_blank';
+				link.rel = 'noopener noreferrer';
+				let clickEvent = new MouseEvent('click', {
+					'view': window,
+					'bubbles': true,
+					'cancelable': false
+				});
+				link.dispatchEvent( clickEvent );
+			}
+
 			async function _on_check_in_input_change( typed_input="" ) {
 				console.log( "_on_check_in_input_change()" , typed_input );
 				let valid_uuid = is_uuid( typed_input );
 				if ( valid_uuid ) {
-					let user = await get_user_from_uuid( typed_input );
+					let user = await api_get_user_from_uuid( typed_input );
 					if ( user ) {
 						console.log( "UUID !" , typed_input );
 						window.USER = user;
@@ -348,7 +373,7 @@
 				}
 				let valid_barcode = is_barcode( typed_input );
 				if ( valid_barcode ) {
-					let user = await get_user_from_barcode( typed_input );
+					let user = await api_get_user_from_barcode( typed_input );
 					if ( user ) {
 						if ( user.uuid ) {
 							console.log( "Barcode !" , typed_input );
@@ -360,7 +385,7 @@
 					return;
 				}
 				console.log( `Not a UUID , Not a Barcode , Searching : ${typed_input}` );
-				let search_results = await fuzzy_search_username( typed_input );
+				let search_results = await api_fuzzy_search_username( typed_input );
 				if ( !search_results ) {
 					// window.UI.clear();
 					return;
@@ -453,6 +478,11 @@
 							color: "qrcode" ,
 							on_click: on_show_handoff_qrc_button_click ,
 						} ,
+						"sms-user-button": {
+							text: "SMS" ,
+							color: "sms" ,
+							on_click: on_sms_user_button_click ,
+						} ,
 					} ,
 				});
 				// window.UI.hide_all_buttons();
@@ -465,7 +495,7 @@
 						case "edit":
 							let sent_uuid = user_checkin_detect_uuid();
 							if ( !sent_uuid ) { break; }
-							let user = await get_user_from_uuid( sent_uuid );
+							let user = await api_get_user_from_uuid( sent_uuid );
 							window.USER = user;
 							document.getElementById( "user-search-input" ).value = sent_uuid;
 							window.UI.render_edit_form();
@@ -480,7 +510,7 @@
 				} else {
 					let sent_uuid = user_checkin_detect_uuid();
 					if ( !sent_uuid ) { return; }
-					let user = await get_user_from_uuid( sent_uuid );
+					let user = await api_get_user_from_uuid( sent_uuid );
 					window.USER = user;
 					document.getElementById( "user-search-input" ).value = sent_uuid;
 					window.UI.render_active_user();

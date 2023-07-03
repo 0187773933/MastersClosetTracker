@@ -17,6 +17,7 @@ var ui_html_pages = map[ string ]string {
 	"/user/checkin/:uuid/edit": "./v1/server/html/admin_user_checkin.html" ,
 	"/user/checkin/new": "./v1/server/html/admin_user_checkin.html" ,
 	"/user/edit/:uuid": "./v1/server/html/admin_user_edit.html" ,
+	"/user/sms/:uuid": "./v1/server/html/admin_sms_user.html" ,
 	"/checkins": "./v1/server/html/admin_view_total_checkins.html" ,
 	"/emails": "./v1/server/html/admin_view_all_emails.html" ,
 	"/phone-numbers": "./v1/server/html/admin_view_all_phone_numbers.html" ,
@@ -34,6 +35,11 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	for url , _ := range ui_html_pages {
 		admin_route_group.Get( url , ServeAuthenticatedPage )
 	}
+
+	fiber_app.Get( "/cdn/api.js" , func( context *fiber.Ctx ) ( error ) {
+		if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
+		return context.SendFile( "./v1/server/cdn/api.js" )
+	})
 
 	// API Routes
 	admin_route_group.Get( "/logout" , Logout )
@@ -62,6 +68,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/user/reports/main" , GetReportMain )
 	admin_route_group.Get( "/user/reports/mail-chimp" , GetReportMailChimp )
 
+	admin_route_group.Post( "/user/sms" , SMSUser )
 	admin_route_group.Post( "/user/sms/all" , SMSAllUsers )
 	admin_route_group.Post( "/user/email/all" , EmailAllUsers )
 

@@ -255,12 +255,3 @@ func FingerPrint( config *types.ConfigFile  ) ( result string ) {
 	result = x_finger_print.UUID
 	return
 }
-
-
-
-
-
-
-
-
-

@@ -7,6 +7,9 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css">
 		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js" integrity="sha256-xUHvBjJ4hahBW8qN9gceFBibSFUzbe9PNttUvehITzY=" crossorigin="anonymous"></script>
+		<script src="/cdn/api.js" crossorigin="anonymous"></script>
+<!-- 		<script src="/cdn/utils.js" crossorigin="anonymous"></script>
+		<script src="/cdn/ui.js" crossorigin="anonymous"></script> -->
 	</head>
 	<body>
 		<div class="container">
@@ -32,22 +35,6 @@
 			</div>
 		</div>
 		<script>
-			function get_all_checkins() {
-				return new Promise( async function( resolve , reject ) {
-					try {
-						let check_in_response = await fetch( "/admin/user/get/all/checkins" , {
-							method: "GET" ,
-							headers: { "Content-Type": "application/json" }
-						});
-						let response_json = await check_in_response.json();
-						let result = response_json[ "result" ];
-						resolve( result );
-						return;
-					}
-					catch( error ) { console.log( error ); resolve( false ); return; }
-				});
-			}
-
 			function parse_checkin_data( checkin ) {
 				let dates = {};
 				for ( let i = 0; i < window.checkins.length; ++i ) { // Loop Through Each User
@@ -143,11 +130,11 @@
 			}
 			function print_duration( start , stop ) {
 				let duration = ( stop - start );
-				console.log( `get_all_checkins() took : ${duration} milliseconds` );
+				console.log( `api_get_all_checkins() took : ${duration} milliseconds` );
 			}
 			async function init() {
 				let start = new Date();
-				window.checkins = await get_all_checkins();
+				window.checkins = await api_get_all_checkins();
 				let stop = new Date();
 				print_duration( start , stop );
 				parse_checkin_data();

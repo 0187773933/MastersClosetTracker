@@ -1,12 +1,10 @@
 #!/bin/bash
-APP_NAME="public-analytics-server"
-sudo docker rm $APP_NAME -f || echo "failed to remove existing analytics server"
-
-id=$(sudo docker run -dit --restart='always' \
+APP_NAME="public-mct-db-server"
+sudo docker rm -f $APP_NAME || echo ""
+id=$(sudo docker run -dit \
 --name $APP_NAME \
--p 9337:9337 \
---mount type=bind,source=/home/morphs/DOCKER_IMAGES/AnalyticsTracker/config.json,target=/app/config.json \
-$APP_NAME /app/config.json)
-echo "ID = $id"
-
-sudo docker logs -f "$id"
+--mount type=bind,source=/home/morphs/mct/config.json,target=/home/morphs/mct/config.json \
+-v /home/morphs/mct/save_files/:/home/morphs/mct/save_files \
+-p 5950:5950 \
+$APP_NAME config.json)
+sudo docker logs -f $id
