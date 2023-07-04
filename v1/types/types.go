@@ -40,6 +40,7 @@ type ConfigFile struct {
 	ServerCookieSecret string `json:"server_cookie_secret"`
 	ServerCookieAdminSecretMessage string `json:"server_cookie_admin_secret_message"`
 	ServerCookieSecretMessage string `json:"server_cookie_secret_message"`
+	ServerLiveUrl string `json:"server_live_url"`
 	AdminUsername string `json:"admin_username"`
 	AdminPassword string `json:"admin_password"`
 	TimeZone string `json:"time_zone"`

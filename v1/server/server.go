@@ -99,6 +99,7 @@ func ( s *Server ) Start() {
 	fmt.Println( "\n" )
 	log.PrintfConsole( "Listening on http://localhost:%s\n" , s.Config.ServerPort )
 	fmt.Printf( "Admin Login @ http://localhost:%s/admin/login\n" , s.Config.ServerPort )
+	fmt.Printf( "Admin Login @ %s/admin/login\n" , s.Config.ServerLiveUrl )
 	fmt.Printf( "Admin Username === %s\n" , s.Config.AdminUsername )
 	fmt.Printf( "Admin Password === %s\n" , s.Config.AdminPassword )
 	s.FiberApp.Listen( fmt.Sprintf( ":%s" , s.Config.ServerPort ) )

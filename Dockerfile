@@ -42,5 +42,6 @@ ARG GO_ARCH=amd64
 RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/mct
 WORKDIR /home/$USERNAME/mct
 RUN /usr/local/go/bin/go mod tidy
+COPY . /home/$USERNAME/mct
 RUN GOOS=linux GOARCH=$GO_ARCH /usr/local/go/bin/go build -o server
 ENTRYPOINT [ "/home/morphs/mct/server" ]
