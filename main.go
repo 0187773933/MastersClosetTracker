@@ -21,6 +21,7 @@ func SetupCloseHandler() {
 		fmt.Println( "\r- Ctrl+C pressed in Terminal" )
 		log.PrintlnConsole( "Shutting Down Master's Closet Tracking Server" )
 		s.FiberApp.Shutdown()
+		log.Close()
 		os.Exit( 0 )
 	}()
 }

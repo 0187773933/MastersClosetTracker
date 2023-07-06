@@ -15,28 +15,25 @@ import (
 // type Logger struct {
 // 	Logrus *logrus.Logger
 // }
+
+var ROTATOR *lumberjack.Logger
+
 func Init( config types.ConfigFile ) {
 	prepended_timestamp := time.Now().Format( "20060102" )
 	// log.SetFlags( 0 )
-	rotator := &lumberjack.Logger{
+	ROTATOR = &lumberjack.Logger{
 		Filename: fmt.Sprintf( "./logs/%s-%s.log" , prepended_timestamp , config.FingerPrint ) ,
 		MaxSize: 100 , // megabytes
 		// MaxBackups: 3 ,   // number of backups
 		MaxAge: 1 , // days
 		Compress: true , // compress the rotated log files
 	}
-	defer rotator.Close()
-	// mw := io.MultiWriter( os.Stdout , rotator )
-	// log = Logger{}
-	// log.Logrus = logrus.New()
-	// // log.Logrus.SetFormatter( &logrus.JSONFormatter{
-	// log.Logrus.SetFormatter( &logrus.TextFormatter{
-	//    DisableTimestamp: true ,
-	// })
-	// log.Logrus.SetOutput( mw )
-	// log.Logrus.SetOutput( rotator )
 	log.SetFlags( 0 )
-	log.SetOutput( rotator )
+	log.SetOutput( ROTATOR )
+}
+
+func Close() {
+	ROTATOR.Close()
 }
 
 func Println( args ...interface{} ) {

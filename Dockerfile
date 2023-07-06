@@ -38,10 +38,9 @@ RUN sudo tar --checkpoint=100 --checkpoint-action=exec='/bin/bash -c "cmd=$(echo
 RUN echo "PATH=$PATH:/usr/local/go/bin" | tee -a /home/$USERNAME/.bashrc
 
 ARG GO_ARCH=amd64
-# COPY . /home/$USERNAME/mct
+COPY . /home/$USERNAME/mct
 RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/mct
 WORKDIR /home/$USERNAME/mct
 RUN /usr/local/go/bin/go mod tidy
-COPY . /home/$USERNAME/mct
 RUN GOOS=linux GOARCH=$GO_ARCH /usr/local/go/bin/go build -o server
 ENTRYPOINT [ "/home/morphs/mct/server" ]
