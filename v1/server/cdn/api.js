@@ -250,3 +250,4 @@ function api_submit_form( url , form_data ) {
 		}
 		catch( error ) { console.log( error ); resolve( false ); return; }
 	});
+}

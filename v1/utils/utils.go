@@ -9,6 +9,7 @@ import (
 	tz "4d63.com/tz"
 	"net"
 	"fmt"
+	// "io"
 	sha256 "crypto/sha256"
 	hex "encoding/hex"
 	// index_sort "github.com/mkmik/argsort"
@@ -158,24 +159,31 @@ func WriteAdminUserHandOffHTML( server_base_url string ) {
 	}
 }
 
-func WriteJS_API( server_base_url string , server_api_key string ) {
-	file , _ := os.OpenFile( "./v1/server/cdn/api.js" , os.O_RDWR , 0 )
+func WriteJS_API(server_base_url string, server_api_key string) {
+	file, _ := os.OpenFile("./v1/server/cdn/api.js", os.O_RDWR, 0)
 	defer file.Close()
-	reader := bufio.NewReader( file )
+	reader := bufio.NewReader(file)
 	line_number := 1
 	var lines []string
 	for {
-		line , err := reader.ReadString( '\n' )
-		if err != nil { break }
-		if line_number == 1 { line = "const ServerAPIKey = \"" + server_api_key + "\";\n" }
-		if line_number == 2 { line = "const ServerBaseURL = \"" + server_base_url + "\";\n" }
-		lines = append( lines , line )
-		line_number = line_number + 1
+		line, err := reader.ReadString('\n')
+		if line_number == 1 {
+			line = "const ServerAPIKey = \"" + server_api_key + "\";\n"
+		}
+		if line_number == 2 {
+			line = "const ServerBaseURL = \"" + server_base_url + "\";\n"
+		}
+		lines = append(lines, line)
+
+		if err != nil {
+			break
+		}
+		line_number++
 	}
-	file.Seek( 0 , 0 )
-	file.Truncate( 0 )
-	for _ , line := range lines {
-		file.WriteString( line )
+	file.Seek(0, 0)
+	file.Truncate(0)
+	for _, line := range lines {
+		file.WriteString(line)
 	}
 }
 
