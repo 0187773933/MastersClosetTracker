@@ -20,8 +20,10 @@ func SetupCloseHandler() {
 		<-c
 		fmt.Println( "\r- Ctrl+C pressed in Terminal" )
 		log.PrintlnConsole( "Shutting Down Master's Closet Tracking Server" )
+		utils.WriteJS_API( "" , "" )
 		s.FiberApp.Shutdown()
 		log.Close()
+		utils.WriteJS_API( "" , "" )
 		os.Exit( 0 )
 	}()
 }
@@ -35,6 +37,7 @@ func main() {
 	config.FingerPrint = utils.FingerPrint( &config )
 	fmt.Println( config )
 	log.Init( config )
+	utils.WriteJS_API( config.ServerLiveUrl , config.ServerAPIKey )
 	s = server.New( config )
 	s.Start()
 }

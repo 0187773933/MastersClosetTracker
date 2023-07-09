@@ -124,7 +124,7 @@ func RemoveNonASCII( input string ) ( result string ) {
 const SanitizedStringSizeLimit = 100
 func SanitizeInputString( input string ) ( result string ) {
 	trimmed := strings.TrimSpace( input )
-    if len( trimmed ) > SanitizedStringSizeLimit { trimmed = strings.TrimSpace( trimmed[ 0 : SanitizedStringSizeLimit ] ) }
+	if len( trimmed ) > SanitizedStringSizeLimit { trimmed = strings.TrimSpace( trimmed[ 0 : SanitizedStringSizeLimit ] ) }
 	result = RemoveNonASCII( trimmed )
 	return
 }
@@ -148,6 +148,27 @@ func WriteAdminUserHandOffHTML( server_base_url string ) {
 		line , err := reader.ReadString( '\n' )
 		if err != nil { break }
 		if line_number == 48 { line = "\t\t\tconst QR_CODE_BASE_URL = \"" + server_base_url + "\";\n" }
+		lines = append( lines , line )
+		line_number = line_number + 1
+	}
+	file.Seek( 0 , 0 )
+	file.Truncate( 0 )
+	for _ , line := range lines {
+		file.WriteString( line )
+	}
+}
+
+func WriteJS_API( server_base_url string , server_api_key string ) {
+	file , _ := os.OpenFile( "./v1/server/cdn/api.js" , os.O_RDWR , 0 )
+	defer file.Close()
+	reader := bufio.NewReader( file )
+	line_number := 1
+	var lines []string
+	for {
+		line , err := reader.ReadString( '\n' )
+		if err != nil { break }
+		if line_number == 1 { line = "const ServerAPIKey = \"" + server_api_key + "\";\n" }
+		if line_number == 2 { line = "const ServerBaseURL = \"" + server_base_url + "\";\n" }
 		lines = append( lines , line )
 		line_number = line_number + 1
 	}
