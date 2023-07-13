@@ -10,7 +10,7 @@ var GlobalConfig *types.ConfigFile
 var ui_html_pages = map[ string ]string {
 	"/": "./v1/server/html/admin.html" ,
 	"/users": "./v1/server/html/admin_view_users.html" ,
-	// "/user/new": "./v1/server/html/admin_user_new.html" ,
+	"/user/new": "./v1/server/html/admin_user_new.html" ,
 	"/user/new/handoff/:uuid": "./v1/server/html/admin_user_new_handoff.html" ,
 	"/user/checkin": "./v1/server/html/admin_user_checkin.html" ,
 	"/user/checkin/:uuid": "./v1/server/html/admin_user_checkin.html" ,
@@ -46,7 +46,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/logout" , Logout )
 	admin_route_group.Post( "/login" , HandleLogin )
 
-	admin_route_group.Post( "/user/new" , HandleNewUserJoin )
+	// admin_route_group.Post( "/user/new" , HandleNewUserJoin )
 	admin_route_group.Post( "/user/edit" , HandleUserEdit )
 	admin_route_group.Get( "/user/delete/:uuid" , DeleteUser )
 	// admin_route_group.Get( "/user/check/username" , CheckIfFirstNameLastNameAlreadyExists )
