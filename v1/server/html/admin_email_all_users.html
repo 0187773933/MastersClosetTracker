@@ -5,6 +5,7 @@
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+		<script src="/cdn/api.js" crossorigin="anonymous"></script>
 	</head>
 	<body>
 		<div class="container">
@@ -15,12 +16,20 @@
 			<div class="row">
 				<div class="col-lg-3 col-md-3 col-sm-3"></div>
 				<div class="col-lg-6 col-md-6 col-sm-6">
-					<form id="form-sms" action="/admin/user/email/all" method="POST">
+					<form id="form-email" action="/admin/user/email/all" method="POST">
+						<div class="form-row">
+							<div class="col">
+								<div class="input-group">
+									<span class="input-group-text">Subject :</span>
+									<input type="text" class="form-control" name="email-subject" aria-label="email-subject" id="email-subject"></input>
+								</div>
+							</div>
+						</div>
 						<div class="form-row">
 							<div class="col">
 								<div class="input-group">
 									<span class="input-group-text">Message</span>
-									<textarea class="form-control" name="email_message" aria-label="message" rows="10" id="email-text-area"></textarea>
+									<textarea class="form-control" name="email-message" aria-label="email-message" rows="10" id="email-message"></textarea>
 								</div>
 							</div>
 						</div>
@@ -34,25 +43,22 @@
 			</div>
 		</div>
 		<script>
-			document.addEventListener( "DOMContentLoaded" , function() {
-				const sms_text_area = document.getElementById( "sms-text-area" );
-				const sms_char_count = document.getElementById( "sms-char-count" );
-				sms_text_area.addEventListener( "input" , function() {
-					const remaining_chars = ( 160 - sms_text_area.value.length );
-					sms_char_count.textContent = remaining_chars;
-				});
-				const sms_form = document.getElementById( "form-sms" );
-				sms_form.addEventListener( "submit" , function( event ) {
+			async function init() {
+				document.getElementById( "email-address" ).value = `${window.user_info.email_address}`;
+				const email_message = document.getElementById( "email-message" );
+				const email_form = document.getElementById( "form-email" );
+				email_form.addEventListener( "submit" , function( event ) {
 					if ( event ) { event.preventDefault(); }
-					let form_data = new FormData( sms_form );
+					let form_data = new FormData( email_form );
 					console.log( form_data );
-					let result = confirm( `Confirm Mass SMS Text of : ${sms_text_area.value}` );
+					let result = confirm( `Confirm Email Text of : ${email_message.value}` );
 					if ( result === true ) {
-						sms_form.submit();
+						email_form.submit();
 						return;
 					}
 				});
-			});
+			}
+			$( window ).on( "load" , init )
 		</script>
 	</body>
 </html>

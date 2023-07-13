@@ -33,6 +33,14 @@ type PrinterConfig struct {
 	LogoFilePath string `json:"logo_file_path"`
 }
 
+type EmailConfig struct {
+	SMTPServer string `json:"smtp_server"`
+	SMTPServerUrl string `json:"smtp_server_url"`
+	SMTPAuthEmail string `json:"smtp_auth_email"`
+	SMTPAuthPassword string `json:"smtp_auth_password"`
+	From string `json:"from"`
+}
+
 type ConfigFile struct {
 	ServerBaseUrl string `json:"server_base_url"`
 	ServerPort string `json:"server_port"`
@@ -51,6 +59,7 @@ type ConfigFile struct {
 	TwilioClientID string `json:"twilio_client_id"`
 	TwilioAuthToken string `json:"twilio_auth_token"`
 	TwilioSMSFromNumber string `json:"twilio_sms_from_number"`
+	Email EmailConfig `json:"email"`
 	Redis RedisConfig `json:"redis"`
 	IPBlacklist []string `json:"ip_blacklist"`
 	IPInfoToken string `json:"ip_info_token"`

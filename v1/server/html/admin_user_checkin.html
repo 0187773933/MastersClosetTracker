@@ -359,6 +359,21 @@
 				link.dispatchEvent( clickEvent );
 			}
 
+			function on_email_user_button_click( event ) {
+				console.log( "on_email_user_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				let link = document.createElement('a');
+				link.href = `/admin/user/email/${window.USER.uuid}`;
+				link.target = '_blank';
+				link.rel = 'noopener noreferrer';
+				let clickEvent = new MouseEvent('click', {
+					'view': window,
+					'bubbles': true,
+					'cancelable': false
+				});
+				link.dispatchEvent( clickEvent );
+			}
+
 			async function _on_check_in_input_change( typed_input="" ) {
 				console.log( "_on_check_in_input_change()" , typed_input );
 				let valid_uuid = is_uuid( typed_input );
@@ -482,6 +497,11 @@
 							text: "SMS" ,
 							color: "sms" ,
 							on_click: on_sms_user_button_click ,
+						} ,
+						"email-user-button": {
+							text: "Email" ,
+							color: "secondary" ,
+							on_click: on_email_user_button_click ,
 						} ,
 					} ,
 				});
