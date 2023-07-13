@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"time"
 	"strconv"
-	"strings"
+	"math/rand"
+	// "strings"
 	json "encoding/json"
 	uuid "github.com/satori/go.uuid"
 	// short_uuid "github.com/lithammer/shortuuid/v4"
 	// rid "github.com/solutionroute/rid"
-	aaa "github.com/nii236/adjectiveadjectiveanimal"
+	// aaa "github.com/nii236/adjectiveadjectiveanimal"
 	fiber "github.com/gofiber/fiber/v2"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
 	// bolt "github.com/0187773933/MastersClosetTracker/v1/bolt"
@@ -108,10 +109,20 @@ func HandleNewUserJoin( context *fiber.Ctx ) ( error ) {
 	if viewed_user.Identity.FirstName == "" && viewed_user.Identity.MiddleName == "" && viewed_user.Identity.LastName == "" {
 		// log.PrintlnConsole( "this was a temp user" )
 		viewed_user.Identity.FirstName = "Temp"
-		temp_id := aaa.Generate( 1 , &aaa.Options{} )
-		viewed_user.Identity.MiddleName = strings.Title( temp_id[ 0 ] )
-		viewed_user.Identity.LastName = strings.Title( temp_id[ 1 ] )
+		// temp_id := aaa.Generate( 1 , &aaa.Options{} )
+		// viewed_user.Identity.MiddleName = strings.Title( temp_id[ 0 ] )
+		// viewed_user.Identity.LastName = strings.Title( temp_id[ 1 ] )
+
+		rand.Seed( time.Now().UnixNano() )
+		// temp_id := aaa.Generate( 1 , &aaa.Options{} )
+		// f_name := fmt.Printf( "%08x" , rand.Uint32() )
+		viewed_user.Identity.MiddleName = fmt.Sprintf( "%v%v%v%v%v%v" , rand.Intn( 9 ) , rand.Intn( 9 ) , rand.Intn( 9 ) , rand.Intn( 9 ) , rand.Intn( 9 ) , rand.Intn( 9 ) )
+		viewed_user.Identity.LastName = fmt.Sprintf( "%v%v%v%v%v%v" , rand.Intn( 9 ) , rand.Intn( 9 ) , rand.Intn( 9 ) , rand.Intn( 9 ) , rand.Intn( 9 ) , rand.Intn( 9 ) )
 	}
+
+
+
+
 
 	viewed_user.FormatUsername()
 
