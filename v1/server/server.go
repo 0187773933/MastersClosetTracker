@@ -76,7 +76,8 @@ func New( config types.ConfigFile ) ( server Server ) {
 	}))
 
     server.FiberApp.Use( fiber_cors.New( fiber_cors.Config{
-		AllowOrigins: server.Config.ServerBaseUrl ,
+		AllowOrigins: fmt.Sprintf( "%s, %s" , server.Config.ServerBaseUrl , server.Config.ServerLiveUrl ) ,
+		AllowHeaders:  "Origin, Content-Type, Accept",
     }))
 
 	// server.FiberApp.Static( "/cdn" , "./v1/server/cdn" )

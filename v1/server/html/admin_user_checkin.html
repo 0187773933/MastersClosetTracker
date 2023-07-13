@@ -184,7 +184,7 @@
 				}
 				render_edit_form() {
 					set_url( `/admin/user/checkin/${window.USER.uuid}/edit` );
-					this.buttons_stack = [ "edit-user-save-button" , "edit-user-cancel-button" , "edit-user-delete-button" , "show-handoff-qrc-button" , "sms-user-button" ];
+					this.buttons_stack = [ "edit-user-save-button" , "edit-user-cancel-button" , "edit-user-delete-button" , "show-handoff-qrc-button" , "sms-user-button" , "email-user-button" ];
 					this.render_buttons();
 					this.stack = [ "user_edit_form" , "user_qr_code" ];
 					this.render();
