@@ -136,7 +136,7 @@
 					}
 
 					// 1.) Prep UI
-					this.buttons_stack = [ "check-in-print-button" , "edit-user-button" , "new-user-button" ];
+					this.buttons_stack = [ "edit-user-button" , "new-user-button" ];
 					this.render_buttons();
 					set_url( `/admin/user/new/${window.USER.uuid}` );
 
@@ -235,6 +235,7 @@
 				console.log( "on_clear_button_click()" );
 				if ( event ) { event.preventDefault(); }
 				window.UI.clear();
+				window.UI.render_new_form();
 			}
 
 			function on_edit_button_click( event ) {
@@ -262,7 +263,8 @@
 			function on_edit_cancel_button_click( event ) {
 				console.log( "on_edit_cancel_button_click()" );
 				if ( event ) { event.preventDefault(); }
-				window.UI.render_active_user();
+				// window.UI.render_active_user();
+				window.UI.render_new_form();
 			}
 
 			async function on_edit_delete_button_click( event ) {
