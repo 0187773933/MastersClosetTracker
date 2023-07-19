@@ -25,6 +25,8 @@ var ui_html_pages = map[ string ]string {
 	"/barcodes": "./v1/server/html/admin_view_all_barcodes.html" ,
 	"/sms": "./v1/server/html/admin_sms_all_users.html" ,
 	"/email": "./v1/server/html/admin_email_all_users.html" ,
+	"/logs": "./v1/server/html/admin_view_all_log_files.html" ,
+	"/logs/:file_name": "./v1/server/html/admin_view_log_file.html" ,
 }
 
 func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
@@ -45,6 +47,8 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	// API Routes
 	admin_route_group.Get( "/logout" , Logout )
 	admin_route_group.Post( "/login" , HandleLogin )
+	admin_route_group.Get( "/logs/get/log-file-names" , GetLogFileNames )
+	admin_route_group.Get( "/logs/get/:file_name" , GetLogFile )
 
 	admin_route_group.Post( "/user/new" , HandleNewUserJoin )
 	admin_route_group.Post( "/user/edit" , HandleUserEdit )
@@ -73,5 +77,6 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Post( "/user/sms/all" , SMSAllUsers )
 	admin_route_group.Post( "/user/email/all" , EmailAllUsers )
 	admin_route_group.Post( "/user/email" , EmailUser )
+
 
 }

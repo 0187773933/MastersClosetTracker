@@ -251,3 +251,35 @@ function api_submit_form( url , form_data ) {
 		catch( error ) { console.log( error ); resolve( false ); return; }
 	});
 }
+
+function api_get_all_log_files() {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			let check_in_response = await fetch( `${ServerBaseURL}/admin/logs/get/log-file-names` , {
+				method: "GET" ,
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
+			});
+			let response_json = await check_in_response.json();
+			let result = response_json[ "result" ];
+			resolve( result );
+			return;
+		}
+		catch( error ) { console.log( error ); resolve( false ); return; }
+	});
+}
+
+function api_get_log_file( file_path ) {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			let check_in_response = await fetch( `${ServerBaseURL}/admin/logs/get/${file_path}` , {
+				method: "GET" ,
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
+			});
+			let response_json = await check_in_response.json();
+			let result = response_json[ "result" ];
+			resolve( result );
+			return;
+		}
+		catch( error ) { console.log( error ); resolve( false ); return; }
+	});
+}
