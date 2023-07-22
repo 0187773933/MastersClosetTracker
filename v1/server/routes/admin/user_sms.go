@@ -30,12 +30,6 @@ func SMSAllUsers( context *fiber.Ctx ) ( error ) {
 
 	twilio_client := twilio.NewTwilioClient( GlobalConfig.TwilioClientID , GlobalConfig.TwilioAuthToken )
 
-	return context.JSON( fiber.Map{
-		"route": "/admin/user/sms/all" ,
-		"sms_message": sms_message ,
-		"result": "success" ,
-	})
-
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
 	db.View( func( tx *bolt_api.Tx ) error {

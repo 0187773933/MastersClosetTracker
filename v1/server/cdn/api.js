@@ -13,6 +13,15 @@ function api_check_in_uuid( uuid , balance_form_data ) {
 			});
 			let response_json = await check_in_response.json();
 			let result = response_json[ "result" ];
+
+			let check_in_response_print = await fetch( `http://localhost:5950/admin/user/checkin/${uuid}` , {
+				method: "POST" ,
+				headers: { "key": ServerAPIKey } ,
+				body: json_balance_form_data
+			});
+			let response_json_print = await check_in_response_print.json();
+			let result_print = response_json_print[ "result" ];
+
 			resolve( result );
 			return;
 		}
