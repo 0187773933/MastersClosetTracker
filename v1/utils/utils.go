@@ -159,7 +159,7 @@ func WriteAdminUserHandOffHTML( server_base_url string ) {
 	}
 }
 
-func WriteJS_API(server_base_url string, server_api_key string) {
+func WriteJS_API( server_base_url string , server_api_key string , local_host_url string ) {
 	file, _ := os.OpenFile("./v1/server/cdn/api.js", os.O_RDWR, 0)
 	defer file.Close()
 	reader := bufio.NewReader(file)
@@ -172,6 +172,9 @@ func WriteJS_API(server_base_url string, server_api_key string) {
 		}
 		if line_number == 2 {
 			line = "const ServerBaseURL = \"" + server_base_url + "\";\n"
+		}
+		if line_number == 3 {
+			line = "const LocalHostURL = \"" + local_host_url + "\";\n"
 		}
 		lines = append(lines, line)
 
