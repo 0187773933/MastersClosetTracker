@@ -33,11 +33,18 @@
 		</div>
 		<script>
 			function load_api() {
-				var timestamp = new Date().getTime();
-				var script = document.createElement( "script" );
-				script.src = "/cdn/api.js?v=" + timestamp;
-				script.crossOrigin = "anonymous";
-				document.head.appendChild( script );
+				return new Promise( function( resolve , reject ) {
+					try {
+						var timestamp = new Date().getTime();
+						var script = document.createElement( "script" );
+						script.src = "/cdn/api.js?v=" + timestamp;
+						script.crossOrigin = "anonymous";
+						document.head.appendChild( script );
+						script.onload = resolve;
+						return;
+					}
+					catch( error ) { console.log( error ); reject( error ); return; }
+				});
 			}
 			function parse_checkin_data() {
 				let dates = Object.keys( window.checkins );
@@ -160,7 +167,7 @@
 				console.log( `api_get_all_checkins() took : ${duration} milliseconds` );
 			}
 			async function init() {
-				load_api();
+				await load_api();
 				let start = new Date();
 				window.checkins = await api_get_all_checkins();
 				// console.log( window.checkins );

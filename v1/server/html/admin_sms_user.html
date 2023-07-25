@@ -48,14 +48,21 @@
 		</div>
 		<script>
 			function load_api() {
-				var timestamp = new Date().getTime();
-				var script = document.createElement( "script" );
-				script.src = "/cdn/api.js?v=" + timestamp;
-				script.crossOrigin = "anonymous";
-				document.head.appendChild( script );
+				return new Promise( function( resolve , reject ) {
+					try {
+						var timestamp = new Date().getTime();
+						var script = document.createElement( "script" );
+						script.src = "/cdn/api.js?v=" + timestamp;
+						script.crossOrigin = "anonymous";
+						document.head.appendChild( script );
+						script.onload = resolve;
+						return;
+					}
+					catch( error ) { console.log( error ); reject( error ); return; }
+				});
 			}
 			async function init() {
-				load_api();
+				await load_api();
 				window.passed_uuid = window.location.pathname.split( "/sms/" )[ 1 ];
 				window.user_info = await api_get_user_from_uuid( window.passed_uuid );
 				console.log( window.user_info );

@@ -31,11 +31,18 @@
 		</div>
 		<script>
 			function load_api() {
-				var timestamp = new Date().getTime();
-				var script = document.createElement( "script" );
-				script.src = "/cdn/api.js?v=" + timestamp;
-				script.crossOrigin = "anonymous";
-				document.head.appendChild( script );
+				return new Promise( function( resolve , reject ) {
+					try {
+						var timestamp = new Date().getTime();
+						var script = document.createElement( "script" );
+						script.src = "/cdn/api.js?v=" + timestamp;
+						script.crossOrigin = "anonymous";
+						document.head.appendChild( script );
+						script.onload = resolve;
+						return;
+					}
+					catch( error ) { console.log( error ); reject( error ); return; }
+				});
 			}
 			// this has to be the event handler for a ui button press
 			function on_copy_emails( event ) {
@@ -163,7 +170,7 @@
 				console.log( `api_get_all_log_files() took : ${duration} milliseconds` );
 			}
 			async function init() {
-				load_api();
+				await load_api();
 				let start = new Date();
 				window.log_files = await api_get_all_log_files();
 				let stop = new Date();

@@ -44,14 +44,21 @@
 		</div>
 		<script>
 			function load_api() {
-				var timestamp = new Date().getTime();
-				var script = document.createElement( "script" );
-				script.src = "/cdn/api.js?v=" + timestamp;
-				script.crossOrigin = "anonymous";
-				document.head.appendChild( script );
+				return new Promise( function( resolve , reject ) {
+					try {
+						var timestamp = new Date().getTime();
+						var script = document.createElement( "script" );
+						script.src = "/cdn/api.js?v=" + timestamp;
+						script.crossOrigin = "anonymous";
+						document.head.appendChild( script );
+						script.onload = resolve;
+						return;
+					}
+					catch( error ) { console.log( error ); reject( error ); return; }
+				});
 			}
 			async function init() {
-				load_api();
+				await load_api();
 				const email_message = document.getElementById( "email-message" );
 				const email_form = document.getElementById( "form-email" );
 				email_form.addEventListener( "submit" , function( event ) {

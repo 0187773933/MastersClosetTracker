@@ -56,11 +56,18 @@
 		</div>
 		<script>
 			function load_api() {
-				var timestamp = new Date().getTime();
-				var script = document.createElement( "script" );
-				script.src = "/cdn/api.js?v=" + timestamp;
-				script.crossOrigin = "anonymous";
-				document.head.appendChild( script );
+				return new Promise( function( resolve , reject ) {
+					try {
+						var timestamp = new Date().getTime();
+						var script = document.createElement( "script" );
+						script.src = "/cdn/api.js?v=" + timestamp;
+						script.crossOrigin = "anonymous";
+						document.head.appendChild( script );
+						script.onload = resolve;
+						return;
+					}
+					catch( error ) { console.log( error ); reject( error ); return; }
+				});
 			}
 			class MCT_UI {
 				constructor( options={} ) {
@@ -436,7 +443,7 @@
 				// } , debounce_time );
 			}
 			async function init() {
-				load_api();
+				await load_api();
 				window.UI = new MCT_UI({
 					anchor: "#main-row" ,
 					// stack: [ "user_balance_table" , "user_search_table" , "shopping_for_selector" , "alert_check_in_allowed" , "alert_check_in_failed" ] ,

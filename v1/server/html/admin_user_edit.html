@@ -254,11 +254,18 @@
 		</div>
 		<script>
 			function load_api() {
-				var timestamp = new Date().getTime();
-				var script = document.createElement( "script" );
-				script.src = "/cdn/api.js?v=" + timestamp;
-				script.crossOrigin = "anonymous";
-				document.head.appendChild( script );
+				return new Promise( function( resolve , reject ) {
+					try {
+						var timestamp = new Date().getTime();
+						var script = document.createElement( "script" );
+						script.src = "/cdn/api.js?v=" + timestamp;
+						script.crossOrigin = "anonymous";
+						document.head.appendChild( script );
+						script.onload = resolve;
+						return;
+					}
+					catch( error ) { console.log( error ); reject( error ); return; }
+				});
 			}
 			function add_qr_code( text , element_id ) {
 				let x_element = document.getElementById( element_id );
@@ -574,7 +581,7 @@
 
 			}
 			async function init() {
-				load_api();
+				await load_api();
 				clear_form();
 				document.getElementById( "user_family_size" ).addEventListener( "change" , on_family_size_change );
 				window.passed_uuid = window.location.pathname.split( "/edit/" )[ 1 ];

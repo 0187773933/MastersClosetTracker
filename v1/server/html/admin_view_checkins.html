@@ -33,11 +33,18 @@
 		</div>
 		<script>
 			function load_api() {
-				var timestamp = new Date().getTime();
-				var script = document.createElement( "script" );
-				script.src = "/cdn/api.js?v=" + timestamp;
-				script.crossOrigin = "anonymous";
-				document.head.appendChild( script );
+				return new Promise( function( resolve , reject ) {
+					try {
+						var timestamp = new Date().getTime();
+						var script = document.createElement( "script" );
+						script.src = "/cdn/api.js?v=" + timestamp;
+						script.crossOrigin = "anonymous";
+						document.head.appendChild( script );
+						script.onload = resolve;
+						return;
+					}
+					catch( error ) { console.log( error ); reject( error ); return; }
+				});
 			}
 			function parse_custom_date_time_string( dts ) {
 				let parsable_string = `${dts.slice(0,2)} ${dts[2]}${dts.slice(3,5).toLowerCase()} ${dts.slice(5,9)}`;
@@ -177,7 +184,7 @@
 				console.log( `api_get_all_checkins_for_date() took : ${duration} milliseconds` );
 			}
 			async function init() {
-				load_api();
+				await load_api();
 				let start = new Date();
 				window.passed_check_in_date = window.location.pathname.split( "/checkins/" )[ 1 ];
 				window.checkins = await api_get_all_checkins_for_date( window.passed_check_in_date );
