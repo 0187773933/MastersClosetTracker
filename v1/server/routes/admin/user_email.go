@@ -43,8 +43,7 @@ func EmailUser( context *fiber.Ctx ) ( error ) {
 	email_message := context.FormValue( "email-message" )
 
 	email_result := send_email( email_address , email_subject , email_message )
-	log.PrintfConsole( email_address , email_result )
-
+	log.PrintlnConsole( email_address , fmt.Sprintf( "%t" , email_result ) )
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/email" ,
 		"to": email_address ,
@@ -74,7 +73,7 @@ func EmailAllUsers( context *fiber.Ctx ) ( error ) {
 			// fmt.Println( viewed_user.EmailAddress , email_subject , email_message )
 			email_result := send_email( viewed_user.EmailAddress , email_subject , email_message )
 			if email_result == false { result = false }
-			log.PrintfConsole( viewed_user.EmailAddress , email_result )
+			log.PrintlnConsole( viewed_user.EmailAddress , fmt.Sprintf( "%t" , email_result ) )
 			return nil
 		})
 		return nil

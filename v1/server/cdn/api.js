@@ -15,6 +15,8 @@ function api_check_in_uuid( uuid , balance_form_data ) {
 			let response_json = await check_in_response.json();
 			let result = response_json[ "result" ];
 
+			// optionally enforce good result from synced-db ???
+			// but then ....
 			if ( LocalHostURL.length > 3 ) {
 				console.log( "Sending Extra Print Request to Local Printer" );
 				let check_in_response_print = await fetch( `${LocalHostURL}/admin/user/checkin/${uuid}` , {

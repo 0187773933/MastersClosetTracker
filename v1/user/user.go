@@ -363,11 +363,6 @@ func ( u *User ) CheckIn() ( check_in CheckIn ) {
 		check_in.Type = "new"
 		u.CheckIns = append( u.CheckIns , check_in )
 	} else {
-		// days_remaining := int( check_in.Remaining.Hours() / 24 )
-		// time_remaining_string := time_remaining_duration.String()
-		// fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait : %d days , or %s\n" , days_remaining , time_remaining_string )
-		// time_remaining = int( time_remaining_duration.Milliseconds() )
-		// new_check_in.TimeRemaining = time_remaining
 		log.Debug( "time remaining ===" , check_in.TimeRemaining )
 	}
 	u.Save()
@@ -390,54 +385,7 @@ func ( u *User ) AddBarcode( barcode string ) {
 	return
 }
 
-// func ( u *User ) AddVirtualBarcode() ( barcode string ) {
-
-// 	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
-// 	defer db.Close()
-
-// 	// 00042
-// 	// 9999999
-// 	db.Update( func( tx *bolt.Tx ) error {
-// 		log.Debug( "here - 1" )
-// 		misc_bucket , _ := tx.CreateBucketIfNotExists( []byte( "misc" ) )
-// 		vb_index_bucket_value := misc_bucket.Get( []byte( "virtualbarcodeindex" ) )
-// 		// vb_index_int , _ := strconv.Atoi( vb_index )
-// 		log.Debug( "here - 2" )
-// 		vb_index := 9999999
-// 		if vb_index_bucket_value != nil {
-// 			vb_index , _ = strconv.Atoi( string( vb_index_bucket_value ) )
-// 		}
-// 		log.Debug( "here - 3" )
-// 		vb_index = vb_index + 1
-// 		barcode = string( vb_index )
-
-// 		log.Debug( "here - 4" )
-//     	new_bucket_value := make( []byte , 0 )
-//     	new_bucket_value = strconv.AppendInt( new_bucket_value , int64( vb_index ) , 10 )
-// 		log.Debug( "here - 5" )
-// 		misc_bucket.Put( []byte( "virtualbarcodeindex" ) , new_bucket_value )
-// 		log.Debug( "here - 6" )
-
-// 		// we just have to save the user here
-// 		u.Barcodes = append( u.Barcodes , barcode )
-// 		byte_object , _ := json.Marshal( u )
-// 		byte_object_encrypted := encrypt.ChaChaEncryptBytes( u.Config.BoltDBEncryptionKey , byte_object )
-// 		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
-// 		users_bucket.Put( []byte( u.UUID ) , byte_object_encrypted )
-
-// 		return nil
-// 	})
-
-// 	return
-// }
-
 func FormatUsername( x_user *User ) {
-	// username := fmt.Sprintf( "%s-%s-%s" , x_user.Identity.FirstName , x_user.Identity.MiddleName , x_user.Identity.LastName )
-	// username = strings.Join( strings.Fields( username ) , " " )
-	// namestring := fmt.Sprintf( "%s %s %s" , x_user.Identity.FirstName , x_user.Identity.MiddleName , x_user.Identity.LastName )
-	// namestring = strings.Join( strings.Fields( namestring ) , " " )
-	// x_user.Username = username
-	// x_user.NameString = namestring
 	var username_format string
 	var name_string_format string
 	var username_parts []interface{}
@@ -688,13 +636,6 @@ func CheckInUser( user_uuid string , db *bolt.DB , encryption_key string , cool_
 			days_remaining := int( time_remaining_duration.Hours() / 24 )
 			time_remaining_string := time_remaining_duration.String()
 			fmt.Printf( "the user did NOT wait long enough before checking in again , has to wait : %d days , or %s\n" , days_remaining , time_remaining_string )
-
-			// var new_failed_check_in FailedCheckIn
-			// new_failed_check_in.Date = strings.ToUpper( new_check_in.Date )
-			// new_failed_check_in.Time = new_check_in.Time
-			// new_failed_check_in.Type = "normal"
-			// new_failed_check_in.DaysRemaining = days_remaining
-			// viewed_user.FailedCheckIns = append( viewed_user.FailedCheckIns , new_failed_check_in )
 
 			time_remaining = int( time_remaining_duration.Milliseconds() )
 			new_check_in.TimeRemaining = time_remaining
