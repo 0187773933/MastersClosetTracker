@@ -1,7 +1,9 @@
 package adminroutes
 
 import (
+	// "fmt"
 	"time"
+	// "strconv"
 	json "encoding/json"
 	fiber "github.com/gofiber/fiber/v2"
 	// bolt "github.com/0187773933/MastersClosetTracker/v1/bolt"
@@ -84,7 +86,7 @@ func GetAllCheckIns( context *fiber.Ctx ) ( error ) {
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
 
-	var result [][]user.CheckIn
+	date_totals := make(map[string]map[string]int)
 	db.View( func( tx *bolt_api.Tx ) error {
 		bucket := tx.Bucket( []byte( "users" ) )
 		bucket.ForEach( func( uuid , value []byte ) error {
@@ -92,7 +94,22 @@ func GetAllCheckIns( context *fiber.Ctx ) ( error ) {
 			decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , value )
 			json.Unmarshal( decrypted_bucket_value , &viewed_user )
 			if len( viewed_user.CheckIns ) > 0 {
-				result = append( result , viewed_user.CheckIns )
+				for _, checkin := range viewed_user.CheckIns {
+					if _, ok := date_totals[checkin.Date]; !ok {
+						date_totals[checkin.Date] = make(map[string]int)
+					}
+
+					// Increment checkins count
+					date_totals[checkin.Date]["checkins"]++
+
+					// Increment shopped_for count
+					if checkin.PrintJob.FamilySize > 0 {
+						date_totals[checkin.Date]["shopped_for"] += checkin.PrintJob.FamilySize
+					} else {
+						date_totals[checkin.Date]["shopped_for"] += viewed_user.FamilySize
+					}
+					// fmt.Println( checkin.Date , date_totals[checkin.Date]["checkins"] , viewed_user.FamilySize , date_totals[checkin.Date]["shopped_for"] )
+				}
 			}
 			return nil
 		})
@@ -100,9 +117,44 @@ func GetAllCheckIns( context *fiber.Ctx ) ( error ) {
 	})
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/get/all/checkins" ,
+		"result": date_totals ,
+	})
+}
+
+func GetCheckinsDate( context *fiber.Ctx ) ( error ) {
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
+
+	x_date := context.Params( "date" )
+
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+
+	var result []user.CheckIn
+	db.View( func( tx *bolt_api.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket.ForEach( func( uuid , value []byte ) error {
+			var viewed_user user.User
+			decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , value )
+			json.Unmarshal( decrypted_bucket_value , &viewed_user )
+			if len( viewed_user.CheckIns ) > 0 {
+				for _ , check_in := range viewed_user.CheckIns {
+					if check_in.Date == x_date {
+						result = append( result , check_in )
+					}
+				}
+			}
+			return nil
+		})
+		return nil
+	})
+
+	return context.JSON( fiber.Map{
+		"route": "/admin/checkins/get/:date" ,
+		"date": x_date ,
 		"result": result ,
 	})
 }
+
 
 func GetAllEmails( context *fiber.Ctx ) ( error ) {
 	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }

@@ -20,6 +20,7 @@ var ui_html_pages = map[ string ]string {
 	"/user/sms/:uuid": "./v1/server/html/admin_sms_user.html" ,
 	"/user/email/:uuid": "./v1/server/html/admin_email_user.html" ,
 	"/checkins": "./v1/server/html/admin_view_total_checkins.html" ,
+	"/checkins/:date": "./v1/server/html/admin_view_checkins.html" ,
 	"/emails": "./v1/server/html/admin_view_all_emails.html" ,
 	"/phone-numbers": "./v1/server/html/admin_view_all_phone_numbers.html" ,
 	"/barcodes": "./v1/server/html/admin_view_all_barcodes.html" ,
@@ -50,6 +51,9 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/logs/get/log-file-names" , GetLogFileNames )
 	admin_route_group.Get( "/logs/get/:file_name" , GetLogFile )
 
+	admin_route_group.Get( "/checkins/get/:date" , GetCheckinsDate )
+	admin_route_group.Get( "/checkins/delete/:uuid/:ulid" , DeleteCheckIn )
+
 	admin_route_group.Post( "/user/new" , HandleNewUserJoin )
 	admin_route_group.Post( "/user/edit" , HandleUserEdit )
 	admin_route_group.Get( "/user/delete/:uuid" , DeleteUser )
@@ -65,6 +69,8 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/user/get/all/barcodes" , GetAllBarcodes )
 	admin_route_group.Get( "/user/get/:uuid" , GetUser )
 	admin_route_group.Get( "/user/get/barcode/:barcode" , GetUserViaBarcode )
+	// admin_route_group.Get( "/user/get/checkins/:date" , GetCheckinsDate )
+
 
 	admin_route_group.Get( "/user/search/username/:username" , UserSearch )
 	admin_route_group.Get( "/user/search/username/fuzzy/:username" , UserSearchFuzzy )

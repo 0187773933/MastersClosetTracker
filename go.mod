@@ -12,7 +12,7 @@ require (
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/makiuchi-d/gozxing v0.1.1
 	github.com/manucorporat/try v0.0.0-20170609134256-2a0c6b941d52
-	github.com/nii236/adjectiveadjectiveanimal v0.0.1
+	github.com/oklog/ulid/v2 v2.1.0
 	github.com/ppsleep/barcode v0.0.0-20180824070850-4a54f72b39bc
 	github.com/satori/go.uuid v1.2.0
 	github.com/sfreiberg/gotwilio v1.0.0

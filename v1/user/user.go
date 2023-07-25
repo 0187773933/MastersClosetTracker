@@ -14,15 +14,19 @@ import (
 	encrypt "github.com/0187773933/MastersClosetTracker/v1/encryption"
 	types "github.com/0187773933/MastersClosetTracker/v1/types"
 	log "github.com/0187773933/MastersClosetTracker/v1/log"
+	printer "github.com/0187773933/MastersClosetTracker/v1/printer"
 )
 
 type CheckIn struct {
+	UUID string `json:"uuid"`
+	Name string `json:"name"`
+	ULID string `json:"ULID"`
 	Date string `json:"date"`
 	Time string `json:"time"`
 	Type string `json:"type"`
-	ShoppingFor int `json:"shopping_for"`
 	Result bool `json:"result"`
 	TimeRemaining int `json:"time_remaining"`
+	PrintJob printer.PrintJob `json:"print_job"`
 }
 
 // type FailedCheckIn struct {

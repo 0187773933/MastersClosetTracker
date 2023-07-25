@@ -13,6 +13,7 @@ import (
 	user "github.com/0187773933/MastersClosetTracker/v1/user"
 	printer "github.com/0187773933/MastersClosetTracker/v1/printer"
 	log "github.com/0187773933/MastersClosetTracker/v1/log"
+	ulid "github.com/oklog/ulid/v2"
 )
 
 type CheckInBalanceForm struct {
@@ -85,8 +86,8 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	new_check_in.Time = now.Format( "15:04:05.000" )
 	new_check_in.Type = "forced"
 	new_check_in.Date = strings.ToUpper( new_check_in.Date )
-	new_check_in.ShoppingFor = balance_form.ShoppingFor
-	viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
+	// new_check_in.ShoppingFor = balance_form.ShoppingFor
+	// viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
 
 
 	// 4.) Update the Balance
@@ -117,8 +118,8 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	// total_clothing_items := ( balance_form.TopsAvailable + balance_form.ShoesAvailable + balance_form.SeasonalsAvailable + balance_form.AccessoriesAvailable )
 	// total_clothing_items := ( balance_form.TopsAvailable )
 	total_clothing_items := ( balance_form.ShoppingFor * 6 )
-	family_size := viewed_user.FamilySize
-	if family_size < 1 { family_size = 1 } // this is what happens when you don't just use sql
+	// family_size := viewed_user.FamilySize
+	// if family_size < 1 { family_size = 1 } // this is what happens when you don't just use sql
 	barcode_number := ""
 	if len( viewed_user.Barcodes ) > 0 && len( viewed_user.Barcodes[ 0 ] ) > 1 {
 		barcode_number = viewed_user.Barcodes[ 0 ]
@@ -146,6 +147,7 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 			return nil
 		})
 	}
+
 	family_name := viewed_user.NameString
 	// if len( family_name ) > 20 ? // TODO : Find max length of family string
 	print_job := printer.PrintJob{
@@ -161,9 +163,18 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 		BarcodeNumber: barcode_number ,
 		Spanish: viewed_user.Spanish ,
 	}
-	log.PrintlnConsole( "Printing Ticket :" , print_job )
-	utils.PrettyPrint( print_job )
-	printer.PrintTicket( GlobalConfig.Printer , print_job )
+
+	new_check_in.UUID = viewed_user.UUID
+	new_check_in.Name = viewed_user.NameString
+	new_check_in.ULID = ulid.Make().String()
+	new_check_in.PrintJob = print_job
+	viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
+
+	if len( GlobalConfig.LocalHostUrl ) > 3 {
+		log.PrintlnConsole( "Printing Ticket :" , print_job )
+		utils.PrettyPrint( print_job )
+		printer.PrintTicket( GlobalConfig.Printer , print_job )
+	}
 
 	// 6.) Re-Save the User
 	viewed_user_byte_object , _ := json.Marshal( viewed_user )

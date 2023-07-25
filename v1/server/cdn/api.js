@@ -201,6 +201,22 @@ function api_get_all_checkins() {
 	});
 }
 
+function api_get_all_checkins_for_date( date_key ) {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			let check_in_response = await fetch( `${ServerBaseURL}/admin/checkins/get/${date_key}` , {
+				method: "GET" ,
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
+			});
+			let response_json = await check_in_response.json();
+			let result = response_json[ "result" ];
+			resolve( result );
+			return;
+		}
+		catch( error ) { console.log( error ); resolve( false ); return; }
+	});
+}
+
 function api_get_all_phone_numbers() {
 	return new Promise( async function( resolve , reject ) {
 		try {
@@ -247,6 +263,22 @@ function api_delete_user( uuid ) {
 		catch( error ) { console.log( error ); resolve( false ); return; }
 	});
 }
+
+function api_delete_checkin( uuid , ulid ) {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			let response = await fetch( `${ServerBaseURL}/admin/checkins/delete/${uuid}/${ulid}` , {
+				method: "GET" ,
+				headers: { "Content-Type": "application/json" , "key": ServerAPIKey }
+			});
+			let response_json = await response.json();
+			resolve( response_json );
+			return;
+		}
+		catch( error ) { console.log( error ); resolve( false ); return; }
+	});
+}
+
 
 function api_submit_form( url , form_data ) {
 	return new Promise( async function( resolve , reject ) {
