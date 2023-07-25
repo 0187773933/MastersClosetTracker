@@ -6,9 +6,6 @@
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css">
 		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-		<script src="/cdn/api.js" crossorigin="anonymous"></script>
-<!-- 		<script src="/cdn/utils.js" crossorigin="anonymous"></script>
-		<script src="/cdn/ui.js" crossorigin="anonymous"></script> -->
 	</head>
 	<body>
 		<div class="container">
@@ -39,45 +36,13 @@
 			</div>
 		</div>
 		<script>
-			// this has to be the event handler for a ui button press
-			// function on_copy_emails( event ) {
-			// 	if ( event ) { event.preventDefault(); }
-			// 	console.log( "set_clipboard()" );
-			// 	let textArea = document.createElement( "textarea" );
-			// 	textArea.style.position = "fixed";
-			// 	textArea.style.top = 0;
-			// 	textArea.style.left = 0;
-			// 	textArea.style.width = "2em";
-			// 	textArea.style.height = "2em";
-			// 	textArea.style.padding = 0;
-			// 	textArea.style.border = "none";
-			// 	textArea.style.outline = "none";
-			// 	textArea.style.boxShadow = "none";
-			// 	textArea.style.background = "transparent";
-			// 	textArea.value = window.emails_clipboard_text
-			// 	document.body.appendChild( textArea );
-			// 	textArea.focus();
-			// 	textArea.select();
-			// 	try {
-			// 		let successful = document.execCommand( "copy" );
-			// 		let msg = successful ? "successful" : "unsuccessful";
-			// 		console.log( "Copying text command was " + msg );
-			// 	} catch ( err ) {
-			// 		console.log( "Unable to Copy" );
-			// 	}
-			// 	textArea.parentNode.removeChild( textArea );
-			// }
-
-
-			// function parse_barcodes() {
-			// 	let clipboard_text = "";
-			// 	for ( let i = 0; i < ( window.barcodes.length - 1 ); ++i ) {
-			// 		clipboard_text += `"${window.barcodes[i][1]}" <${window.barcodes[i][2]}>\n`;
-			// 	}
-			// 	clipboard_text += `"${window.barcodes[window.barcodes.length - 1 ][1]}" <${window.barcodes[window.barcodes.length - 1 ][2]}>`;
-			// 	console.log( clipboard_text );
-			// 	// window.barcodes_clipboard_text = clipboard_text;
-			// }
+			function load_api() {
+				var timestamp = new Date().getTime();
+				var script = document.createElement( "script" );
+				script.src = "/cdn/api.js?v=" + timestamp;
+				script.crossOrigin = "anonymous";
+				document.head.appendChild( script );
+			}
 			function sort_table( column_index , method="alphabetical" , fresh=false ) {
 				const table = document.getElementById( "barcodes-table" );
 				const rows = Array.from( table.rows ).slice( 1 ); // exclude header row
@@ -164,6 +129,7 @@
 				console.log( `api_get_all_barcodes() took : ${duration} milliseconds` );
 			}
 			async function init() {
+				load_api();
 				let start = new Date();
 				window.barcodes = await api_get_all_barcodes();
 				let stop = new Date();

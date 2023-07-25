@@ -7,9 +7,6 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css">
 		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js" integrity="sha256-xUHvBjJ4hahBW8qN9gceFBibSFUzbe9PNttUvehITzY=" crossorigin="anonymous"></script>
-		<script src="/cdn/api.js" crossorigin="anonymous"></script>
-<!-- 		<script src="/cdn/utils.js" crossorigin="anonymous"></script>
-		<script src="/cdn/ui.js" crossorigin="anonymous"></script> -->
 	</head>
 	<body>
 		<div class="container">
@@ -35,6 +32,13 @@
 			</div>
 		</div>
 		<script>
+			function load_api() {
+				var timestamp = new Date().getTime();
+				var script = document.createElement( "script" );
+				script.src = "/cdn/api.js?v=" + timestamp;
+				script.crossOrigin = "anonymous";
+				document.head.appendChild( script );
+			}
 			function parse_custom_date_time_string( dts ) {
 				let parsable_string = `${dts.slice(0,2)} ${dts[2]}${dts.slice(3,5).toLowerCase()} ${dts.slice(5,9)}`;
 				return Date.parse( parsable_string );
@@ -173,6 +177,7 @@
 				console.log( `api_get_all_checkins_for_date() took : ${duration} milliseconds` );
 			}
 			async function init() {
+				load_api();
 				let start = new Date();
 				window.passed_check_in_date = window.location.pathname.split( "/checkins/" )[ 1 ];
 				window.checkins = await api_get_all_checkins_for_date( window.passed_check_in_date );
