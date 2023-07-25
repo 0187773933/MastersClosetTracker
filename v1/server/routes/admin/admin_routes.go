@@ -14,7 +14,7 @@ var ui_html_pages = map[ string ]string {
 	"/user/new/handoff/:uuid": "./v1/server/html/admin_user_new_handoff.html" ,
 	"/user/checkin": "./v1/server/html/admin_user_checkin.html" ,
 	"/user/checkin/:uuid": "./v1/server/html/admin_user_checkin.html" ,
-	"/user/checkin/:uuid/edit": "./v1/server/html/admin_user_checkin.html" ,
+	"/user/checkin/:uuid/edit/:ulid": "./v1/server/html/admin_edit_checkin.html" ,
 	"/user/checkin/new": "./v1/server/html/admin_user_checkin.html" ,
 	"/user/edit/:uuid": "./v1/server/html/admin_user_edit.html" ,
 	"/user/sms/:uuid": "./v1/server/html/admin_sms_user.html" ,
@@ -53,6 +53,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 
 	admin_route_group.Get( "/checkins/get/:date" , GetCheckinsDate )
 	admin_route_group.Get( "/checkins/delete/:uuid/:ulid" , DeleteCheckIn )
+	admin_route_group.Get( "/checkins/get/:uuid/:ulid" , GetCheckIn )
 
 	admin_route_group.Post( "/user/new" , HandleNewUserJoin )
 	admin_route_group.Post( "/user/edit" , HandleUserEdit )
@@ -75,6 +76,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/user/search/username/:username" , UserSearch )
 	admin_route_group.Get( "/user/search/username/fuzzy/:username" , UserSearchFuzzy )
 	admin_route_group.Get( "/print-test" , PrintTest )
+	admin_route_group.Post( "/print" , Print )
 
 	admin_route_group.Get( "/user/reports/main" , GetReportMain )
 	admin_route_group.Get( "/user/reports/mail-chimp" , GetReportMailChimp )

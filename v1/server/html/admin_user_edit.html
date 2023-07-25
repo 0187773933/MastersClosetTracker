@@ -339,7 +339,7 @@
 				form_data.append( "editing_uuid" , window.passed_uuid );
 				let total_barcodes = document.querySelectorAll( ".user-barcode" ).length;
 				form_data.append( "total_barcodes" , total_barcodes );
-				let result = await api_submit_form( "https://live.masterscloset.cc/admin/user/edit" , form_data )
+				let result = await api_submit_form( "admin/user/edit" , form_data )
 				return result;
 			}
 			async function on_submit( event ) {

@@ -89,7 +89,6 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	// new_check_in.ShoppingFor = balance_form.ShoppingFor
 	// viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
 
-
 	// 4.) Update the Balance
 	_att( &viewed_user.Balance.General.Tops.Used , balance_form.TopsAvailable )
 	_ries( &viewed_user.Balance.General.Tops.Available , balance_form.TopsAvailable , ( GlobalConfig.Balance.General.Tops * balance_form.ShoppingFor ) )
@@ -170,11 +169,11 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	new_check_in.PrintJob = print_job
 	viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
 
-	if len( GlobalConfig.LocalHostUrl ) > 3 {
-		log.PrintlnConsole( "Printing Ticket :" , print_job )
-		utils.PrettyPrint( print_job )
-		printer.PrintTicket( GlobalConfig.Printer , print_job )
-	}
+	// if len( GlobalConfig.LocalHostUrl ) > 3 {
+	// 	log.PrintlnConsole( "Printing Ticket :" , print_job )
+	// 	utils.PrettyPrint( print_job )
+	// 	printer.PrintTicket( GlobalConfig.Printer , print_job )
+	// }
 
 	// 6.) Re-Save the User
 	viewed_user_byte_object , _ := json.Marshal( viewed_user )
@@ -190,8 +189,136 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 	return context.JSON( fiber.Map{
 		"route": "/admin/user/checkin/:uuid" ,
 		"result": true ,
+		"check_in": new_check_in ,
 	})
 }
+
+// func Print( context *fiber.Ctx ) ( error ) {
+// 	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
+
+// 	var balance_form CheckInBalanceForm
+// 	json.Unmarshal( []byte( context.Body() ), &balance_form )
+// 	// fmt.Printf( "%+v\n" , balance_form )
+
+// 	// 1.) Prep
+
+// 	var result map[string]interface{}
+// 	json.Unmarshal([]byte(context.Body()), &result)
+// 	viewed_user := user.GetViaUUID( result["uuid"] , GlobalConfig )
+
+// 	// 3.) Create a New Check In
+// 	var new_check_in user.CheckIn
+// 	now := time.Now()
+// 	// now_time_zone := now.Location()
+// 	new_check_in.Date = now.Format( "02Jan2006" )
+// 	new_check_in.Time = now.Format( "15:04:05.000" )
+// 	new_check_in.Type = "forced"
+// 	new_check_in.Date = strings.ToUpper( new_check_in.Date )
+// 	// new_check_in.ShoppingFor = balance_form.ShoppingFor
+// 	// viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
+
+// 	// 4.) Update the Balance
+// 	_att( &viewed_user.Balance.General.Tops.Used , balance_form.TopsAvailable )
+// 	_ries( &viewed_user.Balance.General.Tops.Available , balance_form.TopsAvailable , ( GlobalConfig.Balance.General.Tops * balance_form.ShoppingFor ) )
+
+// 	_att( &viewed_user.Balance.General.Bottoms.Used , balance_form.BottomsAvailable )
+// 	_ries( &viewed_user.Balance.General.Bottoms.Available , balance_form.BottomsAvailable , ( GlobalConfig.Balance.General.Bottoms * balance_form.ShoppingFor ) )
+
+// 	_att( &viewed_user.Balance.General.Dresses.Used , balance_form.DressesAvailable )
+// 	_ries( &viewed_user.Balance.General.Dresses.Available , balance_form.DressesAvailable , ( GlobalConfig.Balance.General.Dresses * balance_form.ShoppingFor ) )
+
+// 	_att( &viewed_user.Balance.Shoes.Used , balance_form.ShoesAvailable )
+// 	_ries( &viewed_user.Balance.Shoes.Available , balance_form.ShoesAvailable , ( GlobalConfig.Balance.Shoes * balance_form.ShoppingFor ) )
+
+// 	_att( &viewed_user.Balance.Seasonals.Used , balance_form.SeasonalsAvailable )
+// 	_ries( &viewed_user.Balance.Seasonals.Available , balance_form.SeasonalsAvailable , ( GlobalConfig.Balance.Seasonals * balance_form.ShoppingFor ) )
+
+// 	_att( &viewed_user.Balance.Accessories.Used , balance_form.AccessoriesAvailable )
+// 	_ries( &viewed_user.Balance.Accessories.Available , balance_form.AccessoriesAvailable , ( GlobalConfig.Balance.Accessories * balance_form.ShoppingFor ) )
+
+// 	// fmt.Println( "Checking In With Balance :" )
+// 	// fmt.Printf( "%+v\n" , viewed_user.Balance )
+
+// 	// 5.) Print Ticket
+// 	// TODO : clarify calculation ????
+// 	// total_clothing_items := ( balance_form.TopsAvailable + balance_form.BottomsAvailable + balance_form.DressesAvailable )
+// 	// total_clothing_items := ( balance_form.TopsAvailable + balance_form.ShoesAvailable + balance_form.SeasonalsAvailable + balance_form.AccessoriesAvailable )
+// 	// total_clothing_items := ( balance_form.TopsAvailable )
+// 	total_clothing_items := ( balance_form.ShoppingFor * 6 )
+// 	// family_size := viewed_user.FamilySize
+// 	// if family_size < 1 { family_size = 1 } // this is what happens when you don't just use sql
+// 	barcode_number := ""
+// 	if len( viewed_user.Barcodes ) > 0 && len( viewed_user.Barcodes[ 0 ] ) > 1 {
+// 		barcode_number = viewed_user.Barcodes[ 0 ]
+// 	} else {
+// 		// Create a high number barcode
+// 		// barcode_number = viewed_user.AddVirtualBarcode()
+// 		db.Update( func( tx *bolt_api.Tx ) error {
+// 			misc_bucket , _ := tx.CreateBucketIfNotExists( []byte( "misc" ) )
+// 			vb_index_bucket_value := misc_bucket.Get( []byte( "virtual-barcode-index" ) )
+// 			// fmt.Println( "vb_index_bucket_value" , vb_index_bucket_value )
+// 			vb_index := 9999999
+// 			if vb_index_bucket_value != nil {
+// 				vb_index , _ = strconv.Atoi( string( vb_index_bucket_value ) )
+// 			}
+// 			vb_index = vb_index + 1
+
+// 			barcode_number = strconv.Itoa( vb_index )
+// 			log.PrintlnConsole( "Adding Virtual Barcode :" , barcode_number )
+// 			misc_bucket.Put( []byte( "virtual-barcode-index" ) , []byte( barcode_number ) )
+// 			viewed_user.Barcodes = append( viewed_user.Barcodes , barcode_number )
+
+// 			barcodes_bucket , _ := tx.CreateBucketIfNotExists( []byte( "barcodes" ) )
+// 			barcodes_bucket.Put( []byte( barcode_number ) , []byte( viewed_user.UUID ) )
+
+// 			return nil
+// 		})
+// 	}
+
+// 	family_name := viewed_user.NameString
+// 	// if len( family_name ) > 20 ? // TODO : Find max length of family string
+// 	print_job := printer.PrintJob{
+// 		FamilySize: balance_form.ShoppingFor ,
+// 		TotalClothingItems: total_clothing_items ,
+// 		Shoes: balance_form.ShoesAvailable ,
+// 		ShoesLimit: GlobalConfig.Balance.Shoes ,
+// 		Accessories: balance_form.AccessoriesAvailable ,
+// 		AccessoriesLimit: GlobalConfig.Balance.Accessories ,
+// 		Seasonal: balance_form.SeasonalsAvailable ,
+// 		SeasonalLimit: GlobalConfig.Balance.Seasonals ,
+// 		FamilyName: family_name ,
+// 		BarcodeNumber: barcode_number ,
+// 		Spanish: viewed_user.Spanish ,
+// 	}
+
+// 	new_check_in.UUID = viewed_user.UUID
+// 	new_check_in.Name = viewed_user.NameString
+// 	new_check_in.ULID = ulid.Make().String()
+// 	new_check_in.PrintJob = print_job
+// 	viewed_user.CheckIns = append( viewed_user.CheckIns , new_check_in )
+
+// 	if len( GlobalConfig.LocalHostUrl ) > 3 {
+// 		log.PrintlnConsole( "Printing Ticket :" , print_job )
+// 		utils.PrettyPrint( print_job )
+// 		printer.PrintTicket( GlobalConfig.Printer , print_job )
+// 	}
+
+// 	// 6.) Re-Save the User
+// 	viewed_user_byte_object , _ := json.Marshal( viewed_user )
+// 	viewed_user_byte_object_encrypted := encryption.ChaChaEncryptBytes( GlobalConfig.BoltDBEncryptionKey , viewed_user_byte_object )
+// 	db_result := db.Update( func( tx *bolt_api.Tx ) error {
+// 		bucket := tx.Bucket( []byte( "users" ) )
+// 		bucket.Put( []byte( x_uuid ) , viewed_user_byte_object_encrypted )
+// 		return nil
+// 	})
+// 	if db_result != nil { panic( "couldn't write to bolt db ??" ) }
+
+// 	// 7.) Return Result
+// 	return context.JSON( fiber.Map{
+// 		"route": "/admin/user/checkin/:uuid" ,
+// 		"result": true ,
+// 	})
+// }
 
 func UserCheckInTest( context *fiber.Ctx ) ( error ) {
 	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }

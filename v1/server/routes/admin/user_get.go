@@ -155,6 +155,42 @@ func GetCheckinsDate( context *fiber.Ctx ) ( error ) {
 	})
 }
 
+func GetCheckIn( context *fiber.Ctx ) ( error ) {
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
+
+	x_uuid := context.Params( "uuid" )
+	x_ulid := context.Params( "ulid" )
+
+	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
+	defer db.Close()
+
+	var result user.CheckIn
+	db.View( func( tx *bolt_api.Tx ) error {
+		bucket := tx.Bucket( []byte( "users" ) )
+		bucket.ForEach( func( uuid , value []byte ) error {
+			var viewed_user user.User
+			decrypted_bucket_value := encryption.ChaChaDecryptBytes( GlobalConfig.BoltDBEncryptionKey , value )
+			json.Unmarshal( decrypted_bucket_value , &viewed_user )
+			if len( viewed_user.CheckIns ) < 0 { return nil }
+			for _ , check_in := range viewed_user.CheckIns {
+				if check_in.ULID == x_ulid {
+					result = check_in
+					return nil
+				}
+			}
+			return nil
+		})
+		return nil
+	})
+
+	return context.JSON( fiber.Map{
+		"route": "/admin/checkins/get/:uuid/:ulid" ,
+		"uuid": x_uuid ,
+		"ulid": x_ulid ,
+		"result": result ,
+	})
+}
+
 
 func GetAllEmails( context *fiber.Ctx ) ( error ) {
 	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }

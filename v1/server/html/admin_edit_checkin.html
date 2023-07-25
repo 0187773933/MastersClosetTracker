@@ -1,0 +1,253 @@
+<html>
+	<head>
+		<title>Master's Closet - Edit Check In</title>
+		<link rel="icon" href="">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js" integrity="sha256-xUHvBjJ4hahBW8qN9gceFBibSFUzbe9PNttUvehITzY=" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css">
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-sm">
+					<center><h1>Edit Check In</h1></center>
+				</div>
+			</div>
+			<br><br>
+			<div class="row">
+				<center>
+					<form id="json-edit-form" action="/admin/user/edit" onSubmit="return on_submit( event )" method="post">
+						<div class="row g-2 mb-3">
+							<div class="col-xl-3"></div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="uuid" type="text" class="form-control" name="uuid" readonly>
+									<label for="uuid">UUID</label>
+								</div>
+							</div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="name" type="text" class="form-control" name="name" readonly>
+									<label for="name">Name</label>
+								</div>
+							</div>
+							<div class="col-xl-3"></div>
+						</div>
+						<div class="row g-2 mb-3">
+							<div class="col-xl-3"></div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="ULID" type="text" class="form-control" name="ULID" readonly>
+									<label for="ULID">ULID</label>
+								</div>
+							</div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="date" type="text" class="form-control" name="date" readonly>
+									<label for="date">Date</label>
+								</div>
+							</div>
+							<div class="col-xl-3"></div>
+						</div>
+						<div class="row g-2 mb-3">
+							<div class="col-xl-3"></div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="time" type="text" class="form-control" name="time" readonly>
+									<label for="time">Time</label>
+								</div>
+							</div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="type" type="text" class="form-control" name="type">
+									<label for="type">Type</label>
+								</div>
+							</div>
+							<div class="col-xl-3"></div>
+						</div>
+						<!-- Additional Fields for Print Job -->
+						<div class="row g-2 mb-3">
+							<div class="col-xl-3"></div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="family_size" type="number" class="form-control" name="print_job[family_size]">
+									<label for="family_size">Family Size</label>
+								</div>
+							</div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="total_clothing_items" type="number" class="form-control" name="print_job[total_clothing_items]">
+									<label for="total_clothing_items">Total Clothing Items</label>
+								</div>
+							</div>
+							<div class="col-xl-3"></div>
+						</div>
+
+						<div class="row g-2 mb-3">
+							<div class="col-xl-3"></div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="shoes" type="number" class="form-control" name="print_job[shoes]">
+									<label for="shoes">Shoes</label>
+								</div>
+							</div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="shoes_limit" type="number" class="form-control" name="print_job[shoes_limit]">
+									<label for="shoes_limit">Shoes Limit</label>
+								</div>
+							</div>
+							<div class="col-xl-3"></div>
+						</div>
+
+						<div class="row g-2 mb-3">
+							<div class="col-xl-3"></div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="accessories" type="number" class="form-control" name="print_job[accessories]">
+									<label for="accessories">Accessories</label>
+								</div>
+							</div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="accessories_limit" type="number" class="form-control" name="print_job[accessories_limit]">
+									<label for="accessories_limit">Accessories Limit</label>
+								</div>
+							</div>
+							<div class="col-xl-3"></div>
+						</div>
+						<div class="form-row">
+							<button id ="save-button" type="submit" class="btn btn-success">Save</button>
+						</div>
+					</form>
+				</center>
+			</div>
+		</div>
+		<script>
+			function load_api() {
+				return new Promise( function( resolve , reject ) {
+					try {
+						var timestamp = new Date().getTime();
+						var script = document.createElement( "script" );
+						script.src = "/cdn/api.js?v=" + timestamp;
+						script.crossOrigin = "anonymous";
+						document.head.appendChild( script );
+						script.onload = resolve;
+						return;
+					}
+					catch( error ) { console.log( error ); reject( error ); return; }
+				});
+			}
+			function add_qr_code( text , element_id ) {
+				let x_element = document.getElementById( element_id );
+				x_element.innerHTML = "";
+				let user_qrcode = new QRCode( x_element , {
+					text: text ,
+					width: 256 ,
+					height: 256 ,
+					colorDark : "#000000" ,
+					colorLight : "#ffffff" ,
+					correctLevel : QRCode.CorrectLevel.H
+				});
+			}
+			// colors
+			// https://getbootstrap.com/docs/5.3/utilities/background/
+			function clear_form() {
+				let form = document.getElementById( "user-edit-form" );
+				for ( let i = 0; i < form.elements.length; ++i ) {
+					let element = form.elements[ i ];
+					if ( element.type === "submit" ) { continue; }
+					element.value = '';
+				}
+			}
+			function show_user_exists_toast() {
+				// https://getbootstrap.com/docs/5.3/components/toasts/
+				let error_toast_element = document.getElementById( "user-exists-error" );
+				let error_toast = new bootstrap.Toast( error_toast_element );
+				error_toast.show();
+			}
+			function show_user_exists_modal( uuid ) {
+				let qr_code_link = `${window.location.protocol}//${window.location.host}/user/login/fresh/${uuid}`;
+				add_qr_code( qr_code_link , "user-exists-qr-code" );
+				let user_exists_modal = new bootstrap.Modal( "#user-exists-error-modal" , {
+					backdrop: "static" ,
+					focus: true ,
+					keyboard: true
+				});
+				user_exists_modal.show();
+			}
+			function show_user_handoff_modal( uuid ) {
+				let qr_code_link = `${window.location.protocol}//${window.location.host}/user/login/fresh/${uuid}`;
+				add_qr_code( qr_code_link , "user-handoff-qr-code" );
+				let user_handoff_modal = new bootstrap.Modal( "#user-handoff-modal" , {
+					backdrop: "static" ,
+					focus: true ,
+					keyboard: true
+				});
+				user_handoff_modal.show();
+			}
+			async function submit_form() {
+				let form = document.getElementById( "user-edit-form" );
+				let form_data = new FormData( form );
+				form_data.append( "editing_uuid" , window.passed_uuid );
+				let total_barcodes = document.querySelectorAll( ".user-barcode" ).length;
+				form_data.append( "total_barcodes" , total_barcodes );
+				let result = await api_submit_form( "admin/user/edit" , form_data )
+				return result;
+			}
+			async function on_submit( event ) {
+				event.preventDefault();
+				let result = await submit_form();
+				console.log( result );
+				// clear_form();
+				alert( "User Info Saved !" );
+			}
+
+			function populate_form( user_info ) {
+				for(let key in window.check_in) {
+				  if (window.check_in.hasOwnProperty(key)) {
+				    let el = document.getElementById(key);
+				    if(el) {
+				      if(el.type === "checkbox") {
+				        el.checked = window.check_in[key];
+				      } else {
+				        el.value = window.check_in[key] || "";
+				      }
+				    }
+
+				    if(key === 'print_job') {
+				      for(let subKey in window.check_in[key]) {
+				        if(window.check_in[key].hasOwnProperty(subKey)) {
+				          let subEl = document.getElementById(subKey);
+				          if(subEl) {
+				            subEl.value = window.check_in[key][subKey] || "";
+				          }
+				        }
+				      }
+				    }
+				  }
+				}
+			}
+			async function init() {
+				await load_api();
+
+				window.passed_uuid = window.location.pathname.split( "/checkin/" )[ 1 ].split( "/" )[ 0 ];
+				window.passed_ulid = window.location.pathname.split( "/edit/" )[ 1 ];
+				console.log( passed_uuid , passed_ulid );
+
+				window.check_in = await api_get_check_in( passed_uuid , passed_ulid );
+				console.log( window.check_in );
+				populate_form();
+
+				// clear_form();
+				// document.getElementById( "user_family_size" ).addEventListener( "change" , on_family_size_change );
+				// window.passed_uuid = window.location.pathname.split( "/edit/" )[ 1 ];
+				// let user_info = await get_user( window.passed_uuid );
+				// populate_form( user_info );
+			}
+			$( document ).ready( init );
+		</script>
+	</body>
+</html>

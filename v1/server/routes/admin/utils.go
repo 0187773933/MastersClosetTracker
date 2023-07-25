@@ -3,6 +3,7 @@ package adminroutes
 import (
 	"fmt"
 	"strings"
+	"encoding/json"
 	fiber "github.com/gofiber/fiber/v2"
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
 	printer "github.com/0187773933/MastersClosetTracker/v1/printer"
@@ -49,6 +50,18 @@ func PrintTest( context *fiber.Ctx ) ( error ) {
 	})
 	return context.JSON( fiber.Map{
 		"route": "/admin/print-test" ,
+		"result": "success" ,
+	})
+}
+
+func Print( context *fiber.Ctx ) ( error ) {
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
+	var print_job printer.PrintJob
+	json.Unmarshal( []byte( context.Body() ) , &print_job )
+	fmt.Println( print_job )
+	printer.PrintTicket( GlobalConfig.Printer , print_job )
+	return context.JSON( fiber.Map{
+		"route": "/admin/print" ,
 		"result": "success" ,
 	})
 }
