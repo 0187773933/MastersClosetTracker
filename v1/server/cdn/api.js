@@ -38,6 +38,22 @@ function api_check_in_uuid( uuid , balance_form_data ) {
 	});
 }
 
+function api_print( print_job ) {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			let response_print = await fetch( `${LocalHostURL}/admin/print` , {
+				method: "POST" ,
+				headers: { "key": ServerAPIKey } ,
+				body: JSON.stringify( print_job )
+			});
+			let response_json_print = await response_print.json();
+			resolve( response_json_print );
+			return;
+		}
+		catch( error ) { console.log( error ); resolve( false ); return; }
+	});
+}
+
 function api_check_in_uuid_test( uuid ) {
 	return new Promise( async function( resolve , reject ) {
 		try {

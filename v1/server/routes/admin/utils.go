@@ -62,6 +62,6 @@ func Print( context *fiber.Ctx ) ( error ) {
 	printer.PrintTicket( GlobalConfig.Printer , print_job )
 	return context.JSON( fiber.Map{
 		"route": "/admin/print" ,
-		"result": "success" ,
+		"result": true ,
 	})
 }

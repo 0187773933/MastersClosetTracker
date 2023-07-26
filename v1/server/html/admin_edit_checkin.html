@@ -67,18 +67,34 @@
 							</div>
 							<div class="col-xl-3"></div>
 						</div>
+						<div class="row g-2 mb-3">
+							<div class="col-xl-3"></div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="barcode_number" type="number" class="form-control" name="barcode_number">
+									<label for="barcode_number">Barcode</label>
+								</div>
+							</div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" name="spanish" id="spanish">
+									<label class="form-check-label" for="spanish">Español</label>
+								</div>
+							</div>
+							<div class="col-xl-3"></div>
+						</div>
 						<!-- Additional Fields for Print Job -->
 						<div class="row g-2 mb-3">
 							<div class="col-xl-3"></div>
 							<div class="col-xl-3 col-sm-6">
 								<div class="form-floating">
-									<input id="family_size" type="number" class="form-control" name="print_job[family_size]">
+									<input id="family_size" type="number" class="form-control" name="family_size">
 									<label for="family_size">Family Size</label>
 								</div>
 							</div>
 							<div class="col-xl-3 col-sm-6">
 								<div class="form-floating">
-									<input id="total_clothing_items" type="number" class="form-control" name="print_job[total_clothing_items]">
+									<input id="total_clothing_items" type="number" class="form-control" name="total_clothing_items">
 									<label for="total_clothing_items">Total Clothing Items</label>
 								</div>
 							</div>
@@ -89,31 +105,46 @@
 							<div class="col-xl-3"></div>
 							<div class="col-xl-3 col-sm-6">
 								<div class="form-floating">
-									<input id="shoes" type="number" class="form-control" name="print_job[shoes]">
+									<input id="shoes" type="number" class="form-control" name="shoes">
 									<label for="shoes">Shoes</label>
 								</div>
 							</div>
 							<div class="col-xl-3 col-sm-6">
 								<div class="form-floating">
-									<input id="shoes_limit" type="number" class="form-control" name="print_job[shoes_limit]">
+									<input id="shoes_limit" type="number" class="form-control" name="shoes_limit">
 									<label for="shoes_limit">Shoes Limit</label>
 								</div>
 							</div>
 							<div class="col-xl-3"></div>
 						</div>
-
 						<div class="row g-2 mb-3">
 							<div class="col-xl-3"></div>
 							<div class="col-xl-3 col-sm-6">
 								<div class="form-floating">
-									<input id="accessories" type="number" class="form-control" name="print_job[accessories]">
+									<input id="accessories" type="number" class="form-control" name="accessories">
 									<label for="accessories">Accessories</label>
 								</div>
 							</div>
 							<div class="col-xl-3 col-sm-6">
 								<div class="form-floating">
-									<input id="accessories_limit" type="number" class="form-control" name="print_job[accessories_limit]">
+									<input id="accessories_limit" type="number" class="form-control" name="accessories_limit">
 									<label for="accessories_limit">Accessories Limit</label>
+								</div>
+							</div>
+							<div class="col-xl-3"></div>
+						</div>
+						<div class="row g-2 mb-3">
+							<div class="col-xl-3"></div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="seasonal" type="number" class="form-control" name="seasonal">
+									<label for="seasonal">Seasonals</label>
+								</div>
+							</div>
+							<div class="col-xl-3 col-sm-6">
+								<div class="form-floating">
+									<input id="seasonal_limit" type="number" class="form-control" name="seasonal_limit">
+									<label for="seasonal_limit">Seasonals Limit</label>
 								</div>
 							</div>
 							<div class="col-xl-3"></div>
@@ -156,15 +187,50 @@
 				for (let key of form_data.keys()) {
 					obj[key] = form_data.get(key);
 				}
+				console.log( obj );
 				return JSON.stringify(obj);
 			}
+			// function form_data_to_object(form_data) {
+			// 	let object = {};
+			// 	for(let pair of form_data.entries()) {
+			// 		let keyPath = pair[0].split('[');
+			// 		let depth = keyPath.length;
+			// 		let last = keyPath.pop();
+			// 		last = last.replace(']','');
+
+			// 		let current = object;
+			// 		for(let i=0; i<depth-1; i++){
+			// 			let key = keyPath[i].replace(']', '');
+			// 			if(!(key in current))
+			// 				current[key] = {};
+			// 			current = current[key];
+			// 		}
+			// 		current[last] = pair[1];
+			// 	}
+			// 	return object;
+			// }
 
 			async function submit_form() {
 				let form = document.getElementById( "checkin-edit-form" );
 				let form_data = new FormData( form );
+				let spanishCheckbox = document.getElementById('spanish');
+				let spanishValue = spanishCheckbox ? spanishCheckbox.checked : false;
+				window.check_in.print_job = {
+					"family_size": parseInt( form_data.get( "family_size" ) ) ,
+					"total_clothing_items": parseInt( form_data.get( "total_clothing_items" ) ) ,
+					"shoes": parseInt( form_data.get( "shoes" ) ) ,
+					"shoes_limit": parseInt( form_data.get( "shoes_limit" ) ) ,
+					"accessories": parseInt( form_data.get( "accessories" ) ) ,
+					"accessories_limit": parseInt( form_data.get( "accessories_limit" ) ) ,
+					"seasonal": parseInt( form_data.get( "seasonal" ) ) ,
+					"seasonal_limit": parseInt( form_data.get( "seasonal_limit" ) ) ,
+					"family_name": form_data.get( "name" ) ,
+					"barcode_number": form_data.get( "barcode_number" ) ,
+					"spanish": spanishValue ,
+				};
+				console.log( window.check_in );
 				let url = `admin/checkins/edit/${window.passed_uuid}/${window.passed_ulid}`;
-				let js_form_data = form_data_to_json( form_data );
-				let result = await api_submit_form( url , js_form_data );
+				let result = await api_submit_form( url , JSON.stringify( window.check_in ) );
 				return result;
 			}
 			async function on_submit( event ) {
@@ -175,7 +241,7 @@
 				if ( result === true ) {
 					alert( "Check In Info Saved !" );
 				} else {
-					alert( "Error !" );
+					alert( "Error Saving !" );
 				}
 			}
 
@@ -215,11 +281,34 @@
 				console.log( window.check_in );
 				populate_form();
 
-				// clear_form();
-				// document.getElementById( "user_family_size" ).addEventListener( "change" , on_family_size_change );
-				// window.passed_uuid = window.location.pathname.split( "/edit/" )[ 1 ];
-				// let user_info = await get_user( window.passed_uuid );
-				// populate_form( user_info );
+				$( "#print-button" ).click( async function( event ) {
+					event.preventDefault();
+					let form = document.getElementById( "checkin-edit-form" );
+					let form_data = new FormData( form );
+					let spanishCheckbox = document.getElementById('spanish');
+					let spanishValue = spanishCheckbox ? spanishCheckbox.checked : false;
+					let print_job = {
+						"family_size": parseInt( form_data.get( "family_size" ) ) ,
+						"total_clothing_items": parseInt( form_data.get( "total_clothing_items" ) ) ,
+						"shoes": parseInt( form_data.get( "shoes" ) ) ,
+						"shoes_limit": parseInt( form_data.get( "shoes_limit" ) ) ,
+						"accessories": parseInt( form_data.get( "accessories" ) ) ,
+						"accessories_limit": parseInt( form_data.get( "accessories_limit" ) ) ,
+						"seasonal": parseInt( form_data.get( "seasonal" ) ) ,
+						"seasonal_limit": parseInt( form_data.get( "seasonal_limit" ) ) ,
+						"family_name": form_data.get( "name" ) ,
+						"barcode_number": form_data.get( "barcode_number" ) ,
+						"spanish": spanishValue ,
+					};
+					console.log( print_job );
+					let print_result = await api_print( print_job );
+					console.log( print_result );
+					if ( print_result[ "result" ] === true ) {
+						alert( "Printed !" );
+					} else {
+						alert( "Error Printing !" );
+					}
+				});
 			}
 			$( document ).ready( init );
 		</script>

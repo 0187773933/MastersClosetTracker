@@ -39,6 +39,7 @@ func EditCheckIn( context *fiber.Ctx ) ( error ) {
 	x_uuid := context.Params( "uuid" )
 	x_ulid := context.Params( "ulid" )
 
+
 	var x_checkin user.CheckIn
 	json.Unmarshal( x_body , &x_checkin )
 	fmt.Println( x_uuid , x_ulid , x_checkin )
@@ -56,6 +57,9 @@ func EditCheckIn( context *fiber.Ctx ) ( error ) {
 			for i , check_in := range viewed_user.CheckIns {
 				if check_in.ULID == x_ulid {
 					viewed_user.CheckIns[ i ] = x_checkin
+					viewed_user_byte_object , _ := json.Marshal( viewed_user )
+					viewed_user_byte_object_encrypted := encryption.ChaChaEncryptBytes( GlobalConfig.BoltDBEncryptionKey , viewed_user_byte_object )
+					bucket.Put( []byte( x_uuid ) , viewed_user_byte_object_encrypted )
 					return nil
 				}
 			}
