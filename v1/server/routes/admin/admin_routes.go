@@ -54,6 +54,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/checkins/get/:date" , GetCheckinsDate )
 	admin_route_group.Get( "/checkins/delete/:uuid/:ulid" , DeleteCheckIn )
 	admin_route_group.Get( "/checkins/get/:uuid/:ulid" , GetCheckIn )
+	admin_route_group.Post( "/checkins/edit/:uuid/:ulid" , EditCheckIn )
 
 	admin_route_group.Post( "/user/new" , HandleNewUserJoin )
 	admin_route_group.Post( "/user/edit" , HandleUserEdit )

@@ -18,7 +18,7 @@
 			<br><br>
 			<div class="row">
 				<center>
-					<form id="json-edit-form" action="/admin/user/edit" onSubmit="return on_submit( event )" method="post">
+					<form id="checkin-edit-form" action="/admin/checkin/edit" onSubmit="return on_submit( event )" method="post">
 						<div class="row g-2 mb-3">
 							<div class="col-xl-3"></div>
 							<div class="col-xl-3 col-sm-6">
@@ -29,7 +29,7 @@
 							</div>
 							<div class="col-xl-3 col-sm-6">
 								<div class="form-floating">
-									<input id="name" type="text" class="form-control" name="name" readonly>
+									<input id="name" type="text" class="form-control" name="name">
 									<label for="name">Name</label>
 								</div>
 							</div>
@@ -119,6 +119,7 @@
 							<div class="col-xl-3"></div>
 						</div>
 						<div class="form-row">
+							<button id ="print-button" type="button" class="btn btn-warning">Print</button>
 							<button id ="save-button" type="submit" class="btn btn-success">Save</button>
 						</div>
 					</form>
@@ -140,18 +141,6 @@
 					catch( error ) { console.log( error ); reject( error ); return; }
 				});
 			}
-			function add_qr_code( text , element_id ) {
-				let x_element = document.getElementById( element_id );
-				x_element.innerHTML = "";
-				let user_qrcode = new QRCode( x_element , {
-					text: text ,
-					width: 256 ,
-					height: 256 ,
-					colorDark : "#000000" ,
-					colorLight : "#ffffff" ,
-					correctLevel : QRCode.CorrectLevel.H
-				});
-			}
 			// colors
 			// https://getbootstrap.com/docs/5.3/utilities/background/
 			function clear_form() {
@@ -162,39 +151,20 @@
 					element.value = '';
 				}
 			}
-			function show_user_exists_toast() {
-				// https://getbootstrap.com/docs/5.3/components/toasts/
-				let error_toast_element = document.getElementById( "user-exists-error" );
-				let error_toast = new bootstrap.Toast( error_toast_element );
-				error_toast.show();
+			function form_data_to_json( form_data ) {
+				let obj = {};
+				for (let key of form_data.keys()) {
+					obj[key] = form_data.get(key);
+				}
+				return JSON.stringify(obj);
 			}
-			function show_user_exists_modal( uuid ) {
-				let qr_code_link = `${window.location.protocol}//${window.location.host}/user/login/fresh/${uuid}`;
-				add_qr_code( qr_code_link , "user-exists-qr-code" );
-				let user_exists_modal = new bootstrap.Modal( "#user-exists-error-modal" , {
-					backdrop: "static" ,
-					focus: true ,
-					keyboard: true
-				});
-				user_exists_modal.show();
-			}
-			function show_user_handoff_modal( uuid ) {
-				let qr_code_link = `${window.location.protocol}//${window.location.host}/user/login/fresh/${uuid}`;
-				add_qr_code( qr_code_link , "user-handoff-qr-code" );
-				let user_handoff_modal = new bootstrap.Modal( "#user-handoff-modal" , {
-					backdrop: "static" ,
-					focus: true ,
-					keyboard: true
-				});
-				user_handoff_modal.show();
-			}
+
 			async function submit_form() {
-				let form = document.getElementById( "user-edit-form" );
+				let form = document.getElementById( "checkin-edit-form" );
 				let form_data = new FormData( form );
-				form_data.append( "editing_uuid" , window.passed_uuid );
-				let total_barcodes = document.querySelectorAll( ".user-barcode" ).length;
-				form_data.append( "total_barcodes" , total_barcodes );
-				let result = await api_submit_form( "admin/user/edit" , form_data )
+				let url = `admin/checkins/edit/${window.passed_uuid}/${window.passed_ulid}`;
+				let js_form_data = form_data_to_json( form_data );
+				let result = await api_submit_form( url , js_form_data );
 				return result;
 			}
 			async function on_submit( event ) {
@@ -202,31 +172,35 @@
 				let result = await submit_form();
 				console.log( result );
 				// clear_form();
-				alert( "User Info Saved !" );
+				if ( result === true ) {
+					alert( "Check In Info Saved !" );
+				} else {
+					alert( "Error !" );
+				}
 			}
 
 			function populate_form( user_info ) {
 				for(let key in window.check_in) {
 				  if (window.check_in.hasOwnProperty(key)) {
-				    let el = document.getElementById(key);
-				    if(el) {
-				      if(el.type === "checkbox") {
-				        el.checked = window.check_in[key];
-				      } else {
-				        el.value = window.check_in[key] || "";
-				      }
-				    }
+					let el = document.getElementById(key);
+					if(el) {
+					  if(el.type === "checkbox") {
+						el.checked = window.check_in[key];
+					  } else {
+						el.value = window.check_in[key] || "";
+					  }
+					}
 
-				    if(key === 'print_job') {
-				      for(let subKey in window.check_in[key]) {
-				        if(window.check_in[key].hasOwnProperty(subKey)) {
-				          let subEl = document.getElementById(subKey);
-				          if(subEl) {
-				            subEl.value = window.check_in[key][subKey] || "";
-				          }
-				        }
-				      }
-				    }
+					if(key === 'print_job') {
+					  for(let subKey in window.check_in[key]) {
+						if(window.check_in[key].hasOwnProperty(subKey)) {
+						  let subEl = document.getElementById(subKey);
+						  if(subEl) {
+							subEl.value = window.check_in[key][subKey] || "";
+						  }
+						}
+					  }
+					}
 				  }
 				}
 			}
