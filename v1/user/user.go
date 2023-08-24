@@ -248,46 +248,23 @@ func ( u *User ) GetFamilySize() ( result int ) {
 	return
 }
 
-func ( u *User ) FormatUsername() {
-	var username_format string
-	var name_string_format string
-	var username_parts []interface{}
-	if u.Identity.FirstName != "" && u.Identity.MiddleName != "" && u.Identity.LastName != "" {
-		username_format = "%s-%s-%s"
-		name_string_format = "%s %s %s"
-		username_parts = []interface{}{u.Identity.FirstName, u.Identity.MiddleName, u.Identity.LastName}
-	} else if u.Identity.FirstName != "" && u.Identity.MiddleName != "" {
-		username_format = "%s-%s"
-		name_string_format = "%s %s"
-		username_parts = []interface{}{u.Identity.FirstName, u.Identity.MiddleName}
-	} else if u.Identity.FirstName != "" && u.Identity.LastName != "" {
-		username_format = "%s-%s"
-		name_string_format = "%s %s"
-		username_parts = []interface{}{u.Identity.FirstName, u.Identity.LastName}
-	} else if u.Identity.MiddleName != "" && u.Identity.LastName != "" {
-		username_format = "%s-%s"
-		name_string_format = "%s %s"
-		username_parts = []interface{}{u.Identity.MiddleName, u.Identity.LastName}
-	} else if u.Identity.FirstName != "" {
-		username_format = "%s"
-		name_string_format = "%s"
-		username_parts = []interface{}{u.Identity.FirstName}
-	} else if u.Identity.MiddleName != "" {
-		username_format = "%s"
-		name_string_format = "%s"
-		username_parts = []interface{}{u.Identity.MiddleName}
-	} else if u.Identity.LastName != "" {
-		username_format = "%s"
-		name_string_format = "%s"
-		username_parts = []interface{}{u.Identity.LastName}
-	} else {
-		username_format = ""
-		name_string_format = ""
-		username_parts = []interface{}{}
+func (u *User) FormatUsername() {
+	var username_parts []string
+	if u.Identity.FirstName != "" {
+		u.Identity.FirstName = strings.Title( strings.ToLower( strings.TrimSpace( u.Identity.FirstName ) ) )
+		username_parts = append( username_parts , u.Identity.FirstName )
 	}
-	if username_format != "" {
-		u.Username = fmt.Sprintf( username_format , username_parts... )
-		u.NameString = fmt.Sprintf( name_string_format , username_parts... )
+	if u.Identity.MiddleName != "" {
+		u.Identity.MiddleName = strings.Title( strings.ToLower( strings.TrimSpace( u.Identity.MiddleName ) ) )
+		username_parts = append( username_parts , u.Identity.MiddleName )
+	}
+	if u.Identity.LastName != "" {
+		u.Identity.LastName = strings.Title( strings.ToLower( strings.TrimSpace( u.Identity.LastName ) ) )
+		username_parts = append( username_parts , u.Identity.LastName )
+	}
+	if len(username_parts) > 0 {
+		u.Username = strings.Join( username_parts , "-" )
+		u.NameString = strings.Join( username_parts , " " )
 	}
 }
 
@@ -390,45 +367,22 @@ func ( u *User ) AddBarcode( barcode string ) {
 }
 
 func FormatUsername( x_user *User ) {
-	var username_format string
-	var name_string_format string
-	var username_parts []interface{}
-	if x_user.Identity.FirstName != "" && x_user.Identity.MiddleName != "" && x_user.Identity.LastName != "" {
-		username_format = "%s-%s-%s"
-		name_string_format = "%s %s %s"
-		username_parts = []interface{}{x_user.Identity.FirstName, x_user.Identity.MiddleName, x_user.Identity.LastName}
-	} else if x_user.Identity.FirstName != "" && x_user.Identity.MiddleName != "" {
-		username_format = "%s-%s"
-		name_string_format = "%s %s"
-		username_parts = []interface{}{x_user.Identity.FirstName, x_user.Identity.MiddleName}
-	} else if x_user.Identity.FirstName != "" && x_user.Identity.LastName != "" {
-		username_format = "%s-%s"
-		name_string_format = "%s %s"
-		username_parts = []interface{}{x_user.Identity.FirstName, x_user.Identity.LastName}
-	} else if x_user.Identity.MiddleName != "" && x_user.Identity.LastName != "" {
-		username_format = "%s-%s"
-		name_string_format = "%s %s"
-		username_parts = []interface{}{x_user.Identity.MiddleName, x_user.Identity.LastName}
-	} else if x_user.Identity.FirstName != "" {
-		username_format = "%s"
-		name_string_format = "%s"
-		username_parts = []interface{}{x_user.Identity.FirstName}
-	} else if x_user.Identity.MiddleName != "" {
-		username_format = "%s"
-		name_string_format = "%s"
-		username_parts = []interface{}{x_user.Identity.MiddleName}
-	} else if x_user.Identity.LastName != "" {
-		username_format = "%s"
-		name_string_format = "%s"
-		username_parts = []interface{}{x_user.Identity.LastName}
-	} else {
-		username_format = ""
-		name_string_format = ""
-		username_parts = []interface{}{}
+	var username_parts []string
+	if x_user.Identity.FirstName != "" {
+		x_user.Identity.FirstName = strings.Title( strings.ToLower( strings.TrimSpace( x_user.Identity.FirstName ) ) )
+		username_parts = append( username_parts , x_user.Identity.FirstName )
 	}
-	if username_format != "" {
-		x_user.Username = fmt.Sprintf( username_format , username_parts... )
-		x_user.NameString = fmt.Sprintf( name_string_format , username_parts... )
+	if x_user.Identity.MiddleName != "" {
+		x_user.Identity.MiddleName = strings.Title( strings.ToLower( strings.TrimSpace( x_user.Identity.MiddleName ) ) )
+		username_parts = append( username_parts , x_user.Identity.MiddleName )
+	}
+	if x_user.Identity.LastName != "" {
+		x_user.Identity.LastName = strings.Title( strings.ToLower( strings.TrimSpace( x_user.Identity.LastName ) ) )
+		username_parts = append( username_parts , x_user.Identity.LastName )
+	}
+	if len( username_parts ) > 0 {
+		x_user.Username = strings.Join( username_parts , "-" )
+		x_user.NameString = strings.Join( username_parts , " " )
 	}
 }
 

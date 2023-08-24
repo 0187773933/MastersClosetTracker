@@ -4,6 +4,14 @@ const barcode_regex = /^\d+$/;
 function is_barcode( str ) { return barcode_regex.test( str ); }
 function sleep( ms ) { return new Promise( resolve => setTimeout( resolve , ms ) ); }
 
+function title_case( str ) {
+	if ( !str ) { return ""; }
+	return str.toLowerCase().split( " " ).map( x => {
+		if ( !x ) { return ""; }
+		return x[ 0 ].toUpperCase() + x.substr( 1 ).toLowerCase();
+	}).join( " " ).trim();
+}
+
 function convert_milliseconds_to_time_string( milliseconds ) {
 	let seconds = Math.floor( milliseconds / 1000 );
 	let minutes = Math.floor( seconds / 60 );

@@ -35,6 +35,10 @@
 6. Change "usernames" DB bucket for key=${uuid}_username , value=Username
 	- keeps only uuids as keys
 7. Make config editable via html
+8. Fix ui.js#793
+	- `document.getElementById( barcode_id ).focus();`
+	- make this optional , so that the edit page doesn't use this
+9. Fix Username/NameString to be Title Case
 
 
 ## Misc
