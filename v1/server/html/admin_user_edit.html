@@ -1,256 +1,58 @@
 <html>
 	<head>
-		<title>Master's Closet - User Edit</title>
+		<title>User Check In</title>
 		<link rel="icon" href="">
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-		<script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js" integrity="sha256-xUHvBjJ4hahBW8qN9gceFBibSFUzbe9PNttUvehITzY=" crossorigin="anonymous"></script>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/ulid@2.3.0/dist/index.umd.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js" integrity="sha256-xUHvBjJ4hahBW8qN9gceFBibSFUzbe9PNttUvehITzY=" crossorigin="anonymous"></script>
+		<script src="/cdn/utils.js" crossorigin="anonymous"></script>
+		<script src="/cdn/ui.js" crossorigin="anonymous"></script>
+		<style type="text/css">
+			.btn-qrcode {
+				color: #fff;
+				background-color: #17a2b8;
+				border-color: #17a2b8;
+			}
+			.btn-qrcode:hover {
+				color: #fff;
+				background-color: #138496;
+				border-color: #117a8b;
+			}
+			.btn-sms {
+				color: #fff;
+				background-color: #00D8AE;
+				border-color: #00D8AE;
+			}
+			.btn-sms:hover {
+				color: #fff;
+				background-color: #00D8AE;
+				border-color: #00D8AE;
+			}
+		</style>
 	</head>
 	<body>
+		<br>
 		<div class="container">
-			<div class="row">
-				<div class="col-sm">
-					<center><h1>Master's Closet - Admin - Edit User</h1></center>
-				</div>
-			</div>
-			<br><br>
-			<div class="row">
-				<center>
-					<form id="user-edit-form" action="/admin/user/edit" onSubmit="return on_submit( event )" method="post">
-						<!-- Main Required Stuff -->
-						<div class="row g-2 mb-3">
-							<div class="col-md-4">
-								<div class="form-floating">
-									<input id="user_first_name" type="text" class="form-control" name="user_first_name">
-									<label for="user_first_name">First Name</label>
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="form-floating">
-									<input id="user_middle_name" type="text" class="form-control" name="user_middle_name">
-									<label for="user_middle_name">Middle Name</label>
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="form-floating">
-									<input id="user_last_name" type="text" class="form-control" name="user_last_name">
-									<label for="user_last_name">Last Name</label>
-								</div>
-							</div>
-						</div>
-						<div class="row g-2 mb-3">
-								<div class="col-md-2"></div>
-								<div class="col-md-4">
-									<div class="form-floating">
-										<input id="user_email" type="email" class="form-control" name="user_email">
-										<label for="user_email">Email Address</label>
-									</div>
-								</div>
-								<div class="col-md-4">
-									<div class="form-floating">
-										<input id="user_phone_number" type="tel" class="form-control" name="user_phone_number">
-										<label for="user_phone_number">Phone Number</label>
-									</div>
-								</div>
-								<div class="col-md-2"></div>
-						</div>
-
-						<div class="row g-2 mb-3">
-							<div class="col-md-4"></div>
-							<div class="col-md-4">
-								<button id="add-barcode-button" class="btn btn-primary" onclick="on_add_barcode(event);">Add Barcode</button>
-							</div>
-							<div class="col-md-4"></div>
-						</div>
-
-						<div id="user_barcodes"></div>
-
-						<br>
-
-						<!-- Address - Part 1-->
-						<div class="row g-2 mb-3">
-							<div class="col-md-4">
-								<div class="form-floating">
-									<input id="user_street_number" type="text" class="form-control" name="user_street_number">
-									<label for="user_street_number">Street Number</label>
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="form-floating">
-									<input id="user_street_name" type="text" class="form-control" name="user_street_name">
-									<label for="user_street_name">Street Name</label>
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="form-floating">
-									<input id="user_address_two" type="text" class="form-control" name="user_street_name">
-									<label for="user_address_two">Address 2</label>
-								</div>
-							</div>
-						</div>
-						<!-- Address - Part 2-->
-						<div class="row g-2 mb-3">
-							<div class="col-md-4">
-								<div class="form-floating">
-									<input id="user_city" type="text" class="form-control" name="user_city">
-									<label for="user_city">City</label>
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="form-floating">
-									<input id="user_state" type="text" class="form-control" name="user_state">
-									<label for="user_state">State</label>
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="form-floating">
-									<input id="user_zip_code" type="text" class="form-control" name="user_zip_code">
-									<label for="user_zip_code">Zip Code</label>
-								</div>
-							</div>
-						</div>
-						<br>
-						<!-- Extras -->
-						<div class="row g-2 mb-3">
-
-							<div class="col-md-4">
-								<div class="form-floating">
-									<input id="user_birth_day" type="number" min="1" max="31" class="form-control" name="user_birth_day">
-									<label for="user_birth_day">Birth Day</label>
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="form-floating">
-									<select id="user_birth_month" class="form-select" aria-label="User Birth Month" name="user_birth_month">
-										<option value="JAN">JAN = 1</option>
-										<option value="FEB">FEB = 2</option>
-										<option value="MAR">MAR = 3</option>
-										<option value="APR">APR = 4</option>
-										<option value="MAY">MAY = 5</option>
-										<option value="JUN">JUN = 6</option>
-										<option value="JUL">JUL = 7</option>
-										<option value="AUG">AUG = 8</option>
-										<option value="SEP">SEP = 9</option>
-										<option value="OCT">OCT = 10</option>
-										<option value="NOV">NOV = 11</option>
-										<option value="DEC">DEC = 12</option>
-									</select>
-									<label for="user_birth_month">Birth Month</label>
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div class="form-floating">
-									<input id="user_birth_year" type="number" min="1900" max="2100" class="form-control" name="user_birth_year">
-									<label for="user_birth_year">Birth Year</label>
-								</div>
-							</div>
-						</div>
-
-
-						<!-- Extras - Using Date Picker-->
-<!-- 						<div class="row g-2 mb-3">
-							<center>
-								<div class="col-md-4">
-									<div class="form-floating">
-										<input id="user_date_of_birth" type="text" class="form-control">
-										<label for="user_date_of_birth">Date of Birth</label>
-									</div>
-								</div>
-							</center>
-						</div> -->
-
-						<br>
-
-						<div class="row g-2 mb-3">
-							<div class="col-md-4"></div>
-							<div class="col-md-4">
-								<div class="form-floating">
-									<select id="user_family_size" class="form-select" aria-label="User Family Size" name="user_family_size">
-										<option value="0">0</option>
-										<option value="1">1</option>
-										<option value="2">2</option>
-										<option value="3">3</option>
-										<option value="4">4</option>
-										<option value="5">5</option>
-										<option value="6">6</option>
-<!-- 										<option value="7">7</option>
-										<option value="8">8</option>
-										<option value="9">9</option>
-										<option value="10">10</option>
-										<option value="11">11</option>
-										<option value="12">12</option>
-										<option value="13">13</option>
-										<option value="14">14</option>
-										<option value="15">15</option>
-										<option value="16">16</option>
-										<option value="17">17</option>
-										<option value="18">18</option>
-										<option value="19">19</option>
-										<option value="20">20</option> -->
-									</select>
-									<label for="user_family_size">Family Members</label>
-								</div>
-							</div>
-							<div class="col-md-4"></div>
-						</div>
-
-						<div id="user_family_members">
-
-						</div>
-
-						<br>
-
-						<div class="form-row">
-							<button id ="save-button" type="submit" class="btn btn-success">Save</button>
-						</div>
-
-					</form>
-				</center>
-			</div>
-			<div class="row">
-				<col class="col-md-6">
-					<div aria-live="polite" aria-atomic="true" class="bg-body-secondary bd-example-toasts rounded-3">
-						<div class="toast-container p-3 top-0 start-50 translate-middle-x" id="toastPlacement">
-							<div id="user-exists-error" class="toast bg-danger" data-bs-autohide="false">
-								<div class="toast-header">
-									<!-- <img src="..." class="rounded me-2" alt="..."> -->
-									<strong class="me-auto">Error</strong>
-									<!-- <small>11 mins ago</small> -->
-									<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-								</div>
-								<div class="toast-body">
-									User Already Exists !!!
-								</div>
-							</div>
-						</div>
-					</div>
-				</col>
-			</div>
-
-			<!-- <div class="row">
-				<div class="col-md-6">
-					<div id="user-exists-error-modal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-						<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" >
-							<div class="modal-dialog">
-								<div class="modal-content bg-danger-subtle">
-									<div class="modal-header">
-										<h5 class="modal-title">User Already Exists !!!</h5>
-										<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-									</div>
-									<div class="modal-body">
-										<p>Please Re-Scan this QR Code to Re-Login</p>
-										<center>
-											<div id="user-exists-qr-code"></div>
-										</center>
-									</div>
-								</div>
-							</div>
-						</div>
+<!-- 			<div class="row" id="search-row">
+				<div class="col-lg-2 col-md-1"></div>
+				<div class="col-lg-8 col-md-10">
+					<div class="input-group mb-3">
+						<span class="input-group-text" id="search-button">Search</span>
+						<input id="user-search-input" type="text" class="form-control flex-grow-1">
+						<button class="btn btn-outline-secondary" type="button" id="search-clear-button">Clear</button>
 					</div>
 				</div>
+				<div class="col-lg-2 col-md-1"></div>
 			</div> -->
+			<div class="row" id="buttons-row">
+				<center id="buttons-content"></center>
+			</div>
+			<br>
+			<div class="row" id="main-row"></div>
+			<div class="row" id="extras-row"></div>
 		</div>
 		<script>
 			function load_api() {
@@ -267,328 +69,466 @@
 					catch( error ) { console.log( error ); reject( error ); return; }
 				});
 			}
-			function add_qr_code( text , element_id ) {
-				let x_element = document.getElementById( element_id );
-				x_element.innerHTML = "";
-				let user_qrcode = new QRCode( x_element , {
-					text: text ,
-					width: 256 ,
-					height: 256 ,
-					colorDark : "#000000" ,
-					colorLight : "#ffffff" ,
-					correctLevel : QRCode.CorrectLevel.H
-				});
-			}
-			// colors
-			// https://getbootstrap.com/docs/5.3/utilities/background/
-			function clear_form() {
-				let form = document.getElementById( "user-edit-form" );
-				for ( let i = 0; i < form.elements.length; ++i ) {
-					let element = form.elements[ i ];
-					if ( element.type === "submit" ) { continue; }
-					element.value = '';
+			class MCT_UI {
+				constructor( options={} ) {
+					this.options = options;
+					this.stack = options.stack;
+					this.buttons_stack = options.buttons_stack;
+					this.buttons = options.buttons;
+					this.ids = {};
+					for ( let key in this.options.ids ) {
+						this.ids[ key ] = {
+							name: key ,
+							visible: false ,
+							render: this.options.ids[ key ] ,
+							// populate?: this.options.ids[ key ]() , // TODO ?
+							// html: "" ,
+						}
+					}
+					$( this.options.anchor ).on( "render_active_user" , this.render_active_user );
+					// this.clear();
+					this.render_buttons();
+				}
+				clear() {
+					set_url( `/admin/user/checkin` );
+					$( "#user-search-input" ).val( "" );
+					$( this.options.anchor ).html( "" );
+					$( "#user-search-input" ).focus();
+					window.USER = {};
+					window.BARCODES = {};
+					window.FAMILY_MEMBERS = {};
+					// $( this.options.buttons_anchor ).html( "" );
+					this.buttons_stack = this.options.buttons_stack;
+					this.render_buttons();
+				}
+				render_buttons() {
+					if ( this.buttons_stack.length < 1 ) { return; }
+					$( this.options.buttons_anchor ).html( "" );
+					let new_ui_stack = [];
+					// Object.keys( this.ids ).forEach( x => this.ids[ x ].visible = false ); // we arn't really doing anything with visible
+					for ( let i = 0; i < this.buttons_stack.length; ++i ) {
+						let x_button = this.buttons[ this.buttons_stack[ i ] ];
+						if ( !x_button ) { return; }
+						let html = `<button id="${this.buttons_stack[ i ]}" type="submit" class="btn btn-${x_button.color}">${x_button.text}</button>`
+						// x_id.visible = true;
+						new_ui_stack.push( html );
+					}
+					let new_ui_stack_html_string = new_ui_stack.join( " " );
+					$( this.options.buttons_anchor ).html( new_ui_stack_html_string );
+					for ( let i = 0; i < this.buttons_stack.length; ++i ) {
+						$( `#${this.buttons_stack[ i ]}` ).on( "click" , this.buttons[ this.buttons_stack[ i ] ].on_click );
+					}
+				}
+				render() {
+					if ( this.stack.length < 1 ) { return; }
+					$( this.options.anchor ).html( "" );
+					let new_ui_stack = [];
+					Object.keys( this.ids ).forEach( x => this.ids[ x ].visible = false );
+					for ( let i = 0; i < this.stack.length; ++i ) {
+						let x_id = this.ids[ this.stack[ i ] ];
+						if ( !x_id ) { return; }
+						let html = x_id.render();
+						x_id.visible = true;
+						new_ui_stack.push( html );
+						new_ui_stack.push( "<br><br>" );
+					}
+					let new_ui_stack_html_string = new_ui_stack.join( " " );
+					$( this.options.anchor ).html( new_ui_stack_html_string );
+				}
+				render_search_table( search_results ) {
+					this.stack = [ "user_search_table" ];
+					this.render();
+					populate_user_search_table( search_results );
+				}
+				async render_active_user( user ) {
+					console.log( "render_active_user()" );
+
+					if ( !window.USER?.uuid ) {
+						this.clear();
+						return;
+					}
+
+					// 1.) Prep UI
+					this.buttons_stack = [ "check-in-print-button" , "edit-user-button" , "new-user-button" ];
+					this.render_buttons();
+					set_url( `/admin/user/checkin/${window.USER.uuid}` );
+
+					$( "#check-in-button" ).on( "click" , on_check_in_button_click );
+					$( "#edit-user-button" ).on( "click" , on_edit_button_click );
+					$( "#new-user-button" ).on( "click" , on_new_button_click );
+					this.stack = [ "active_user_info" , "shopping_for_selector" , "user_balance_table" ];
+					this.render();
+					$( "#active-username" ).text( window.USER.name_string );
+
+					// 2.) Pre-Check the Current Check-In Status of the User
+					console.log( window.USER );
+					let check_in_test = await api_check_in_uuid_test( window.USER.uuid );
+					console.log( check_in_test );
+
+					// 3.) Update Shopping-For Selector
+					let shopping_for_elem = document.getElementById( "shopping_for" );
+					if ( !check_in_test.user.family_members ) { check_in_test.user.family_members = []; }
+					let shopping_for_max = ( check_in_test.user.family_members.length + 1 );
+					let shopping_for_value = ( check_in_test.user.family_members.length + 1 );
+					$( "#shopping_for" ).val( shopping_for_value );
+					const shopping_for_options_to_hide =  Array.from( shopping_for_elem.options ).filter( option => option.value > shopping_for_value );
+					shopping_for_options_to_hide.forEach( option => { option.style.display = "none"; } );
+					$( "#shopping_for" ).on( "change" , ( event ) => {
+						console.log( `on_shopping_for_change( ${event.target.value} )` );
+						populate_user_balance_table( event.target.value , check_in_test.user.balance , check_in_test.balance_config );
+					});
+
+					// 4.) Populate Balance Table
+					populate_user_balance_table( shopping_for_value , check_in_test.user.balance , check_in_test.balance_config );
+					$( "#print-checkin-button" ).on( "click" , on_check_in_print_button_click );
+
+					// 5.) Stylize Table Based on Pre-Check-In Result
+					switch ( check_in_test.result.result ) {
+						case true:
+							$( "#user-balance-table" ).removeClass( "table-danger" );
+							$( "#user-balance-table" ).addClass( "table-success" );
+							break;
+						case false:
+							$( "#active-user-time-remaining" ).text( convert_milliseconds_to_time_string( check_in_test.result.time_remaining ) );
+							$( "#user-balance-table" ).removeClass( "table-success" );
+							$( "#user-balance-table" ).addClass( "table-danger" );
+							break;
+					}
+				}
+				render_edit_form() {
+					this.buttons_stack = [ "edit-user-save-button" , "edit-user-delete-button" , "show-handoff-qrc-button" , "sms-user-button" , "email-user-button" ];
+					this.render_buttons();
+					this.stack = [ "user_edit_form" , "user_qr_code" ];
+					this.render();
+					populate_user_edit_form( window.USER );
+					$( "#user_first_name" ).on( "change" , ( event ) => { window.USER.identity.first_name = event.target.value });
+					$( "#user_middle_name" ).on( "change" , ( event ) => { window.USER.identity.middle_name = event.target.value });
+					$( "#user_last_name" ).on( "change" , ( event ) => { window.USER.identity.last_name = event.target.value });
+					$( "#user_email" ).on( "change" , ( event ) => { window.USER.email_address = event.target.value });
+					$( "#user_phone_number" ).on( "change" , ( event ) => { window.USER.phone_number = event.target.value });
+					$( "#user_street_number" ).on( "change" , ( event ) => { window.USER.identity.address.street_number = event.target.value });
+					$( "#user_address_two" ).on( "change" , ( event ) => { window.USER.identity.address.address_two = event.target.value });
+					$( "#user_city" ).on( "change" , ( event ) => { window.USER.identity.address.city = event.target.value });
+					$( "#user_state" ).on( "change" , ( event ) => { window.USER.identity.address.state = event.target.value });
+					$( "#user_zip_code" ).on( "change" , ( event ) => { window.USER.identity.address.zipcode = event.target.value });
+					$( "#user_birth_day" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.day = event.target.value });
+					$( "#user_birth_month" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.month = event.target.value });
+					$( "#user_birth_year" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.year = event.target.value });
+					$( "#user_spanish" ).on( "change" , ( event ) => { window.USER.spanish = event.target.checked; });
+				}
+				render_new_form() {
+					set_url( `/admin/user/checkin/new` );
+					this.buttons_stack = [ "new-user-save-button" , "new-user-cancel-button" ];
+					this.render_buttons();
+					this.stack = [ "user_new_form" , "user_qr_code" ];
+					this.render();
+					$( "#user-search-input" ).val( "" );
+					window.USER = {};
+					window.BARCODES = {};
+					window.FAMILY_MEMBERS = {};
+					$( "#user_first_name" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "first_name" ] , event.target.value ); });
+					$( "#user_middle_name" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "middle_name" ] , event.target.value ); });
+					$( "#user_last_name" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "last_name" ] , event.target.value ); });
+					$( "#user_email" ).on( "change" , ( event ) => { window.USER.email_address = event.target.value });
+					$( "#user_phone_number" ).on( "change" , ( event ) => { window.USER.phone_number = event.target.value });
+					$( "#user_street_number" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "address" , "street_number" ] , event.target.value ); });
+					$( "#user_address_two" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "address" , "address_two" ] , event.target.value ); });
+					$( "#user_city" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "address" , "city" ] , event.target.value ); });
+					$( "#user_state" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "address" , "state" ] , event.target.value ); });
+					$( "#user_zip_code" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "address" , "zipcode" ] , event.target.value ); });
+					$( "#user_birth_day" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "date_of_birth" , "day" ] , event.target.value ); });
+					$( "#user_birth_month" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "date_of_birth" , "month" ] , event.target.value ); });
+					$( "#user_birth_year" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "date_of_birth" , "year" ] , event.target.value ); });
+					$( "#user_spanish" ).on( "change" , ( event ) => { window.USER.spanish = event.target.checked; });
 				}
 			}
-			// function check_if_username_exists() {
-			// 	return new Promise( async function( resolve , reject ) {
-			// 		try {
-			// 			let form = document.getElementById( "user-edit-form" );
-			// 			let first_name = form.elements[ "user_first_name" ].value;
-			// 			let last_name = form.elements[ "user_last_name" ].value;
-			// 			let username_exists_url = `/admin/user/check/username?fn=${first_name}&ln=${last_name}`;
-			// 			let username_exists_response = await fetch( username_exists_url , {
-			// 				method: "GET" ,
-			// 				headers: { "Content-Type": "application/json" }
-			// 			});
-			// 			let username_exists = await username_exists_response.json();
-			// 			resolve( username_exists[ "result" ] );
-			// 			return;
-			// 		}
-			// 		catch( error ) { console.log( error ); reject( error ); return; }
-			// 	});
-			// }
-			function show_user_exists_toast() {
-				// https://getbootstrap.com/docs/5.3/components/toasts/
-				let error_toast_element = document.getElementById( "user-exists-error" );
-				let error_toast = new bootstrap.Toast( error_toast_element );
-				error_toast.show();
+
+			function on_clear_button_click( event ) {
+				console.log( "on_clear_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				window.UI.clear();
 			}
-			function show_user_exists_modal( uuid ) {
-				let qr_code_link = `${window.location.protocol}//${window.location.host}/user/login/fresh/${uuid}`;
-				add_qr_code( qr_code_link , "user-exists-qr-code" );
-				let user_exists_modal = new bootstrap.Modal( "#user-exists-error-modal" , {
-					backdrop: "static" ,
-					focus: true ,
-					keyboard: true
-				});
-				user_exists_modal.show();
+
+			function on_edit_button_click( event ) {
+				console.log( "on_edit_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				window.UI.render_edit_form();
 			}
-			function show_user_handoff_modal( uuid ) {
-				let qr_code_link = `${window.location.protocol}//${window.location.host}/user/login/fresh/${uuid}`;
-				add_qr_code( qr_code_link , "user-handoff-qr-code" );
-				let user_handoff_modal = new bootstrap.Modal( "#user-handoff-modal" , {
-					backdrop: "static" ,
-					focus: true ,
-					keyboard: true
-				});
-				user_handoff_modal.show();
-			}
-			async function submit_form() {
-				let form = document.getElementById( "user-edit-form" );
-				let form_data = new FormData( form );
-				form_data.append( "editing_uuid" , window.passed_uuid );
-				let total_barcodes = document.querySelectorAll( ".user-barcode" ).length;
-				form_data.append( "total_barcodes" , total_barcodes );
-				let result = await api_submit_form( "admin/user/edit" , form_data )
-				return result;
-			}
-			async function on_submit( event ) {
-				event.preventDefault();
-				let result = await submit_form();
-				console.log( result );
-				// clear_form();
+
+			async function on_edit_save_button_click( event ) {
+				console.log( "on_edit_save_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				// update dynamic form thing ?
+				window.USER.barcodes = Object.values( window.BARCODES );
+				window.USER.barcodes = window.USER.barcodes.filter( ( x ) => { return x !== ""; } );
+				window.USER.family_members = Object.values( window.FAMILY_MEMBERS );
+				window.USER.family_members = window.USER.family_members.filter( ( x ) => { return x !== ""; } );
+				window.USER.family_members = window.USER.family_members.map( ( x ) => { return { "first_name": "" , "last_name": "" , "age": parseInt( x ) } } );
+				let edit_result = await api_edit_user( window.USER );
+				console.log( edit_result );
+				window.USER = edit_result.user;
 				alert( "User Info Saved !" );
+				// window.UI.render_active_user();
 			}
-			function on_add_barcode( event ) {
-				event.preventDefault();
-				let current_barcodes = document.querySelectorAll( ".user-barcode" );
-				let holder = document.getElementById( "user_barcodes" );
 
-				let new_row = document.createElement( "div" );
-				new_row.setAttribute( "id" , `user_barcode_row_${(current_barcodes.length + 1)}` );
-				new_row.className = "row g-2";
+			function on_edit_cancel_button_click( event ) {
+				console.log( "on_edit_cancel_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				window.UI.render_active_user();
+			}
 
-				let col_1 = document.createElement( "div" );
-				col_1.className = "col-md-3";
-				new_row.appendChild( col_1 );
+			async function on_edit_delete_button_click( event ) {
+				console.log( "on_edit_delete_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				let result = confirm( `Are You Absolutely Sure You Want to Delete : ${window.USER.name_string} ???` );
+				if ( result === true ) {
+					console.log( "delete confimed" );
+					await api_delete_user( window.USER.uuid );
+					window.UI.clear();
+					return;
+				} else {
+					console.log( "delete rejected" );
+					return;
+				}
+			}
 
-				let col_2 = document.createElement( "div" );
-				col_2.className = "col-md-6";
-				let input_group = document.createElement( "div" );
-				input_group.className = "input-group";
-				let label = document.createElement( "span" );
-				label.className = "input-group-text";
-				label.setAttribute( "id" , `user_barcode_${(current_barcodes.length + 1)}` );
-				label.textContent = `Barcode - ${(current_barcodes.length + 1)}`;
-				let barcode_input = document.createElement( "input" );
-				let barcode_input_id = `user_barcode_input_${(current_barcodes.length + 1)}`;
-				barcode_input.className = "form-control user-barcode";
-				barcode_input.setAttribute( "placeholder" , "Barcode Number" );
-				barcode_input.setAttribute( "type" , "text" );
-				barcode_input.setAttribute( "name" , barcode_input_id );
-				barcode_input.setAttribute( "id" , barcode_input_id );
-				barcode_input.addEventListener( "keydown" , ( event ) => {
-					if ( event.keyCode === 13 ) {
-						event.preventDefault();
-						return;
-					}
+			async function on_check_in_button_click( event ) {
+				console.log( "on_check_in_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				window.UI.render_active_user();
+			}
+
+			async function on_check_in_print_button_click( event ) {
+				console.log( "on_check_in_print_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				let balance_table = document.getElementById( "user-balance-table-body" );
+				let balance_inputs = balance_table.querySelectorAll( "input" );
+				let shopping_for = parseInt( document.getElementById( "shopping_for" ).value );
+				let form_data = { "uuid": window.USER.uuid , "shopping_for": shopping_for };
+				for ( let i = 0; i < balance_inputs.length; ++i ) {
+					form_data[ balance_inputs[ i ].id ] = parseInt( balance_inputs[ i ].value );
+				}
+				let valid_check_in = await api_check_in_uuid( window.USER.uuid , form_data );
+				console.log( `${window.USER.uuid} === Checked In === ${valid_check_in}` );
+				window.UI.clear();
+			}
+
+			function on_new_button_click( event ) {
+				console.log( "on_new_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				window.UI.render_new_form();
+			}
+
+			async function on_new_save_button_click( event ) {
+				console.log( "on_new_save_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				// update dynamic form stuff
+				window.USER.barcodes = Object.values( window.BARCODES );
+				window.USER.barcodes = window.USER.barcodes.filter( ( x ) => { return x !== ""; } );
+				window.USER.family_members = Object.values( window.FAMILY_MEMBERS );
+				console.log( "Family Members ===" , window.USER.family_members );
+				window.USER.family_members = window.USER.family_members.filter( ( x ) => { return x !== ""; } );
+				console.log( "Family Members ===" , window.USER.family_members );
+				window.USER.family_members = window.USER.family_members.map( ( x ) => { return { "first_name": "" , "last_name": "" , "age": parseInt( x ) } } );
+				console.log( "Family Members ===" , window.USER.family_members );
+				let new_user_result = await api_new_user( window.USER );
+				if ( !new_user_result.result?.uuid ) { return false; }
+				window.USER = new_user_result.result;
+				console.log( window.USER );
+				document.getElementById( "user-search-input" ).value = window.USER.uuid;
+				show_user_handoff_qrcode();
+				window.UI.render_active_user();
+			}
+
+			function on_new_cancel_button_click( event ) {
+				console.log( "on_new_cancel_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				window.UI.render_active_user();
+			}
+
+			function on_show_handoff_qrc_button_click( event ) {
+				console.log( "on_show_handoff_qrc_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				// they won't be able to get to it
+				// show_user_handoff_qrcode();
+
+				// so you could have them take a picture of this one , which could then just be scanned later
+				show_user_uuid_qrcode();
+			}
+
+			function on_sms_user_button_click( event ) {
+				console.log( "on_sms_user_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				let link = document.createElement('a');
+				link.href = `/admin/user/sms/${window.USER.uuid}`;
+				link.target = '_blank';
+				link.rel = 'noopener noreferrer';
+				let clickEvent = new MouseEvent('click', {
+					'view': window,
+					'bubbles': true,
+					'cancelable': false
 				});
-				input_group.appendChild( label );
-				input_group.appendChild( barcode_input );
-
-				let barcode_delete_button = document.createElement( "a" );
-				barcode_delete_button.className = "btn btn-danger p-1 d-flex justify-content-center align-items-center";
-				let barcode_delete_button_icon = document.createElement( "i" );
-				barcode_delete_button_icon.className = "bi bi-trash3-fill";
-				barcode_delete_button.appendChild( barcode_delete_button_icon );
-				barcode_delete_button.onclick = async function() {
-					let result = confirm( `Are You Absolutely Sure You Want to Delete This Barcode ???` );
-					if ( result === true ) {
-						let row_id = `#user_barcode_row_${(current_barcodes.length + 1)}`;
-						$( row_id ).remove();
-						return;
-					}
-				};
-				input_group.appendChild( barcode_delete_button )
-				col_2.appendChild( input_group );
-				// col_2.appendChild( barcode_delete_button );
-
-				new_row.appendChild( col_2 );
-
-				let col_3 = document.createElement( "div" );
-				col_3.className = "col-md-3";
-				new_row.appendChild( col_3 );
-
-				holder.appendChild( new_row );
-				document.getElementById( barcode_input_id ).focus();
+				link.dispatchEvent( clickEvent );
 			}
-			function on_family_size_change( event ) {
-				console.log( "on_family_size_change() ??" );
-				let family_members_input_area = document.getElementById( "user_family_members" );
-				family_members_input_area.innerHTML = "";
-				let party_size = parseInt( event.target.value );
-				for ( let i = 0; i < party_size; ++i ) {
-					let new_row = document.createElement( "div" );
-					new_row.className = "row g-2";
 
-					let col_1 = document.createElement( "div" );
-					col_1.className = "col-md-4";
-					new_row.appendChild( col_1 );
-
-					let col_2 = document.createElement( "div" );
-					col_2.className = "col-md-4";
-					let input_group = document.createElement( "div" );
-					input_group.className = "input-group";
-					let label = document.createElement( "span" );
-					label.className = "input-group-text";
-					label.setAttribute( "id" , `user_family_member_${(i +1)}` );
-					label.textContent = `Family Member - ${(i + 1)}`;
-					let age_input = document.createElement( "input" );
-					age_input.className = "form-control";
-					age_input.setAttribute( "placeholder" , "Age" );
-					age_input.setAttribute( "type" , "text" );
-					age_input.setAttribute( "name" , `user_family_member_${(i + 1)}_age` );
-					age_input.setAttribute( "id" , `user_family_member_${(i + 1)}_age` );
-					input_group.appendChild( label );
-					input_group.appendChild( age_input );
-					col_2.appendChild( input_group );
-					new_row.appendChild( col_2 );
-
-					let col_3 = document.createElement( "div" );
-					col_3.className = "col-md-4";
-					new_row.appendChild( col_3 );
-
-					family_members_input_area.appendChild( new_row );
-				}
-			}
-			function get_user( uuid ) {
-				return new Promise( async function( resolve , reject ) {
-					try {
-						let url = `/admin/user/get/${uuid}`;
-						let response = await fetch( url , {
-							method: "GET" ,
-							headers: { "Content-Type": "application/json" }
-						});
-						let response_json = await response.json();
-						resolve( response_json[ "result" ] );
-						return;
-					}
-					catch( error ) { console.log( error ); resolve( {} ); return; }
+			function on_email_user_button_click( event ) {
+				console.log( "on_email_user_button_click()" );
+				if ( event ) { event.preventDefault(); }
+				let link = document.createElement('a');
+				link.href = `/admin/user/email/${window.USER.uuid}`;
+				link.target = '_blank';
+				link.rel = 'noopener noreferrer';
+				let clickEvent = new MouseEvent('click', {
+					'view': window,
+					'bubbles': true,
+					'cancelable': false
 				});
+				link.dispatchEvent( clickEvent );
 			}
-			function populate_form( user_info ) {
-				console.log( JSON.stringify( user_info , null , 4 ) );
 
-				let first_name_element = document.getElementById( "user_first_name" );
-				first_name_element.value = user_info[ "identity" ][ "first_name" ];
-				let middle_name_element = document.getElementById( "user_middle_name" );
-				middle_name_element.value = user_info[ "identity" ][ "middle_name" ];
-				let last_name_element = document.getElementById( "user_last_name" );
-				last_name_element.value = user_info[ "identity" ][ "last_name" ];
-				let email_element = document.getElementById( "user_email" );
-				email_element.value = user_info[ "email_address" ];
-				let phone_number_element = document.getElementById( "user_phone_number" );
-				phone_number_element.value = user_info[ "phone_number" ];
-				let street_number_element = document.getElementById( "user_street_number" );
-				street_number_element.value = user_info[ "identity" ][ "address" ][ "street_number" ];
-				let street_name_element = document.getElementById( "user_street_name" );
-				street_name_element.value = user_info[ "identity" ][ "address" ][ "street_name" ];
-				let address_two_element = document.getElementById( "user_address_two" );
-				address_two_element.value = user_info[ "identity" ][ "address" ][ "address_two" ];
-				let city_element = document.getElementById( "user_city" );
-				city_element.value = user_info[ "identity" ][ "address" ][ "city" ];
-				let state_element = document.getElementById( "user_state" );
-				state_element.value = user_info[ "identity" ][ "address" ][ "state" ];
-				let zip_code_element = document.getElementById( "user_zip_code" );
-				zip_code_element.value = user_info[ "identity" ][ "address" ][ "zipcode" ];
-
-				if ( user_info[ "identity" ][ "date_of_birth" ][ "day" ] > 0 ) {
-					let birth_day_element = document.getElementById( "user_birth_day" );
-					birth_day_element.value = user_info[ "identity" ][ "date_of_birth" ][ "day" ];
-				}
-				if ( user_info[ "identity" ][ "date_of_birth" ][ "month" ] !== "" ) {
-					let birth_month_element = document.getElementById( "user_birth_month" );
-					birth_month_element.value = user_info[ "identity" ][ "date_of_birth" ][ "month" ];
-				}
-				if ( user_info[ "identity" ][ "date_of_birth" ][ "year" ] > 0 ) {
-					let birth_year_element = document.getElementById( "user_birth_year" );
-					birth_year_element.value = user_info[ "identity" ][ "date_of_birth" ][ "year" ];
-				}
-
-				if ( user_info[ "family_size" ] > 0 ) {
-					let family_size_element = document.getElementById( "user_family_size" );
-					family_size_element.value = user_info[ "family_size" ];
-					let event = document.createEvent( "Event" );
-					event.initEvent( "change" , true , true );
-					family_size_element.dispatchEvent( event );
-					for ( let i = 0; i < user_info[ "family_members" ].length; ++i ) {
-						let family_member_age_element = document.getElementById( `user_family_member_${(i + 1)}_age` );
-						family_member_age_element.value = user_info[ "family_members" ][ i ][ "age" ];
+			async function _on_check_in_input_change( typed_input="" ) {
+				console.log( "_on_check_in_input_change()" , typed_input );
+				let valid_uuid = is_uuid( typed_input );
+				if ( valid_uuid ) {
+					let user = await api_get_user_from_uuid( typed_input );
+					if ( user ) {
+						console.log( "UUID !" , typed_input );
+						window.USER = user;
+						window.UI.render_active_user();
 					}
+					return;
 				}
-
-				if ( user_info[ "barcodes" ] ) {
-					for ( let i = 0; i < user_info[ "barcodes" ].length; ++i ) {
-
-						let holder = document.getElementById( "user_barcodes" );
-
-						let new_row = document.createElement( "div" );
-						new_row.setAttribute( "id" , `user_barcode_row_${(i + 1)}` );
-						new_row.className = "row g-2";
-
-						let col_1 = document.createElement( "div" );
-						col_1.className = "col-md-4";
-						new_row.appendChild( col_1 );
-
-						let col_2 = document.createElement( "div" );
-						col_2.className = "col-md-4";
-						let input_group = document.createElement( "div" );
-						input_group.className = "input-group";
-						let label = document.createElement( "span" );
-						label.className = "input-group-text";
-						label.setAttribute( "id" , `user_barcode_${( i + 1)}` );
-						label.textContent = `Barcode - ${(i + 1)}`;
-						let barcode_input = document.createElement( "input" );
-						barcode_input.className = "form-control user-barcode";
-						barcode_input.value = user_info[ "barcodes" ][ i ];
-						barcode_input.setAttribute( "type" , "text" );
-						barcode_input.setAttribute( "name" , `user_barcode_${(i + 1)}` );
-						barcode_input.addEventListener( "keydown" , ( event ) => {
-							if ( event.keyCode === 13 ) {
-								event.preventDefault();
-								return;
-							}
-						});
-						input_group.appendChild( label );
-						input_group.appendChild( barcode_input );
-
-						let barcode_delete_button = document.createElement( "a" );
-						barcode_delete_button.className = "btn btn-danger p-1 d-flex justify-content-center align-items-center";
-						let barcode_delete_button_icon = document.createElement( "i" );
-						barcode_delete_button_icon.className = "bi bi-trash3-fill";
-						barcode_delete_button.appendChild( barcode_delete_button_icon );
-						barcode_delete_button.onclick = async function() {
-							let result = confirm( `Are You Absolutely Sure You Want to Delete This Barcode ???` );
-							if ( result === true ) {
-								let row_id = `#user_barcode_row_${(i + 1)}`;
-								$( row_id ).remove();
-								return;
-							}
-						};
-						input_group.appendChild( barcode_delete_button )
-						col_2.appendChild( input_group );
-						// col_2.appendChild( barcode_delete_button );
-
-						new_row.appendChild( col_2 );
-
-						let col_3 = document.createElement( "div" );
-						col_3.className = "col-md-4";
-						new_row.appendChild( col_3 );
-
-						holder.appendChild( new_row )
+				let valid_barcode = is_barcode( typed_input );
+				if ( valid_barcode ) {
+					let user = await api_get_user_from_barcode( typed_input );
+					if ( user ) {
+						if ( user.uuid ) {
+							console.log( "Barcode !" , typed_input );
+							console.log( user );
+							window.USER = user;
+							window.UI.render_active_user();
+						}
 					}
+					return;
 				}
-
+				console.log( `Not a UUID , Not a Barcode , Searching : ${typed_input}` );
+				let search_results = await api_fuzzy_search_username( typed_input );
+				if ( !search_results ) {
+					// window.UI.clear();
+					return;
+				}
+				if ( search_results.length < 1 ) {
+					// window.UI.clear();
+					return;
+				}
+				window.UI.render_search_table( search_results )
+			}
+			let timeout_id;
+			const debounce_time = 200;
+			async function on_check_in_input_change( event ) {
+				if ( event ) { event.preventDefault(); }
+				// clearTimeout( timeout_id );
+				let typed_input = event?.target?.value;
+				if ( !typed_input ) { typed_input = document.getElementById( "user-search-input" ).value; }
+				_on_check_in_input_change( typed_input );
+				// if ( typed_input.length < 2 ) { return; }
+				// timeout_id = setTimeout( () => {
+				// 	_on_check_in_input_change( typed_input );
+				// } , debounce_time );
 			}
 			async function init() {
 				await load_api();
-				clear_form();
-				document.getElementById( "user_family_size" ).addEventListener( "change" , on_family_size_change );
+				window.UI = new MCT_UI({
+					anchor: "#main-row" ,
+					// stack: [ "user_balance_table" , "user_search_table" , "shopping_for_selector" , "alert_check_in_allowed" , "alert_check_in_failed" ] ,
+					stack: [] ,
+					ids: {
+						"alert_check_in_allowed": get_ui_alert_check_in_allowed ,
+						"alert_check_in_failed": get_ui_alert_check_in_failed ,
+						"shopping_for_selector": get_ui_shopping_for_selector ,
+						"user_edit_form": get_ui_user_edit_form ,
+						"user_new_form": get_ui_user_new_form ,
+						"user_search_table": get_ui_user_search_table ,
+						"user_balance_table": get_ui_user_balance_table ,
+						"active_user_info": get_ui_active_user_info ,
+						"user_qr_code": get_ui_user_qr_code_display ,
+					} ,
+					buttons_anchor: "#buttons-content" ,
+					buttons_stack: [ "new-user-button" ] ,
+					buttons: {
+						"check-in-button": {
+							text: "Check In" ,
+							color: "primary" ,
+							on_click: on_check_in_button_click ,
+						} ,
+						"check-in-print-button": {
+							text: "Print" ,
+							color: "warning" ,
+							on_click: on_check_in_print_button_click ,
+						} ,
+						"edit-user-button": {
+							text: "Edit" ,
+							color: "primary" ,
+							on_click: on_edit_button_click ,
+						} ,
+						"edit-user-save-button": {
+							text: "Save" ,
+							color: "success" ,
+							on_click: on_edit_save_button_click ,
+						} ,
+						"edit-user-cancel-button": {
+							text: "Cancel" ,
+							color: "warning" ,
+							on_click: on_edit_cancel_button_click ,
+						} ,
+						"edit-user-delete-button": {
+							text: "Delete" ,
+							color: "danger" ,
+							on_click: on_edit_delete_button_click ,
+						} ,
+						"new-user-button": {
+							text: "New User" ,
+							color: "success" ,
+							on_click: on_new_button_click ,
+						} ,
+						"new-user-save-button": {
+							text: "Save" ,
+							color: "success" ,
+							on_click: on_new_save_button_click ,
+						} ,
+						"new-user-cancel-button": {
+							text: "Cancel" ,
+							color: "warning" ,
+							on_click: on_new_cancel_button_click ,
+						} ,
+						"show-handoff-qrc-button": {
+							text: "QR Code" ,
+							color: "qrcode" ,
+							on_click: on_show_handoff_qrc_button_click ,
+						} ,
+						"sms-user-button": {
+							text: "SMS" ,
+							color: "sms" ,
+							on_click: on_sms_user_button_click ,
+						} ,
+						"email-user-button": {
+							text: "Email" ,
+							color: "secondary" ,
+							on_click: on_email_user_button_click ,
+						} ,
+					} ,
+				});
+				// window.UI.hide_all_buttons();
+				// $( "#user-search-input" ).on( "input" , on_check_in_input_change );
+				// $( "#search-clear-button" ).on( "click" , on_clear_button_click );
+
 				window.passed_uuid = window.location.pathname.split( "/edit/" )[ 1 ];
-				let user_info = await get_user( window.passed_uuid );
-				populate_form( user_info );
+				let user_info = await api_get_user_from_uuid( window.passed_uuid );
+				window.USER = user_info;
+				window.UI.render_edit_form();
+
 			}
-			$( document ).ready( init );
+			document.addEventListener( "DOMContentLoaded" , init );
 		</script>
 	</body>
 </html>
