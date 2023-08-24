@@ -155,8 +155,6 @@ func ( u *User ) UpdateSelfFromDB() {
 }
 
 func ( u *User ) Save() {
-	byte_object , _ := json.Marshal( u )
-	byte_object_encrypted := encrypt.ChaChaEncryptBytes( u.Config.BoltDBEncryptionKey , byte_object )
 	db , _ := bolt.Open( u.Config.BoltDBPath , 0600 , &bolt.Options{ Timeout: ( 3 * time.Second ) } )
 	defer db.Close()
 	var existing_user *User
@@ -165,7 +163,6 @@ func ( u *User ) Save() {
 
 		// this was originally the only thing in here
 		users_bucket , _ := tx.CreateBucketIfNotExists( []byte( "users" ) )
-		users_bucket.Put( []byte( u.UUID ) , byte_object_encrypted )
 
 		// but we added stuff below now on every save
 
@@ -178,6 +175,9 @@ func ( u *User ) Save() {
 		// such as the usernames bucket
 		usernames_bucket , _ := tx.CreateBucketIfNotExists( []byte( "usernames" ) )
 		if existing_user.Username != u.Username {
+			// fmt.Println( "we have to update the username for search and stuff" )
+			// fmt.Println( "existing username: " + existing_user.Username )
+			// fmt.Println( "new: " + u.Username )
 			usernames_bucket.Delete( []byte( existing_user.Username ) )
 			search_index , _ := bleve.Open( u.Config.BleveSearchPath )
 			defer search_index.Close()
@@ -196,6 +196,10 @@ func ( u *User ) Save() {
 			// TODO , handle what happens if we remove a barcode from a user
 			// Not really that big of a problem , since this just updates the barcode for the right uuid anyway
 		}
+
+		byte_object , _ := json.Marshal( u )
+		byte_object_encrypted := encrypt.ChaChaEncryptBytes( u.Config.BoltDBEncryptionKey , byte_object )
+		users_bucket.Put( []byte( u.UUID ) , byte_object_encrypted )
 
 		return nil
 	})
