@@ -1,5 +1,7 @@
 <html>
 	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Join</title>
 		<link rel="icon" href="">
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
@@ -43,11 +45,11 @@
 			</div>
 			<br>
 			<div class="row" id="buttons-row">
-				<center id="buttons-content"></center>
+				<div class="col-12 d-flex justify-content-between" id="buttons-content"></div>
 			</div>
 			<br>
-			<div class="row" id="main-row"></div>
-			<div class="row" id="extras-row"></div>
+			<div id="main-row"></div>
+			<div id="extras-row"></div>
 		</div>
 		<script>
 			function api_new_user( user_info ) {
@@ -68,7 +70,7 @@
 			function get_ui_user_qr_code_display() {
 				return `
 				<div class="row">
-					<div class="col-md-6">
+					<div class="col-lg-6">
 						<div id="user-handoff-modal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 							<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" >
 								<div class="modal-dialog">
@@ -94,21 +96,21 @@
 			function get_ui_alert_check_in_allowed() {
 				return `
 				<div class="row">
-					<div class="col-md-4"></div>
-					<div class="col-md-4">
+					<div class="col-lg-4"></div>
+					<div class="col-lg-4">
 						<div class="alert alert-success" id="checked-in-alert-true">
 							<center>Allowed to Check In !!!</center>
 						</div>
 					</div>
-					<div class="col-md-4"></div>
+					<div class="col-lg-4"></div>
 				</div>`;
 			}
 
 			function get_ui_alert_check_in_failed() {
 				return `
 				<div class="row">
-					<div class="col-md-3"></div>
-					<div class="col-md-6">
+					<div class="col-lg-3"></div>
+					<div class="col-lg-6">
 						<div class="alert alert-danger" id="checked-in-alert-false">
 							<center>
 								Checked In Too Recently !!!<br><br>
@@ -116,7 +118,7 @@
 							</center>
 						</div>
 					</div>
-					<div class="col-md-3"></div>
+					<div class="col-lg-3"></div>
 				</div>`;
 			}
 
@@ -132,8 +134,8 @@
 			function get_ui_shopping_for_selector() {
 				return `
 				<div class="row">
-					<div class="col-md-3"></div>
-					<div class="col-md-6">
+					<div class="col-lg-3"></div>
+					<div class="col-lg-6">
 						<div class="input-group">
 							<div class="input-group-text">Shopping For</div>
 							<select id="shopping_for" class="form-select" aria-label="Shopping For" name="shopping_for">
@@ -147,7 +149,7 @@
 							</select>
 						</div>
 					</div>
-					<div class="col-md-3"></div>
+					<div class="col-lg-3"></div>
 				</div>
 				`;
 			}
@@ -155,8 +157,8 @@
 			function get_ui_user_search_table() {
 				return `
 				<div class="row">
-					<div class="col-md-1"></div>
-					<div class="col-md-10">
+					<div class="col-lg-1"></div>
+					<div class="col-lg-10">
 						<div class="table-responsive-sm">
 							<table id="user-search-table" class="table table-hover table-striped-columns">
 								<thead>
@@ -171,7 +173,7 @@
 							</table>
 						</div>
 					</div>
-					<div class="col-md-1"></div>
+					<div class="col-lg-1"></div>
 				</div>`;
 			}
 			function populate_user_search_table( users ) {
@@ -223,8 +225,8 @@
 			function get_ui_user_balance_table() {
 				return `
 				<div class="row">
-					<div class="col-md-1"></div>
-					<div class="col-md-10">
+					<div class="col-lg-1"></div>
+					<div class="col-lg-10">
 						<div class="table-responsive-sm">
 							<table id="user-balance-table" class="table table-hover table-striped-columns">
 								<thead>
@@ -239,7 +241,7 @@
 							</table>
 						</div>
 					</div>
-					<div class="col-md-1"></div>
+					<div class="col-lg-1"></div>
 				</div>`;
 
 			}
@@ -256,15 +258,6 @@
 				available_input.setAttribute( "id" , `balance_${name.toLowerCase()}_available` );
 				_available.appendChild( available_input );
 				_tr.appendChild( _available );
-				// let _limit = document.createElement( "td" );
-				// let limit_input = document.createElement( "input" );
-				// limit_input.setAttribute( "type" , "text" );
-				// limit_input.className = "form-control";
-				// limit_input.value = limit;
-				// limit_input.setAttribute( "id" , `balance_${name.toLowerCase()}_limit` );
-				// limit_input.setAttribute( "readonly" , "" );
-				// _limit.appendChild( limit_input );
-				// _tr.appendChild( _limit );
 				let _used = document.createElement( "td" );
 				let used_input = document.createElement( "input" );
 				used_input.setAttribute( "type" , "text" );
@@ -337,23 +330,22 @@
 			function get_ui_user_new_form() {
 				return `
 				<div class="row">
-					<center>
 						<form id="user-new-form" action="/admin/user/new" method="post">
 							<!-- Main Required Stuff -->
 							<div class="row g-2 mb-3">
-								<div class="col-md-4">
+								<div class="col-12 col-lg-4">
 									<div class="form-floating">
 										<input id="user_first_name" type="text" class="form-control" name="user_first_name">
 										<label for="user_first_name">First Name</label>
 									</div>
 								</div>
-								<div class="col-md-4">
+								<div class="col-12 col-lg-4">
 									<div class="form-floating">
 										<input id="user_middle_name" type="text" class="form-control" name="user_middle_name">
 										<label for="user_middle_name">Middle Name</label>
 									</div>
 								</div>
-								<div class="col-md-4">
+								<div class="col-12 col-lg-4">
 									<div class="form-floating">
 										<input id="user_last_name" type="text" class="form-control" name="user_last_name">
 										<label for="user_last_name">Last Name</label>
@@ -361,39 +353,39 @@
 								</div>
 							</div>
 							<div class="row g-2 mb-3">
-									<div class="col-md-2"></div>
-									<div class="col-md-4">
+									<div class="col-12 col-lg-2"></div>
+									<div class="col-12 col-lg-4">
 										<div class="form-floating">
 											<input id="user_email" type="email" class="form-control" name="user_email">
 											<label for="user_email">Email Address</label>
 										</div>
 									</div>
-									<div class="col-md-4">
+									<div class="col-12 col-lg-4">
 										<div class="form-floating">
 											<input id="user_phone_number" type="tel" class="form-control" name="user_phone_number">
 											<label for="user_phone_number">Phone Number</label>
 										</div>
 									</div>
-									<div class="col-md-2"></div>
+									<div class="col-12 col-lg-2"></div>
 							</div>
 
 							<br>
 
 							<!-- Address - Part 1-->
 							<div class="row g-2 mb-3">
-								<div class="col-md-4">
+								<div class="col-12 col-lg-4">
 									<div class="form-floating">
 										<input id="user_street_number" type="text" class="form-control" name="user_street_number">
 										<label for="user_street_number">Street Number</label>
 									</div>
 								</div>
-								<div class="col-md-4">
+								<div class="col-12 col-lg-4">
 									<div class="form-floating">
 										<input id="user_street_name" type="text" class="form-control" name="user_street_name">
 										<label for="user_street_name">Street Name</label>
 									</div>
 								</div>
-								<div class="col-md-4">
+								<div class="col-12 col-lg-4">
 									<div class="form-floating">
 										<input id="user_address_two" type="text" class="form-control" name="user_street_name">
 										<label for="user_address_two">Address 2</label>
@@ -402,19 +394,19 @@
 							</div>
 							<!-- Address - Part 2-->
 							<div class="row g-2 mb-3">
-								<div class="col-md-4">
+								<div class="col-12 col-lg-4">
 									<div class="form-floating">
 										<input id="user_city" type="text" class="form-control" name="user_city">
 										<label for="user_city">City</label>
 									</div>
 								</div>
-								<div class="col-md-4">
+								<div class="col-12 col-lg-4">
 									<div class="form-floating">
 										<input id="user_state" type="text" class="form-control" name="user_state">
 										<label for="user_state">State</label>
 									</div>
 								</div>
-								<div class="col-md-4">
+								<div class="col-12 col-lg-4">
 									<div class="form-floating">
 										<input id="user_zip_code" type="text" class="form-control" name="user_zip_code">
 										<label for="user_zip_code">Zip Code</label>
@@ -424,14 +416,13 @@
 							<br>
 							<!-- Extras -->
 							<div class="row g-2 mb-3">
-
-								<div class="col-md-4">
+								<div class="col-12 col-lg-4">
 									<div class="form-floating">
 										<input id="user_birth_day" type="number" min="1" max="31" class="form-control" name="user_birth_day">
 										<label for="user_birth_day">Birth Day</label>
 									</div>
 								</div>
-								<div class="col-md-4">
+								<div class="col-12 col-lg-4">
 									<div class="form-floating">
 										<select id="user_birth_month" class="form-select" aria-label="User Birth Month" name="user_birth_month">
 											<option value="JAN">JAN = 1</option>
@@ -450,7 +441,7 @@
 										<label for="user_birth_month">Birth Month</label>
 									</div>
 								</div>
-								<div class="col-md-4">
+								<div class="col-12 col-lg-4">
 									<div class="form-floating">
 										<input id="user_birth_year" type="number" min="1900" max="2100" class="form-control" name="user_birth_year">
 										<label for="user_birth_year">Birth Year</label>
@@ -460,30 +451,31 @@
 
 							<br>
 							<div class="row g-2 mb-3">
-								<div class="col-md-5 col-lg-5"></div>
-								<div class="col-md-2 col-lg-2">
+								<div class="col-12 col-lg-5"></div>
+								<div class="col-12 col-lg-2 d-flex justify-content-center">
 									<div class="form-check">
 										<input class="form-check-input" type="checkbox" value="" id="user_spanish">
 										<label class="form-check-label" for="user_spanish">Español</label>
 									</div>
 								</div>
-								<div class="col-md-5 col-lg-5"></div>
+								<div class="col-12 col-lg-5 col-lg-5"></div>
 							</div>
 							<br>
 
 							<div class="row g-2 mb-3">
-								<div class="col-md-4"></div>
-								<div class="col-md-4">
-									<button id="add-family-member-button" class="btn btn-primary" onclick="on_add_family_member(event);">Add Family Member</button>
-								</div>
-								<div class="col-md-4"></div>
+								<center>
+									<div class="col-12 col-lg-4 d-none d-md-block"></div>
+									<div class="col-12 col-lg-4">
+										<button id="add-family-member-button" class="btn btn-primary" onclick="on_add_family_member(event);">Add Family Member</button>
+									</div>
+									<div class="col-12 col-lg-4"></div>
+								<center>
 							</div>
 
 							<div id="user_family_members"></div>
 
 							<br>
 						</form>
-					</center>
 				</div>`;
 			}
 			function add_qr_code( text , element_id ) {
@@ -534,11 +526,11 @@
 				new_row.className = "row g-2";
 
 				let col_1 = document.createElement( "div" );
-				col_1.className = "col-md-3";
+				col_1.className = "col-lg-3";
 				new_row.appendChild( col_1 );
 
 				let col_2 = document.createElement( "div" );
-				col_2.className = "col-md-6";
+				col_2.className = "col-lg-6";
 				let input_group = document.createElement( "div" );
 				input_group.className = "input-group";
 				let label = document.createElement( "span" );
@@ -591,7 +583,7 @@
 				new_row.appendChild( col_2 );
 
 				let col_3 = document.createElement( "div" );
-				col_3.className = "col-md-3";
+				col_3.className = "col-lg-3";
 				new_row.appendChild( col_3 );
 
 				holder.appendChild( new_row );
@@ -613,11 +605,11 @@
 				new_row.className = "row g-2";
 
 				let col_1 = document.createElement( "div" );
-				col_1.className = "col-md-3";
+				col_1.className = "col-lg-3";
 				new_row.appendChild( col_1 );
 
 				let col_2 = document.createElement( "div" );
-				col_2.className = "col-md-6";
+				col_2.className = "col-lg-6";
 				let input_group = document.createElement( "div" );
 				input_group.className = "input-group";
 				let label = document.createElement( "span" );
@@ -675,7 +667,7 @@
 				new_row.appendChild( col_2 );
 
 				let col_3 = document.createElement( "div" );
-				col_3.className = "col-md-3";
+				col_3.className = "col-lg-3";
 				new_row.appendChild( col_3 );
 
 				holder.appendChild( new_row );
@@ -1102,7 +1094,7 @@
 							on_click: on_edit_cancel_button_click ,
 						} ,
 						"new-user-save-button": {
-							text: "Save" ,
+							text: "Join" ,
 							color: "success" ,
 							on_click: on_new_save_button_click ,
 						} ,

@@ -21,18 +21,19 @@ import (
 var GlobalConfig *types.ConfigFile
 
 var public_limiter = rate_limiter.New(rate_limiter.Config{
-	Max:        2, // set a different rate limit for this route
-	Expiration: 10 * time.Second,
+	Max:        30, // set a different rate limit for this route
+	Expiration: 1 * time.Second,
 	// your remaining configurations...
 	KeyGenerator: func(c *fiber.Ctx) string {
 		return c.Get("x-forwarded-for")
 	},
 	LimitReached: func(c *fiber.Ctx) error {
-		ip := c.IP()
-		fmt.Printf("%s === limit reached\n", ip)
-		c.Set("Content-Type", "text/html")
-		return c.SendString("<html><h1>loading ...</h1><script>setTimeout(function(){ window.location.reload(1); }, 6);</script></html>")
-	},
+		ip_address := c.IP()
+		log_message := fmt.Sprintf( "%s === %s === %s === PUBLIC RATE LIMIT REACHED !!!" , ip_address , c.Method() , c.Path() );
+		log.PrintlnConsole( log_message )
+		c.Set( "Content-Type" , "text/html" )
+		return c.SendString( "<html><h1>loading ...</h1><script>setTimeout(function(){ window.location.reload(1); }, 6);</script></html>" )
+	} ,
 })
 
 var user_creation_limiter = rate_limiter.New(rate_limiter.Config{
@@ -43,8 +44,9 @@ var user_creation_limiter = rate_limiter.New(rate_limiter.Config{
 		return c.Get("x-forwarded-for")
 	},
 	LimitReached: func(c *fiber.Ctx) error {
-		ip := c.IP()
-		fmt.Printf("%s === limit reached\n", ip)
+		ip_address := c.IP()
+		log_message := fmt.Sprintf( "%s === %s === %s === PUBLIC USER CREATION RATE LIMIT REACHED !!!" , ip_address , c.Method() , c.Path() );
+		log.PrintlnConsole( log_message )
 		c.Set("Content-Type", "text/html")
 		return c.SendString("<html><h1>loading ...</h1><script>setTimeout(function(){ window.location.reload(1); }, 6);</script></html>")
 	},
@@ -53,16 +55,25 @@ var user_creation_limiter = rate_limiter.New(rate_limiter.Config{
 
 func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	GlobalConfig = config
+
 	fiber_app.Get( "/" , public_limiter , RenderHomePage )
+	fiber_app.Get( "/logo.png" , public_limiter , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/logo.png" ) } )
+	fiber_app.Get( "/cdn/utils.js" , public_limiter , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/utils.js" ) } )
+	fiber_app.Get( "/cdn/ui.js" , public_limiter , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/ui.js" ) } )
+	fiber_app.Get( "/favicon.ico" , public_limiter , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/favicon.ico" ) } )
+
 	fiber_app.Get( "/join" , public_limiter , RenderJoinPage )
 	fiber_app.Post( "/user/new" , user_creation_limiter , HandleNewUserJoin )
 	fiber_app.Get( "/checkin" , public_limiter , CheckIn )
+
 	user_route_group := fiber_app.Group( "/user" )
 	user_route_group.Get( "/login/fresh/:uuid" , public_limiter , LoginFresh )
 	// user_route_group.Get( "/login/success/:uuid" , LoginSuccess )
 	user_route_group.Get( "/checkin/display/:uuid" , public_limiter , CheckInDisplay )
 	user_route_group.Get( "/checkin" , public_limiter , CheckIn )
 	user_route_group.Get( "/checkin/silent/:uuid" , public_limiter , CheckInSilentTest )
+
+	fiber_app.Get( "/*" , public_limiter , func( context *fiber.Ctx ) ( error ) { return context.Redirect( "/" ) } )
 }
 
 func check_if_user_cookie_exists( context *fiber.Ctx ) ( result bool ) {
