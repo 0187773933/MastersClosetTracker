@@ -17,29 +17,36 @@
 ---
 
 ## TODO
+1. Huber Heights in January 2024
+	- "verified status" of 45424
+	- change max family size FROM: 7 , TO: 5
+	- sync user profile "family" section , live shopping-for , with ticket print-out :
+		- 3 shopping-for population pools.
+		1.) Boy/Girl - Age X
+		2.) Adult - Age X
+		3.) Spouse - Age X
 
-1. Just let a barcode check-in a user. Avoids an extra call
+2. Just let a barcode check-in a user. Avoids an extra call
 	- GET /admin/user/get/barcode/:barcode
 	- GET /admin/user/checkin/test/:uuid
 	- GET /admin/user/checkin/:uuid
-2. Add Admin Manual Override Routes
+3. Add Admin Manual Override Routes
 	- Override Check-In Too Soon
 	- User forgot phone
 	- User has new phone
 	- option to text hand-off link if user can't scan qrcode for some reason
-3. Fix User Fields :
+4. Fix User Fields :
 	- Authorized Aliases
-4. Fix Docker
-5. Use time functions
+5. Fix Docker
+6. Use time functions
 	- `time.Now().After(lastFetched.Add(CachePeriod))` ?
-6. Change "usernames" DB bucket for key=${uuid}_username , value=Username
+7. Change "usernames" DB bucket for key=${uuid}_username , value=Username
 	- keeps only uuids as keys
-7. Make config editable via html
-8. Fix ui.js#793
+8. Make config editable via html
+9. Fix ui.js#793
 	- `document.getElementById( barcode_id ).focus();`
 	- make this optional , so that the edit page doesn't use this
-9. Fix Username/NameString to be Title Case
-
+10. Fix Username/NameString to be Title Case
 
 ## Misc
 

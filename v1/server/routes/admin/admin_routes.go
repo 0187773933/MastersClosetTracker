@@ -62,6 +62,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	// admin_route_group.Get( "/user/check/username" , CheckIfFirstNameLastNameAlreadyExists )
 
 	admin_route_group.Post( "/user/checkin/:uuid" , UserCheckIn )
+	// admin_route_group.Get( "/user/checkin/:uuid/:verb" , UserCheckIn )
 	admin_route_group.Get( "/user/checkin/test/:uuid" , UserCheckInTest )
 
 	admin_route_group.Get( "/user/get/all" , GetAllUsers )
