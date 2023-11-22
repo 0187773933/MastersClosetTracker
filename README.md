@@ -19,7 +19,6 @@
 ## TODO
 1. Huber Heights in January 2024
 	- "verified status" of 45424
-	- change max family size FROM: 7 , TO: 5
 	- sync user profile "family" section , live shopping-for , with ticket print-out :
 		- 3 shopping-for population pools.
 		1.) Boy/Girl - Age X

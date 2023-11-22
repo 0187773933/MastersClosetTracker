@@ -1,0 +1,24 @@
+.btn-qrcode {
+	color: #fff;
+	background-color: #17a2b8;
+	border-color: #17a2b8;
+}
+.btn-qrcode:hover {
+	color: #fff;
+	background-color: #138496;
+	border-color: #117a8b;
+}
+.btn-sms {
+	color: #fff;
+	background-color: #00D8AE;
+	border-color: #00D8AE;
+}
+.btn-sms:hover {
+	color: #fff;
+	background-color: #00D8AE;
+	border-color: #00D8AE;
+}
+
+.input-name {
+/*	max-width: 40ch;*/
+}

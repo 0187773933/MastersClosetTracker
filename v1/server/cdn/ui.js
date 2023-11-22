@@ -62,6 +62,7 @@ function get_ui_active_user_info() {
 	`;
 }
 
+// TODO : Make shopping_for settable in config.json
 function get_ui_shopping_for_selector() {
 	return `
 	<div class="row">
@@ -75,8 +76,6 @@ function get_ui_shopping_for_selector() {
 					<option value="3">3</option>
 					<option value="4">4</option>
 					<option value="5">5</option>
-					<option value="6">6</option>
-					<option value="7">7</option>
 				</select>
 			</div>
 		</div>
@@ -267,60 +266,81 @@ function populate_user_balance_table( shopping_for , balance , balance_config ) 
 
 }
 
-function get_ui_user_new_form() {
+function _get_user_form() {
 	return `
-	<div class="row">
-		<center>
-			<form id="user-new-form" action="/admin/user/new" method="post">
 				<!-- Main Required Stuff -->
 				<div class="row g-2 mb-3">
-					<div class="col-md-4">
+					<div class="col-lg-2"></div>
+					<div class="col-sm-12 col-md-4 col-lg-3">
 						<div class="form-floating">
-							<input id="user_first_name" type="text" class="form-control" name="user_first_name">
+							<input id="user_first_name" type="text" class="form-control input-name" name="user_first_name">
 							<label for="user_first_name">First Name</label>
 						</div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-sm-12 col-md-4 col-lg-3">
 						<div class="form-floating">
-							<input id="user_middle_name" type="text" class="form-control" name="user_middle_name">
+							<input id="user_middle_name" type="text" class="form-control input-name" name="user_middle_name">
 							<label for="user_middle_name">Middle Name</label>
 						</div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-sm-12 col-md-4 col-lg-3">
 						<div class="form-floating">
-							<input id="user_last_name" type="text" class="form-control" name="user_last_name">
+							<input id="user_last_name" type="text" class="form-control input-name" name="user_last_name">
 							<label for="user_last_name">Last Name</label>
 						</div>
 					</div>
-				</div>
-				<div class="row g-2 mb-3">
-						<div class="col-md-2"></div>
-						<div class="col-md-4">
-							<div class="form-floating">
-								<input id="user_email" type="email" class="form-control" name="user_email">
-								<label for="user_email">Email Address</label>
-							</div>
-						</div>
-						<div class="col-md-4">
-							<div class="form-floating">
-								<input id="user_phone_number" type="tel" class="form-control" name="user_phone_number">
-								<label for="user_phone_number">Phone Number</label>
-							</div>
-						</div>
-						<div class="col-md-2"></div>
+					<div class="col-lg-2"></div>
 				</div>
 
+				<!-- Contact Info -->
+				<div class="row g-2 mb-3">
+					<div class="col-lg-3"></div>
+					<div class="col-sm-12 col-md-4 col-lg-4">
+						<div class="form-floating">
+							<input id="user_email" type="email" class="form-control" name="user_email">
+							<label for="user_email">Email Address</label>
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-4 col-lg-3">
+						<div class="form-floating">
+							<input id="user_phone_number" type="tel" class="form-control" name="user_phone_number">
+							<label for="user_phone_number">Phone Number</label>
+						</div>
+					</div>
+					<div class="col-lg-3"></div>
+				</div>
+
+				<!-- Barcodes -->
+				<div class="row g-2 mb-3">
+					<div class="col-lg-4"></div>
+					<div class="col-sm-12 col-md-4 col-lg-4">
+						<button id="add-barcode-button" class="btn btn-primary" onclick="on_add_barcode(event);">Add Barcode</button>
+					</div>
+					<div class="col-lg-4"></div>
+				</div>
+				<div class="row g-2 mb-3">
+					<div class="col-lg-2"></div>
+					<div class="col-sm-12 col-md-4 col-lg-8">
+						<div id="user_barcodes"></div>
+					</div>
+					<div class="col-lg-2"></div>
+				</div>
+
+				<!-- Family Members -->
 				<div class="row g-2 mb-3">
 					<div class="col-md-4"></div>
 					<div class="col-md-4">
-						<button id="add-barcode-button" class="btn btn-primary" onclick="on_add_barcode(event);">Add Barcode</button>
+						<button id="add-family-member-button" class="btn btn-primary" onclick="on_add_family_member(event);">Add Family Member</button>
 					</div>
 					<div class="col-md-4"></div>
 				</div>
-
-				<div id="user_barcodes"></div>
-
-				<br>
+				<div class="row g-2 mb-3">
+					<div class="col-lg-2"></div>
+					<div class="col-sm-12 col-md-4 col-lg-8">
+						<div id="user_family_members"></div>
+					</div>
+					<div class="col-lg-2"></div>
+				</div>
 
 				<!-- Address - Part 1-->
 				<div class="row g-2 mb-3">
@@ -343,6 +363,7 @@ function get_ui_user_new_form() {
 						</div>
 					</div>
 				</div>
+
 				<!-- Address - Part 2-->
 				<div class="row g-2 mb-3">
 					<div class="col-md-4">
@@ -364,7 +385,7 @@ function get_ui_user_new_form() {
 						</div>
 					</div>
 				</div>
-				<br>
+
 				<!-- Extras -->
 				<div class="row g-2 mb-3">
 
@@ -401,7 +422,6 @@ function get_ui_user_new_form() {
 					</div>
 				</div>
 
-				<br>
 				<div class="row g-2 mb-3">
 					<div class="col-md-5 col-lg-5"></div>
 					<div class="col-md-2 col-lg-2">
@@ -412,23 +432,31 @@ function get_ui_user_new_form() {
 					</div>
 					<div class="col-md-5 col-lg-5"></div>
 				</div>
-				<br>
+	`;
+}
 
-				<div class="row g-2 mb-3">
-					<div class="col-md-4"></div>
-					<div class="col-md-4">
-						<button id="add-family-member-button" class="btn btn-primary" onclick="on_add_family_member(event);">Add Family Member</button>
-					</div>
-					<div class="col-md-4"></div>
-				</div>
-
-				<div id="user_family_members"></div>
-
-				<br>
+function get_ui_user_new_form() {
+	return `
+	<div class="row">
+		<center>
+			<form id="user-new-form" action="/admin/user/new" method="post">
+				${_get_user_form()}
 			</form>
 		</center>
 	</div>`;
 }
+
+function get_ui_user_edit_form() {
+	return `
+	<div class="row">
+		<center>
+			<form id="user-new-form" action="/admin/user/edit" method="post">
+				${_get_user_form()}
+			</form>
+		</center>
+	</div>`;
+}
+
 function add_qr_code( text , element_id ) {
 	let x_element = document.getElementById( element_id );
 	x_element.innerHTML = "";
@@ -462,169 +490,6 @@ function show_user_handoff_modal( uuid ) {
 	user_handoff_modal.show();
 }
 
-function get_ui_user_edit_form() {
-	return `
-	<div class="row">
-		<center>
-			<form id="user-edit-form" action="/admin/user/edit" method="post">
-				<!-- Main Required Stuff -->
-				<div class="row g-2 mb-3">
-					<div class="col-md-4">
-						<div class="form-floating">
-							<input id="user_first_name" type="text" class="form-control" name="user_first_name">
-							<label for="user_first_name">First Name</label>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-floating">
-							<input id="user_middle_name" type="text" class="form-control" name="user_middle_name">
-							<label for="user_middle_name">Middle Name</label>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-floating">
-							<input id="user_last_name" type="text" class="form-control" name="user_last_name">
-							<label for="user_last_name">Last Name</label>
-						</div>
-					</div>
-				</div>
-				<div class="row g-2 mb-3">
-						<div class="col-md-2"></div>
-						<div class="col-md-4">
-							<div class="form-floating">
-								<input id="user_email" type="email" class="form-control" name="user_email">
-								<label for="user_email">Email Address</label>
-							</div>
-						</div>
-						<div class="col-md-4">
-							<div class="form-floating">
-								<input id="user_phone_number" type="tel" class="form-control" name="user_phone_number">
-								<label for="user_phone_number">Phone Number</label>
-							</div>
-						</div>
-						<div class="col-md-2"></div>
-				</div>
-
-				<div class="row g-2 mb-3">
-					<div class="col-md-4"></div>
-					<div class="col-md-4">
-						<button id="add-barcode-button" class="btn btn-primary" onclick="on_add_barcode(event);">Add Barcode</button>
-					</div>
-					<div class="col-md-4"></div>
-				</div>
-
-				<div id="user_barcodes"></div>
-
-				<br>
-
-				<!-- Address - Part 1-->
-				<div class="row g-2 mb-3">
-					<div class="col-md-4">
-						<div class="form-floating">
-							<input id="user_street_number" type="text" class="form-control" name="user_street_number">
-							<label for="user_street_number">Street Number</label>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-floating">
-							<input id="user_street_name" type="text" class="form-control" name="user_street_name">
-							<label for="user_street_name">Street Name</label>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-floating">
-							<input id="user_address_two" type="text" class="form-control" name="user_street_name">
-							<label for="user_address_two">Address 2</label>
-						</div>
-					</div>
-				</div>
-				<!-- Address - Part 2-->
-				<div class="row g-2 mb-3">
-					<div class="col-md-4">
-						<div class="form-floating">
-							<input id="user_city" type="text" class="form-control" name="user_city">
-							<label for="user_city">City</label>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-floating">
-							<input id="user_state" type="text" class="form-control" name="user_state">
-							<label for="user_state">State</label>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-floating">
-							<input id="user_zip_code" type="text" class="form-control" name="user_zip_code">
-							<label for="user_zip_code">Zip Code</label>
-						</div>
-					</div>
-				</div>
-				<br>
-				<!-- Extras -->
-				<div class="row g-2 mb-3">
-
-					<div class="col-md-4">
-						<div class="form-floating">
-							<input id="user_birth_day" type="number" min="1" max="31" class="form-control" name="user_birth_day">
-							<label for="user_birth_day">Birth Day</label>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-floating">
-							<select id="user_birth_month" class="form-select" aria-label="User Birth Month" name="user_birth_month">
-								<option value="JAN">JAN = 1</option>
-								<option value="FEB">FEB = 2</option>
-								<option value="MAR">MAR = 3</option>
-								<option value="APR">APR = 4</option>
-								<option value="MAY">MAY = 5</option>
-								<option value="JUN">JUN = 6</option>
-								<option value="JUL">JUL = 7</option>
-								<option value="AUG">AUG = 8</option>
-								<option value="SEP">SEP = 9</option>
-								<option value="OCT">OCT = 10</option>
-								<option value="NOV">NOV = 11</option>
-								<option value="DEC">DEC = 12</option>
-							</select>
-							<label for="user_birth_month">Birth Month</label>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-floating">
-							<input id="user_birth_year" type="number" min="1900" max="2100" class="form-control" name="user_birth_year">
-							<label for="user_birth_year">Birth Year</label>
-						</div>
-					</div>
-				</div>
-
-				<br>
-				<div class="row g-2 mb-3">
-					<div class="col-md-5 col-lg-5"></div>
-					<div class="col-md-2 col-lg-2">
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" value="" id="user_spanish">
-							<label class="form-check-label" for="user_spanish">Español</label>
-						</div>
-					</div>
-					<div class="col-md-5 col-lg-5"></div>
-				</div>
-				<br>
-
-				<div class="row g-2 mb-3">
-					<div class="col-md-4"></div>
-					<div class="col-md-4">
-						<button id="add-family-member-button" class="btn btn-primary" onclick="on_add_family_member(event);">Add Family Member</button>
-					</div>
-					<div class="col-md-4"></div>
-				</div>
-
-				<div id="user_family_members"></div>
-
-				<br>
-
-			</form>
-		</center>
-	</div>`;
-}
 
 function on_add_family_member( event ) {
 	if ( event ) { event.preventDefault(); }

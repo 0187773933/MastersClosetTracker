@@ -205,7 +205,6 @@ function api_get_all_barcodes() {
 	});
 }
 
-
 function api_get_all_checkins() {
 	return new Promise( async function( resolve , reject ) {
 		try {
@@ -299,7 +298,6 @@ function api_delete_checkin( uuid , ulid ) {
 		catch( error ) { console.log( error ); resolve( false ); return; }
 	});
 }
-
 
 function api_submit_form( url , form_data ) {
 	return new Promise( async function( resolve , reject ) {
