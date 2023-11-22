@@ -15,6 +15,10 @@
 		<link rel="stylesheet" type="text/css" href="/cdn/ui.css" crossorigin="anonymous">
 	</head>
 	<body>
+		<a href="#" id="verified-button" class="btn floating-verified">
+			<img style="display: none;" id="verified-img" src="/cdn/verified.png" alt="verified 45424">
+			<h3 id="verified-button-text">Un-Verified</h3>
+		</a>
 		<br>
 		<div class="container">
 <!-- 			<div class="row" id="search-row">
@@ -94,6 +98,7 @@
 						// x_id.visible = true;
 						new_ui_stack.push( html );
 					}
+					// OPTIONAL , put verified button html here somewhere , avoids overlay on mobile view
 					let new_ui_stack_html_string = new_ui_stack.join( " " );
 					$( this.options.buttons_anchor ).html( new_ui_stack_html_string );
 					for ( let i = 0; i < this.buttons_stack.length; ++i ) {
@@ -196,6 +201,18 @@
 					$( "#user_birth_month" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.month = event.target.value });
 					$( "#user_birth_year" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.year = event.target.value });
 					$( "#user_spanish" ).on( "change" , ( event ) => { window.USER.spanish = event.target.checked; });
+					if ( window.USER.verified ) {
+						$( "#verified-img" ).show();
+						$( "#verified-button-text" ).text( "" );
+						$( "#verified-button" ).removeClass( "btn-unverified" );
+						// $( "#verified-button" ).addClass( "btn-verified" );
+					}
+					else {
+						$( "#verified-img" ).hide();
+						$( "#verified-button-text" ).text( "Un-Verified" );
+						// $( "#verified-button" ).removeClass( "btn-verified" );
+						$( "#verified-button" ).addClass( "btn-unverified" );
+					}
 				}
 				render_new_form() {
 					set_url( `/admin/user/checkin/new` );
@@ -221,6 +238,8 @@
 					$( "#user_birth_month" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "date_of_birth" , "month" ] , event.target.value ); });
 					$( "#user_birth_year" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "date_of_birth" , "year" ] , event.target.value ); });
 					$( "#user_spanish" ).on( "change" , ( event ) => { window.USER.spanish = event.target.checked; });
+					$( "#verified-button" ).addClass( "btn-unverified" );
+					$( "#verified-button-text" ).show();
 				}
 			}
 
@@ -367,6 +386,24 @@
 				link.dispatchEvent( clickEvent );
 			}
 
+			function on_verified_button_click( event ) {
+				if ( event ) { event.preventDefault(); }
+				window.USER.verified = !window.USER.verified;
+				console.log( "on_verified_button_click()" , window.USER.verified );
+				if ( window.USER.verified ) {
+					$( "#verified-img" ).show();
+					$( "#verified-button-text" ).text( "" );
+					$( "#verified-button" ).removeClass( "btn-unverified" );
+					// $( "#verified-button" ).addClass( "btn-verified" );
+				}
+				else {
+					$( "#verified-img" ).hide();
+					$( "#verified-button-text" ).text( "Un-Verified" );
+					// $( "#verified-button" ).removeClass( "btn-verified" );
+					$( "#verified-button" ).addClass( "btn-unverified" );
+				}
+			}
+
 			async function _on_check_in_input_change( typed_input="" ) {
 				console.log( "_on_check_in_input_change()" , typed_input );
 				let valid_uuid = is_uuid( typed_input );
@@ -417,6 +454,7 @@
 				// 	_on_check_in_input_change( typed_input );
 				// } , debounce_time );
 			}
+
 			async function init() {
 				await load_api();
 				window.UI = new MCT_UI({
@@ -502,6 +540,7 @@
 				// window.UI.hide_all_buttons();
 				// $( "#user-search-input" ).on( "input" , on_check_in_input_change );
 				// $( "#search-clear-button" ).on( "click" , on_clear_button_click );
+				$( "#verified-button" ).on( "click" , on_verified_button_click );
 
 				window.passed_uuid = window.location.pathname.split( "/edit/" )[ 1 ];
 				let user_info = await api_get_user_from_uuid( window.passed_uuid );

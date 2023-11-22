@@ -701,6 +701,12 @@ function populate_user_edit_form( user_info ) {
 	}
 
 	// Update Dynamic Stuff
+
+	if ( user_info[ "verified" ] ) {
+		$( "#verified-img" ).show();
+		$( "#verified-button-text" ).text( "" );
+	}
+
 	if ( user_info[ "family_members" ] ) {
 		for ( let i = 0; i < user_info[ "family_members" ].length; ++i ) {
 			let family_member_ulid = on_add_family_member(); // add barcode to DOM

@@ -86,6 +86,7 @@ type Person struct {
 
 type User struct {
 	Config *types.ConfigFile `json:"-"`
+	Verified bool `json:"verified"`
 	Username string `json:"username"`
 	NameString string `json:"name_string"`
 	UUID string `json:"uuid"`
@@ -117,6 +118,7 @@ func New( username string , config *types.ConfigFile ) ( new_user User ) {
 	now := time.Now()
 	new_user_uuid := uuid.NewV4().String()
 	new_user.Username = username
+	new_user.Verified = false
 	new_user.UUID = new_user_uuid
 	new_user.Config = config
 	new_user.FamilySize = 1

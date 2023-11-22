@@ -19,6 +19,47 @@
 	border-color: #00D8AE;
 }
 
+.btn-verified {
+	color: #fff;
+	background-color: #00D8AE;
+	border-color: #00D8AE;
+}
+.btn-verified:hover {
+	color: #fff;
+	background-color: #00D8AE;
+	border-color: #00D8AE;
+}
+
+.btn-unverified {
+	color: #fff;
+	background-color: #913C67;
+	border-color: #913C67;
+}
+.btn-unverified:hover {
+	color: #fff;
+	background-color: #913C67;
+	border-color: #913C67;
+}
+
 .input-name {
 /*	max-width: 40ch;*/
+}
+
+.floating-verified {
+    position: fixed;
+    top: 10px;
+    right: 10px; /* Align to the right side */
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+}
+
+.floating-verified img {
+    display: block;
+    width: 60px;
+    height: auto;
+    margin-right: 10px; /* Space between image and text */
+}
+
+.floating-verified span {
 }
