@@ -18,10 +18,10 @@
 
 ## TODO
 1. - sync user profile "family" section , live shopping-for , with ticket print-out :
-	- 3 shopping-for population pools.
+	- shopping-for population pools.
 	1. Boy/Girl - Age X
 	2. Adult - Age X
-	3. Spouse - Age X
+		- spouse
 
 2. Just let a barcode check-in a user. Avoids an extra call
 	- GET /admin/user/get/barcode/:barcode
