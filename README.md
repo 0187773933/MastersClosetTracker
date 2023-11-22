@@ -17,13 +17,11 @@
 ---
 
 ## TODO
-1. Huber Heights in January 2024
-	- "verified status" of 45424
-	- sync user profile "family" section , live shopping-for , with ticket print-out :
-		- 3 shopping-for population pools.
-		1.) Boy/Girl - Age X
-		2.) Adult - Age X
-		3.) Spouse - Age X
+1. - sync user profile "family" section , live shopping-for , with ticket print-out :
+	- 3 shopping-for population pools.
+	1.) Boy/Girl - Age X
+	2.) Adult - Age X
+	3.) Spouse - Age X
 
 2. Just let a barcode check-in a user. Avoids an extra call
 	- GET /admin/user/get/barcode/:barcode
