@@ -8,7 +8,7 @@ rm -rf ./bin/
 declare -a linux_architectures=(
 	"amd64"
 	# "arm"
-	# "arm64"
+	"arm64"
 )
 declare -a darwin_architectures=(
 	"amd64"

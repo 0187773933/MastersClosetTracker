@@ -490,7 +490,7 @@ function show_user_handoff_modal( uuid ) {
 	user_handoff_modal.show();
 }
 
-
+// TODO : Make current_family_members max_length settable in config.json
 function on_add_family_member( event ) {
 	if ( event ) { event.preventDefault(); }
 	console.log( "on_add_family_member()" );
@@ -504,74 +504,143 @@ function on_add_family_member( event ) {
 	let new_row = document.createElement( "div" );
 	new_row.setAttribute( "id" , `user_family_member_row_${family_member_ulid}` );
 	new_row.className = "row g-2";
+	let line_break = document.createElement( "br" );
+	new_row.appendChild( line_break );
 
 	let col_1 = document.createElement( "div" );
-	col_1.className = "col-md-3";
+	col_1.className = "col-md-1";
 	new_row.appendChild( col_1 );
 
+	// Un-Named Family Member Name/ID
 	let col_2 = document.createElement( "div" );
-	col_2.className = "col-md-6";
-	let input_group = document.createElement( "div" );
-	input_group.className = "input-group";
-	let label = document.createElement( "span" );
-	label.className = "input-group-text";
-	label.setAttribute( "id" , `user_family_member_label_${family_member_ulid}` );
-	label.textContent = `Family Member Age - ${(current_family_members.length + 1)}`;
-	let family_member_input = document.createElement( "input" );
-	family_member_input.className = "form-control user-family-member";
-	family_member_input.setAttribute( "placeholder" , "Age" );
-	family_member_input.setAttribute( "type" , "text" );
-	family_member_input.setAttribute( "name" , family_member_id );
-	family_member_input.setAttribute( "id" , family_member_id );
-	family_member_input.addEventListener( "keydown" , ( event ) => {
-		if ( event.keyCode === 13 ) {
-			event.preventDefault();
-			return;
+	col_2.className = "col-md-2";
+	let name = document.createElement( "span" );
+	name.className = "badge rounded-pill text-bg-primary";
+	name.textContent = `Family Member - ${(current_family_members.length + 1)}`;
+	name.setAttribute( "id" , `user_family_member_label_${family_member_ulid}` );
+	col_2.appendChild( name );
+	new_row.appendChild( col_2 );
+
+	// Age
+	let col_3 = document.createElement( "div" );
+	col_3.className = "col-md-2";
+	let age_form = document.createElement( "div" );
+	age_form.className = "form-floating";
+	let age_input = document.createElement( "input" );
+	age_input.className = "form-control user-family-member";
+	age_input.setAttribute( "type" , "number" );
+	age_input.setAttribute( "id" , `user_family_member_${family_member_ulid}_age` );
+	age_input.addEventListener( "keydown" , ( event ) => { if ( event.keyCode === 13 ) { event.preventDefault(); } });
+	age_input.addEventListener( "keyup" , ( event ) => {
+		window.FAMILY_MEMBERS[ family_member_ulid ] = event.target.value;
+		if ( event.target.value < 18 ) {
+			console.log( "child" );
+		} else {
+			console.log( "adult" );
 		}
 	});
-	family_member_input.addEventListener( "keyup" , ( event ) => {
-		window.FAMILY_MEMBERS[ family_member_ulid ] = event.target.value;
-	});
+	let age_label = document.createElement( "label" );
+	age_label.setAttribute( "for" , `user_family_member_${family_member_ulid}_age` );
+	age_label.textContent = "Age";
+	age_form.appendChild( age_input );
+	age_form.appendChild( age_label );
+	col_3.appendChild( age_form );
+	new_row.appendChild( col_3 );
 
-	input_group.appendChild( label );
-	input_group.appendChild( family_member_input );
+	// Gender
+	let col_4 = document.createElement( "div" );
+	col_4.className = "col-md-2";
 
+	let male_gender_form = document.createElement( "div" );
+	male_gender_form.className = "form-check-reverse";
+	let male_gender_input = document.createElement( "input" );
+	male_gender_input.className = "form-check-input";
+	male_gender_input.setAttribute( "type" , "radio" );
+	male_gender_input.setAttribute( "id" , `user_family_member_${family_member_ulid}_gender_male` );
+	male_gender_input.setAttribute( "name" , `user_family_member_${family_member_ulid}_gender` );
+	let male_gender_label = document.createElement( "label" );
+	male_gender_label.className = "form-check-label";
+	male_gender_label.setAttribute( "for" , `user_family_member_${family_member_ulid}_gender` );
+	male_gender_input.setAttribute( "id" , `user_family_member_${family_member_ulid}_gender_label_male` );
+	male_gender_label.textContent = "Male";
+	male_gender_form.appendChild( male_gender_input );
+	male_gender_form.appendChild( male_gender_label );
+	col_4.appendChild( male_gender_form );
+
+	let female_gender_form = document.createElement( "div" );
+	female_gender_form.className = "form-check-reverse";
+	let female_gender_input = document.createElement( "input" );
+	female_gender_input.className = "form-check-input";
+	female_gender_input.setAttribute( "type" , "radio" );
+	female_gender_input.setAttribute( "id" , `user_family_member_${family_member_ulid}_gender_female` );
+	female_gender_input.setAttribute( "name" , `user_family_member_${family_member_ulid}_gender` );
+	let female_gender_label = document.createElement( "label" );
+	female_gender_label.className = "form-check-label";
+	female_gender_label.setAttribute( "for" , `user_family_member_${family_member_ulid}_gender` );
+	female_gender_label.setAttribute( "id" , `user_family_member_${family_member_ulid}_gender_label_female` );
+	female_gender_label.textContent = "Female";
+	female_gender_form.appendChild( female_gender_input );
+	female_gender_form.appendChild( female_gender_label );
+	col_4.appendChild( female_gender_form );
+	new_row.appendChild( col_4 );
+
+	// Spouse
+	let col_5 = document.createElement( "div" );
+	col_5.className = "col-md-2";
+	let spouse_form = document.createElement( "div" );
+	spouse_form.className = "form-check-reverse form-switch";
+	let spouse_input = document.createElement( "input" );
+	spouse_input.className = "form-check-input";
+	spouse_input.setAttribute( "type" , "checkbox" );
+	spouse_input.setAttribute( "role" , "switch" );
+	spouse_input.setAttribute( "id" , `user_family_member_${family_member_ulid}_spouse` );
+	spouse_input.setAttribute( "name" , `user_family_member_${family_member_ulid}_spouse` );
+	let spouse_label = document.createElement( "label" );
+	spouse_label.className = "form-check-label";
+	spouse_label.setAttribute( "for" , `user_family_member_${family_member_ulid}_spouse` );
+	spouse_label.checked = true;
+	spouse_label.textContent = "Spouse";
+	spouse_form.appendChild( spouse_input );
+	spouse_form.appendChild( spouse_label );
+	col_5.appendChild( spouse_form );
+	new_row.appendChild( col_5 );
+
+	// Delete Button
+	let col_6 = document.createElement( "div" );
+	col_6.className = "col-md-2";
 	let delete_button = document.createElement( "a" );
-	delete_button.className = "btn btn-danger p-1 d-flex justify-content-center align-items-center";
+	delete_button.className = "btn btn-danger p-1 justify-content-center align-items-center";
 	let delete_button_icon = document.createElement( "i" );
 	delete_button_icon.className = "bi bi-trash3-fill";
 	delete_button.appendChild( delete_button_icon );
-	delete_button.onclick = async function( event ) {
+	delete_button.onclick = function( event ) {
 		if ( event ) { event.preventDefault(); }
-		let family_member_id = event?.target?.parentNode?.parentNode?.childNodes[ 1 ]?.id;
-		if ( family_member_id === undefined ) { family_member_id = event?.target?.parentNode?.childNodes[ 1 ]?.id; }
-		if ( family_member_id === undefined ) { console.log( event.target ); }
-		let family_member_ulid = family_member_id.split( "user_family_member_" )[ 1 ];
+		let family_member_id = event?.target?.parentNode?.parentNode?.id;
+		if ( family_member_id === undefined ) { family_member_id = event?.target?.parentNode?.parentNode?.parentNode?.id; }
+		if ( family_member_id === "" ) { family_member_id = event?.target?.parentNode?.parentNode?.parentNode?.id; }
+		let fammily_member_id_parts = family_member_id.split( "_" );
+		family_member_id = fammily_member_id_parts[ fammily_member_id_parts.length - 1 ];
 		let result = confirm( `Are You Absolutely Sure You Want to Delete This Family Member ???` );
 		if ( result === true ) {
-			delete window.FAMILY_MEMBERS[ family_member_ulid ];
-			let row_id = `#user_family_member_row_${family_member_ulid}`;
+			delete window.FAMILY_MEMBERS[ family_member_id ];
+			let row_id = `#user_family_member_row_${family_member_id}`;
 			$( row_id ).remove();
 			let labels = document.querySelectorAll( '[id^="user_family_member_label"]' );
 			for ( let i = 0; i < labels.length; ++i ) {
-				console.log( labels[ i ].innerText , `Family Member - ${(i+1)}` );
 				labels[ i ].innerText = `Family Member - ${(i+1)}`;
 			}
 			return;
 		}
 	};
-	input_group.appendChild( delete_button );
-	col_2.appendChild( input_group );
-	// col_2.appendChild( barcode_delete_button );
+	col_6.appendChild( delete_button );
+	new_row.appendChild( col_6 );
 
-	new_row.appendChild( col_2 );
-
-	let col_3 = document.createElement( "div" );
-	col_3.className = "col-md-3";
-	new_row.appendChild( col_3 );
+	let col_7 = document.createElement( "div" );
+	col_7.className = "col-md-1";
+	new_row.appendChild( col_7 );
 
 	holder.appendChild( new_row );
-	document.getElementById( family_member_id ).focus();
+	document.getElementById( `user_family_member_${family_member_ulid}_age` ).focus();
 	return family_member_ulid;
 }
 

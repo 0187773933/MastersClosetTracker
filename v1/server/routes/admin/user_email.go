@@ -13,9 +13,6 @@ import (
 	try "github.com/manucorporat/try"
 )
 
-
-
-
 func send_email( to string , subject string , body string ) ( result bool ) {
 	result = false
 	try.This( func() {
@@ -24,6 +21,7 @@ func send_email( to string , subject string , body string ) ( result bool ) {
 			GlobalConfig.Email.SMTPAuthPassword ,
 			GlobalConfig.Email.SMTPServer )
 		msg := []byte( fmt.Sprintf( "From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s" , GlobalConfig.Email.From , to , subject , body ) )
+		fmt.Println( string( msg ) )
 		err := smtp.SendMail( GlobalConfig.Email.SMTPServerUrl , auth , GlobalConfig.Email.From , []string{ to } , msg )
 		if err != nil {
 			fmt.Println( err )
