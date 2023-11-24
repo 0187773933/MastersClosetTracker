@@ -14,6 +14,7 @@ var ui_html_pages = map[ string ]string {
 	"/user/new/handoff/:uuid": "./v1/server/html/admin_user_new_handoff.html" ,
 	"/user/checkin": "./v1/server/html/admin_user_checkin.html" ,
 	"/user/checkin/:uuid": "./v1/server/html/admin_user_checkin.html" ,
+	"/user/checkin/:uuid/edit": "./v1/server/html/admin_user_checkin.html" ,
 	"/user/checkin/:uuid/edit/:ulid": "./v1/server/html/admin_edit_checkin.html" ,
 	"/user/checkin/new": "./v1/server/html/admin_user_checkin.html" ,
 	"/user/edit/:uuid": "./v1/server/html/admin_user_edit.html" ,

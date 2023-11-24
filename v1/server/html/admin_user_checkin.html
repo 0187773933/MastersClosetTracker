@@ -17,7 +17,7 @@
 	<body>
 		<a href="#" id="verified-button" class="btn floating-verified">
 			<img style="display: none;" id="verified-img" src="/cdn/verified.png" alt="verified 45424">
-			<h3 style="display: none;" id="verified-button-text">Un-Verified</h3>
+			<h3 id="verified-button-text">Un-Verified</h3>
 		</a>
 		<br>
 		<div class="container">
@@ -143,7 +143,8 @@
 					$( "#check-in-button" ).on( "click" , on_check_in_button_click );
 					$( "#edit-user-button" ).on( "click" , on_edit_button_click );
 					$( "#new-user-button" ).on( "click" , on_new_button_click );
-					this.stack = [ "active_user_info" , "shopping_for_selector" , "user_balance_table" ];
+					// this.stack = [ "active_user_info" , "shopping_for_selector" , "user_balance_table" ];
+					this.stack = [ "active_user_info" , "shopping_for_selector_advanced" , "user_balance_table" ];
 					this.render();
 					$( "#active-username" ).text( window.USER.name_string );
 
@@ -153,17 +154,66 @@
 					console.log( check_in_test );
 
 					// 3.) Update Shopping-For Selector
-					let shopping_for_elem = document.getElementById( "shopping_for" );
+					let shopping_for_elem = document.getElementById( "shopping_for_user_family_members" );
 					if ( !check_in_test.user.family_members ) { check_in_test.user.family_members = []; }
-					let shopping_for_max = ( check_in_test.user.family_members.length + 1 );
+					// let shopping_for_max = ( check_in_test.user.family_members.length + 1 );
+					// let shopping_for_value = ( check_in_test.user.family_members.length + 1 );
+
+					if ( window.USER[ "family_members" ] ) {
+						window.FAMILY_MEMBERS = {};
+						for ( let i = 0; i < window.USER[ "family_members" ].length; ++i ) {
+							let family_member_ulid = on_add_family_member_display();
+							window.FAMILY_MEMBERS[ family_member_ulid ] = window.USER[ "family_members" ][ i ];
+
+							let age = false;
+							let male = document.getElementById( `user_family_member_${family_member_ulid}_gender_male` );
+							let male_text = false;
+							let female = document.getElementById( `user_family_member_${family_member_ulid}_gender_female` );
+							let female_text = false;
+							let spouse = document.getElementById( `user_family_member_${family_member_ulid}_spouse` );
+
+							if ( window.USER[ "family_members" ][ i ].age ) {
+								age = document.getElementById( `user_family_member_${family_member_ulid}_age` );
+								age.value = window.USER[ "family_members" ][ i ].age;
+							}
+
+							if ( window.USER[ "family_members" ][ i ].sex ) {
+								if ( window.USER[ "family_members" ][ i ].sex === "male" ) {
+									male.checked = true;
+								} else {
+									female.checked = true;
+								}
+							}
+
+							if ( window.USER[ "family_members" ][ i ].age < 18 ) {
+								male_text = document.getElementById( `user_family_member_${family_member_ulid}_gender_label_male` );
+								male_text.textContent = "Boy";
+								female_text = document.getElementById( `user_family_member_${family_member_ulid}_gender_label_female` );
+								female_text.textContent = "Girl";
+
+								spouse.parentNode.parentNode.style.display = "none";
+							}
+
+							if ( window.USER[ "family_members" ][ i ].spouse ) {
+								spouse.checked = true;
+							}
+
+						}
+					}
+
+					// let shopping_for_elem = document.getElementById( "shopping_for" );
+					// if ( !check_in_test.user.family_members ) { check_in_test.user.family_members = []; }
+					// let shopping_for_max = ( check_in_test.user.family_members.length + 1 );
+					// let shopping_for_value = ( check_in_test.user.family_members.length + 1 );
+					// $( "#shopping_for" ).val( shopping_for_value );
+					// const shopping_for_options_to_hide =  Array.from( shopping_for_elem.options ).filter( option => option.value > shopping_for_value );
+					// shopping_for_options_to_hide.forEach( option => { option.style.display = "none"; } );
+					// $( "#shopping_for" ).on( "change" , ( event ) => {
+					// 	console.log( `on_shopping_for_change( ${event.target.value} )` );
+					// 	populate_user_balance_table( event.target.value , check_in_test.user.balance , check_in_test.balance_config );
+					// });
+
 					let shopping_for_value = ( check_in_test.user.family_members.length + 1 );
-					$( "#shopping_for" ).val( shopping_for_value );
-					const shopping_for_options_to_hide =  Array.from( shopping_for_elem.options ).filter( option => option.value > shopping_for_value );
-					shopping_for_options_to_hide.forEach( option => { option.style.display = "none"; } );
-					$( "#shopping_for" ).on( "change" , ( event ) => {
-						console.log( `on_shopping_for_change( ${event.target.value} )` );
-						populate_user_balance_table( event.target.value , check_in_test.user.balance , check_in_test.balance_config );
-					});
 
 					// 4.) Populate Balance Table
 					populate_user_balance_table( shopping_for_value , check_in_test.user.balance , check_in_test.balance_config );
@@ -181,6 +231,24 @@
 							$( "#user-balance-table" ).addClass( "table-danger" );
 							break;
 					}
+
+					if ( window.USER.verified ) {
+						console.log( "Verified" );
+						$( "#verified-button" ).show();
+						$( "#verified-img" ).show();
+						$( "#verified-button-text" ).text( "" );
+						$( "#verified-button" ).removeClass( "btn-unverified" );
+						// $( "#verified-button" ).addClass( "btn-verified" );
+					}
+					else {
+						console.log( "Un-Verified" );
+						$( "#verified-button" ).show();
+						$( "#verified-img" ).hide();
+						$( "#verified-button-text" ).text( "Un-Verified" );
+						// $( "#verified-button" ).removeClass( "btn-verified" );
+						$( "#verified-button" ).addClass( "btn-unverified" );
+					}
+
 				}
 				render_edit_form() {
 					set_url( `/admin/user/checkin/${window.USER.uuid}/edit` );
@@ -263,15 +331,19 @@
 			async function on_edit_save_button_click( event ) {
 				console.log( "on_edit_save_button_click()" );
 				if ( event ) { event.preventDefault(); }
-				// update dynamic form thing ?
+
+				// update dynamic forms
 				window.USER.barcodes = Object.values( window.BARCODES );
 				window.USER.barcodes = window.USER.barcodes.filter( ( x ) => { return x !== ""; } );
 				window.USER.family_members = Object.values( window.FAMILY_MEMBERS );
-				window.USER.family_members = window.USER.family_members.filter( ( x ) => { return x !== ""; } );
-				window.USER.family_members = window.USER.family_members.map( ( x ) => { return { "first_name": "" , "last_name": "" , "age": parseInt( x ) } } );
+				window.USER.family_members.forEach( ( x ) => { x.age = parseInt( x.age ); } );
+				console.log( window.USER.family_members );
+
+				// save
 				let edit_result = await api_edit_user( window.USER );
 				console.log( edit_result );
 				window.USER = edit_result.user;
+
 				// alert( "User Info Saved !" );
 				window.UI.render_active_user();
 			}
@@ -328,14 +400,13 @@
 				console.log( "on_new_save_button_click()" );
 				if ( event ) { event.preventDefault(); }
 				// update dynamic form stuff
+
 				window.USER.barcodes = Object.values( window.BARCODES );
 				window.USER.barcodes = window.USER.barcodes.filter( ( x ) => { return x !== ""; } );
 				window.USER.family_members = Object.values( window.FAMILY_MEMBERS );
-				console.log( "Family Members ===" , window.USER.family_members );
-				window.USER.family_members = window.USER.family_members.filter( ( x ) => { return x !== ""; } );
-				console.log( "Family Members ===" , window.USER.family_members );
-				window.USER.family_members = window.USER.family_members.map( ( x ) => { return { "first_name": "" , "last_name": "" , "age": parseInt( x ) } } );
-				console.log( "Family Members ===" , window.USER.family_members );
+				window.USER.family_members.forEach( ( x ) => { x.age = parseInt( x.age ); } );
+				console.log( window.USER.family_members );
+
 				let new_user_result = await api_new_user( window.USER );
 				if ( !new_user_result.result?.uuid ) { return false; }
 				window.USER = new_user_result.result;
@@ -468,6 +539,7 @@
 					ids: {
 						"alert_check_in_allowed": get_ui_alert_check_in_allowed ,
 						"alert_check_in_failed": get_ui_alert_check_in_failed ,
+						"shopping_for_selector_advanced": get_ui_shopping_for_selector_advanced ,
 						"shopping_for_selector": get_ui_shopping_for_selector ,
 						"user_edit_form": get_ui_user_edit_form ,
 						"user_new_form": get_ui_user_new_form ,
