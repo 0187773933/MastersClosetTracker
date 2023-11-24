@@ -496,7 +496,7 @@ function on_add_family_member( event ) {
 	console.log( "on_add_family_member()" );
 	let family_member_ulid = ULID.ulid();
 	let family_member_id = `user_family_member_${family_member_ulid}`;
-	window.FAMILY_MEMBERS[ family_member_id ] = "";
+	window.FAMILY_MEMBERS[ family_member_ulid ] = { "age": 0 , "spouse": false , "sex": "" };
 	let current_family_members = document.querySelectorAll( ".user-family-member" );
 	if ( current_family_members.length > 5 ) { return; }
 	let holder = document.getElementById( "user_family_members" );
@@ -532,11 +532,20 @@ function on_add_family_member( event ) {
 	age_input.setAttribute( "id" , `user_family_member_${family_member_ulid}_age` );
 	age_input.addEventListener( "keydown" , ( event ) => { if ( event.keyCode === 13 ) { event.preventDefault(); } });
 	age_input.addEventListener( "keyup" , ( event ) => {
-		window.FAMILY_MEMBERS[ family_member_ulid ] = event.target.value;
+		window.FAMILY_MEMBERS[ family_member_ulid ].age = event.target.value;
+		let male_text = document.getElementById( `user_family_member_${family_member_ulid}_gender_label_male` );
+		let female_text = document.getElementById( `user_family_member_${family_member_ulid}_gender_label_female` );
+		let spouse_button = document.getElementById( `user_family_member_${family_member_ulid}_spouse` );
 		if ( event.target.value < 18 ) {
 			console.log( "child" );
+			male_text.textContent = "Boy";
+			female_text.textContent = "Girl";
+			spouse_button.parentNode.parentNode.style.display = "none";
 		} else {
 			console.log( "adult" );
+			male_text.textContent = "Male";
+			female_text.textContent = "Female";
+			spouse_button.parentNode.parentNode.style.display = "block";
 		}
 	});
 	let age_label = document.createElement( "label" );
@@ -558,10 +567,15 @@ function on_add_family_member( event ) {
 	male_gender_input.setAttribute( "type" , "radio" );
 	male_gender_input.setAttribute( "id" , `user_family_member_${family_member_ulid}_gender_male` );
 	male_gender_input.setAttribute( "name" , `user_family_member_${family_member_ulid}_gender` );
+	male_gender_input.addEventListener( "change" , function( event ) {
+		if ( this.checked ) {
+			window.FAMILY_MEMBERS[ family_member_ulid ].sex = "male"
+		}
+	});
 	let male_gender_label = document.createElement( "label" );
 	male_gender_label.className = "form-check-label";
-	male_gender_label.setAttribute( "for" , `user_family_member_${family_member_ulid}_gender` );
-	male_gender_input.setAttribute( "id" , `user_family_member_${family_member_ulid}_gender_label_male` );
+	male_gender_label.setAttribute( "for" , `user_family_member_${family_member_ulid}_gender_male` );
+	male_gender_label.setAttribute( "id" , `user_family_member_${family_member_ulid}_gender_label_male` );
 	male_gender_label.textContent = "Male";
 	male_gender_form.appendChild( male_gender_input );
 	male_gender_form.appendChild( male_gender_label );
@@ -574,9 +588,14 @@ function on_add_family_member( event ) {
 	female_gender_input.setAttribute( "type" , "radio" );
 	female_gender_input.setAttribute( "id" , `user_family_member_${family_member_ulid}_gender_female` );
 	female_gender_input.setAttribute( "name" , `user_family_member_${family_member_ulid}_gender` );
+	female_gender_input.addEventListener( "change" , function( event ) {
+		if ( this.checked ) {
+			window.FAMILY_MEMBERS[ family_member_ulid ].sex = "female"
+		}
+	});
 	let female_gender_label = document.createElement( "label" );
 	female_gender_label.className = "form-check-label";
-	female_gender_label.setAttribute( "for" , `user_family_member_${family_member_ulid}_gender` );
+	female_gender_label.setAttribute( "for" , `user_family_member_${family_member_ulid}_gender_famale` );
 	female_gender_label.setAttribute( "id" , `user_family_member_${family_member_ulid}_gender_label_female` );
 	female_gender_label.textContent = "Female";
 	female_gender_form.appendChild( female_gender_input );
@@ -595,6 +614,13 @@ function on_add_family_member( event ) {
 	spouse_input.setAttribute( "role" , "switch" );
 	spouse_input.setAttribute( "id" , `user_family_member_${family_member_ulid}_spouse` );
 	spouse_input.setAttribute( "name" , `user_family_member_${family_member_ulid}_spouse` );
+	spouse_input.addEventListener( "change" , function( event ) {
+		if ( this.checked ) {
+			window.FAMILY_MEMBERS[ family_member_ulid ].spouse = true;
+		} else {
+			window.FAMILY_MEMBERS[ family_member_ulid ].spouse = false;
+		}
+	});
 	let spouse_label = document.createElement( "label" );
 	spouse_label.className = "form-check-label";
 	spouse_label.setAttribute( "for" , `user_family_member_${family_member_ulid}_spouse` );
@@ -615,15 +641,15 @@ function on_add_family_member( event ) {
 	delete_button.appendChild( delete_button_icon );
 	delete_button.onclick = function( event ) {
 		if ( event ) { event.preventDefault(); }
-		let family_member_id = event?.target?.parentNode?.parentNode?.id;
-		if ( family_member_id === undefined ) { family_member_id = event?.target?.parentNode?.parentNode?.parentNode?.id; }
-		if ( family_member_id === "" ) { family_member_id = event?.target?.parentNode?.parentNode?.parentNode?.id; }
-		let fammily_member_id_parts = family_member_id.split( "_" );
-		family_member_id = fammily_member_id_parts[ fammily_member_id_parts.length - 1 ];
+		let x_id = event?.target?.parentNode?.parentNode?.id;
+		if ( x_id === undefined ) { x_id = event?.target?.parentNode?.parentNode?.parentNode?.id; }
+		if ( x_id === "" ) { x_id = event?.target?.parentNode?.parentNode?.parentNode?.id; }
+		let x_id_parts = x_id.split( "_" );
+		x_id = x_id_parts[ x_id_parts.length - 1 ];
 		let result = confirm( `Are You Absolutely Sure You Want to Delete This Family Member ???` );
 		if ( result === true ) {
-			delete window.FAMILY_MEMBERS[ family_member_id ];
-			let row_id = `#user_family_member_row_${family_member_id}`;
+			delete window.FAMILY_MEMBERS[ x_id ];
+			let row_id = `#user_family_member_row_${x_id}`;
 			$( row_id ).remove();
 			let labels = document.querySelectorAll( '[id^="user_family_member_label"]' );
 			for ( let i = 0; i < labels.length; ++i ) {
@@ -632,6 +658,7 @@ function on_add_family_member( event ) {
 			return;
 		}
 	};
+
 	col_6.appendChild( delete_button );
 	new_row.appendChild( col_6 );
 
@@ -778,11 +805,42 @@ function populate_user_edit_form( user_info ) {
 
 	if ( user_info[ "family_members" ] ) {
 		for ( let i = 0; i < user_info[ "family_members" ].length; ++i ) {
-			let family_member_ulid = on_add_family_member(); // add barcode to DOM
-			let family_member_id = `user_family_member_${family_member_ulid}`;
-			let family_member_input_element = document.getElementById( family_member_id );
-			family_member_input_element.value = user_info[ "family_members" ][ i ].age;
-			window.FAMILY_MEMBERS[ family_member_ulid ] = user_info[ "family_members" ][ i ].age;
+			let family_member_ulid = on_add_family_member();
+			window.FAMILY_MEMBERS[ family_member_ulid ] = user_info[ "family_members" ][ i ];
+
+			let age = false;
+			let male = document.getElementById( `user_family_member_${family_member_ulid}_gender_male` );
+			let male_text = false;
+			let female = document.getElementById( `user_family_member_${family_member_ulid}_gender_female` );
+			let female_text = false;
+			let spouse = document.getElementById( `user_family_member_${family_member_ulid}_spouse` );
+
+			if ( user_info[ "family_members" ][ i ].age ) {
+				age = document.getElementById( `user_family_member_${family_member_ulid}_age` );
+				age.value = user_info[ "family_members" ][ i ].age;
+			}
+
+			if ( user_info[ "family_members" ][ i ].sex ) {
+				if ( user_info[ "family_members" ][ i ].sex === "male" ) {
+					male.checked = true;
+				} else {
+					female.checked = true;
+				}
+			}
+
+			if ( user_info[ "family_members" ][ i ].age < 18 ) {
+				male_text = document.getElementById( `user_family_member_${family_member_ulid}_gender_label_male` );
+				male_text.textContent = "Boy";
+				female_text = document.getElementById( `user_family_member_${family_member_ulid}_gender_label_female` );
+				female_text.textContent = "Girl";
+
+				spouse.parentNode.parentNode.style.display = "none";
+			}
+
+			if ( user_info[ "family_members" ][ i ].spouse ) {
+				spouse.checked = true;
+			}
+
 		}
 	}
 

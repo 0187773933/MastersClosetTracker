@@ -258,12 +258,14 @@
 			async function on_edit_save_button_click( event ) {
 				console.log( "on_edit_save_button_click()" );
 				if ( event ) { event.preventDefault(); }
-				// update dynamic form thing ?
+				// update dynamic form thing
 				window.USER.barcodes = Object.values( window.BARCODES );
 				window.USER.barcodes = window.USER.barcodes.filter( ( x ) => { return x !== ""; } );
 				window.USER.family_members = Object.values( window.FAMILY_MEMBERS );
-				window.USER.family_members = window.USER.family_members.filter( ( x ) => { return x !== ""; } );
-				window.USER.family_members = window.USER.family_members.map( ( x ) => { return { "first_name": "" , "last_name": "" , "age": parseInt( x ) } } );
+				window.USER.family_members.forEach( ( x ) => { x.age = parseInt( x.age ); } );
+				console.log( window.USER.family_members );
+				// window.USER.family_members = window.USER.family_members.filter( ( x ) => { return x !== ""; } );
+				// window.USER.family_members = window.USER.family_members.map( ( x ) => { return { "first_name": "" , "last_name": "" , "age": parseInt( x ) } } );
 				let edit_result = await api_edit_user( window.USER );
 				console.log( edit_result );
 				window.USER = edit_result.user;
