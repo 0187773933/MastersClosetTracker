@@ -314,7 +314,7 @@ function _get_user_form() {
 				<div class="row g-2 mb-3">
 					<div class="col-lg-4"></div>
 					<div class="col-sm-12 col-md-4 col-lg-4">
-						<button id="add-barcode-button" class="btn btn-primary" onclick="on_add_barcode(event);">Add Barcode</button>
+						<button id="add-barcode-button" class="btn btn-qrcode" onclick="on_add_barcode(event);">Add Barcode</button>
 					</div>
 					<div class="col-lg-4"></div>
 				</div>
@@ -498,7 +498,7 @@ function on_add_family_member( event ) {
 	let family_member_id = `user_family_member_${family_member_ulid}`;
 	window.FAMILY_MEMBERS[ family_member_ulid ] = { "age": 0 , "spouse": false , "sex": "" };
 	let current_family_members = document.querySelectorAll( ".user-family-member" );
-	if ( current_family_members.length > 5 ) { return; }
+	if ( current_family_members.length >= 5 ) { return; }
 	let holder = document.getElementById( "user_family_members" );
 
 	let new_row = document.createElement( "div" );
@@ -665,6 +665,10 @@ function on_add_family_member( event ) {
 	let col_7 = document.createElement( "div" );
 	col_7.className = "col-md-1";
 	new_row.appendChild( col_7 );
+
+	if ( current_family_members.length === 0 ) {
+		new_row.setAttribute( "style" , "padding-bottom: 2px;" );
+	}
 
 	holder.appendChild( new_row );
 	document.getElementById( `user_family_member_${family_member_ulid}_age` ).focus();
