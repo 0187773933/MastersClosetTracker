@@ -372,7 +372,7 @@
 				if ( event ) { event.preventDefault(); }
 				let balance_table = document.getElementById( "user-balance-table-body" );
 				let balance_inputs = balance_table.querySelectorAll( "input" );
-				let shopping_for = parseInt( document.getElementById( "shopping_for" ).value );
+				let shopping_for = document.querySelectorAll( ".user-family-member.btn-primary" ).length;
 
 				let people = document.querySelectorAll( ".user-family-member" );
 				let people_list = [];

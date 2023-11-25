@@ -173,9 +173,9 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 			add_centered_text( pdf , fmt.Sprintf( "%d Accessory , %d Per Person" , job.Accessories , job.AccessoriesLimit ) , config.FontName , 14 , 3.3 )
 		}
 		if job.Seasonal > 1 {
-			add_centered_text( pdf , fmt.Sprintf( "%d Seasonal items , %d Per Person" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+			add_centered_text( pdf , fmt.Sprintf( "%d Seasonal Items , %d Per Person" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
 		} else {
-			add_centered_text( pdf , fmt.Sprintf( "%d Seasonal item , %d Per Person" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
+			add_centered_text( pdf , fmt.Sprintf( "%d Seasonal Item , %d Per Person" , job.Seasonal , job.SeasonalLimit ) , config.FontName , 14 , 3.6 )
 		}
 	}
 
