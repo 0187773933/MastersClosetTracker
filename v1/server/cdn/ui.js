@@ -719,6 +719,7 @@ function on_add_family_member_display( event ) {
 	name.setAttribute( "id" , `user_family_member_label_${family_member_ulid}` );
 	name.addEventListener( "click" , function( event ) {
 		console.log( event.target );
+		event.target.className = "btn btn-light";
 	});
 	col_2.appendChild( name );
 	new_row.appendChild( col_2 );
