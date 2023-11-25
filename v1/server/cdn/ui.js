@@ -87,9 +87,11 @@ function get_ui_shopping_for_selector() {
 function get_ui_shopping_for_selector_advanced() {
 	return `
 	<div class="row">
-		<h3>Shopping For :</h3>
 		<div class="col-lg-2"></div>
-		<div class="col-sm-12 col-md-4 col-lg-8">
+		<div class="col-lg-2">
+			<h3>Shopping For :</h3>
+		</div>
+		<div class="col-sm-12 col-md-4 col-lg-6">
 			<div id="user_family_members"></div>
 		</div>
 		<div class="col-lg-2"></div>
@@ -697,7 +699,7 @@ function on_add_family_member_display( event ) {
 	window.FAMILY_MEMBERS[ family_member_ulid ] = { "age": 0 , "spouse": false , "sex": "" };
 	let current_family_members = document.querySelectorAll( ".user-family-member" );
 	if ( current_family_members.length >= 5 ) { return; }
-	let holder = document.getElementById( "user_family_members" );
+	let holder = document.getElementById( "user_family_members" ); // this is a bootstrap column
 
 	let new_row = document.createElement( "div" );
 	new_row.setAttribute( "id" , `user_family_member_row_${family_member_ulid}` );
@@ -705,47 +707,45 @@ function on_add_family_member_display( event ) {
 	let line_break = document.createElement( "br" );
 	new_row.appendChild( line_break );
 
-	let col_1 = document.createElement( "div" );
-	col_1.className = "col-md-2";
-	new_row.appendChild( col_1 );
+	let container = document.createElement( "div" );
+	container.className = "d-flex justify-content-start";
 
 	// Un-Named Family Member Name/ID
 	let col_2 = document.createElement( "div" );
-	col_2.className = "col-md-2";
+	col_2.className = "p-2";
 	let name = document.createElement( "button" );
 	name.setAttribute( "type" , "button" );
-	name.className = "btn btn-primary";
-	name.textContent = `Family Member - ${(current_family_members.length + 1)}`;
+	name.className = "btn btn-primary user-family-member";
+	name.textContent = `Family Member - ${(current_family_members.length)}`; // take off +1 because of self add
 	name.setAttribute( "id" , `user_family_member_label_${family_member_ulid}` );
 	name.addEventListener( "click" , function( event ) {
 		console.log( event.target );
-		event.target.className = "btn btn-light";
+		if ( event.target.classList.contains( "btn-primary" ) ) {
+			event.target.classList.remove( "btn-primary" );
+			event.target.classList.add( "btn-light" );
+		} else {
+			event.target.classList.remove( "btn-light" );
+			event.target.classList.add( "btn-primary" );
+		}
 	});
 	col_2.appendChild( name );
-	new_row.appendChild( col_2 );
+	container.appendChild( col_2 );
 
 	// Age
 	let col_3 = document.createElement( "div" );
-	col_3.className = "col-md-2";
-	let age_form = document.createElement( "div" );
-	age_form.className = "form-floating";
-	let age_input = document.createElement( "input" );
-	age_input.className = "form-control user-family-member";
-	age_input.setAttribute( "type" , "number" );
-	age_input.setAttribute( "readonly" , true );
-	age_input.setAttribute( "id" , `user_family_member_${family_member_ulid}_age` );
-	age_input.addEventListener( "keydown" , ( event ) => { if ( event.keyCode === 13 ) { event.preventDefault(); } });
-	let age_label = document.createElement( "label" );
-	age_label.setAttribute( "for" , `user_family_member_${family_member_ulid}_age` );
-	age_label.textContent = "Age";
-	age_form.appendChild( age_input );
-	age_form.appendChild( age_label );
-	col_3.appendChild( age_form );
-	new_row.appendChild( col_3 );
+	col_3.className = "p-2";
+	let age_holder = document.createElement( "h4" );
+	let age_badge = document.createElement( "span" );
+	age_badge.setAttribute( "id" , `user_family_member_${family_member_ulid}_age` );
+	age_badge.className = "badge bg-dark";
+	age_badge.textContent = "";
+	age_holder.appendChild( age_badge );
+	col_3.appendChild( age_holder );
+	container.appendChild( col_3 );
 
 	// Gender
 	let col_4 = document.createElement( "div" );
-	col_4.className = "col-md-2";
+	col_4.className = "p-2";
 	let gender_holder = document.createElement( "h4" );
 	let gender_badge = document.createElement( "span" );
 	gender_badge.setAttribute( "id" , `user_family_member_${family_member_ulid}_gender_text` );
@@ -753,33 +753,25 @@ function on_add_family_member_display( event ) {
 	gender_badge.textContent = "";
 	gender_holder.appendChild( gender_badge );
 	col_4.appendChild( gender_holder );
-	new_row.appendChild( col_4 );
+	container.appendChild( col_4 );
 
 	// Spouse
 	let col_5 = document.createElement( "div" );
-	col_5.className = "col-md-2";
+	col_5.className = "p-2";
 	let spouse_holder = document.createElement( "h4" );
 	let spouse_badge = document.createElement( "span" );
 	spouse_badge.setAttribute( "id" , `user_family_member_${family_member_ulid}_spouse` );
 	spouse_badge.className = "badge bg-primary";
-	spouse_badge.setAttribute( "style" , "background-color: #A76385 !important;" );
+	spouse_badge.setAttribute( "style" , "background-color: #A76385 !important; display: none;" );
 	spouse_badge.textContent = "Spouse";
 	spouse_holder.appendChild( spouse_badge );
 	col_5.appendChild( spouse_holder );
-	new_row.appendChild( col_5 );
+	container.appendChild( col_5 );
 
-
-	let col_7 = document.createElement( "div" );
-	col_7.className = "col-md-2";
-	new_row.appendChild( col_7 );
-
-	// if ( current_family_members.length === 0 ) {
-
-	// }
+	new_row.appendChild( container );
 	new_row.setAttribute( "style" , "padding-bottom: 5px;" );
 
 	holder.appendChild( new_row );
-	// document.getElementById( `user_family_member_${family_member_ulid}_age` ).focus();
 	return family_member_ulid;
 }
 

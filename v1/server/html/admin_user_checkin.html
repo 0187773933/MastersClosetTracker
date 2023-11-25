@@ -159,8 +159,15 @@
 					// let shopping_for_max = ( check_in_test.user.family_members.length + 1 );
 					// let shopping_for_value = ( check_in_test.user.family_members.length + 1 );
 
+					window.FAMILY_MEMBERS = {};
+
+					// Add Self
+					let self_ulid = on_add_family_member_display();
+					let self_text = document.getElementById( `user_family_member_label_${self_ulid}` );
+					self_text.textContent = "Self";
+
+					// Add Family Members
 					if ( window.USER[ "family_members" ] ) {
-						window.FAMILY_MEMBERS = {};
 						for ( let i = 0; i < window.USER[ "family_members" ].length; ++i ) {
 							let family_member_ulid = on_add_family_member_display();
 							window.FAMILY_MEMBERS[ family_member_ulid ] = window.USER[ "family_members" ][ i ];
@@ -171,7 +178,7 @@
 
 							if ( window.USER[ "family_members" ][ i ].age ) {
 								age = document.getElementById( `user_family_member_${family_member_ulid}_age` );
-								age.value = window.USER[ "family_members" ][ i ].age;
+								age.textContent = window.USER[ "family_members" ][ i ].age;
 							}
 
 							if ( window.USER[ "family_members" ][ i ].sex ) {
@@ -192,13 +199,8 @@
 							}
 
 							if ( window.USER[ "family_members" ][ i ].spouse ) {
-								console.log( "where spouse ????" );
-								console.log( spouse );
-								// spouse.style.display = "block";
-							} else {
-								// spouse.style.display = "none";
+								spouse.style.display = "block";
 							}
-
 						}
 					}
 
