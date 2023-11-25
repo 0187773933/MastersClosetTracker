@@ -719,7 +719,6 @@ function on_add_family_member_display( event ) {
 	name.textContent = `Family Member - ${(current_family_members.length)}`; // take off +1 because of self add
 	name.setAttribute( "id" , `user_family_member_label_${family_member_ulid}` );
 	name.addEventListener( "click" , function( event ) {
-		console.log( event.target );
 		if ( event.target.classList.contains( "btn-primary" ) ) {
 			event.target.classList.remove( "btn-primary" );
 			event.target.classList.add( "btn-light" );
@@ -727,6 +726,8 @@ function on_add_family_member_display( event ) {
 			event.target.classList.remove( "btn-light" );
 			event.target.classList.add( "btn-primary" );
 		}
+		let shopping_for = document.querySelectorAll( ".user-family-member.btn-primary" ).length;
+		populate_user_balance_table( shopping_for , window.USER.balance , window.BALANCE_CONFIG );
 	});
 	col_2.appendChild( name );
 	container.appendChild( col_2 );

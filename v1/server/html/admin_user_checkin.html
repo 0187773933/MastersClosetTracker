@@ -152,6 +152,7 @@
 					console.log( window.USER );
 					let check_in_test = await api_check_in_uuid_test( window.USER.uuid );
 					console.log( check_in_test );
+					window.BALANCE_CONFIG = check_in_test.balance_config; // need this for shopping-for buttons;
 
 					// 3.) Update Shopping-For Selector
 					let shopping_for_elem = document.getElementById( "shopping_for_user_family_members" );
