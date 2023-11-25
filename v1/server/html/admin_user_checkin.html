@@ -166,10 +166,7 @@
 							window.FAMILY_MEMBERS[ family_member_ulid ] = window.USER[ "family_members" ][ i ];
 
 							let age = false;
-							let male = document.getElementById( `user_family_member_${family_member_ulid}_gender_male` );
-							let male_text = false;
-							let female = document.getElementById( `user_family_member_${family_member_ulid}_gender_female` );
-							let female_text = false;
+							let gender_text = document.getElementById( `user_family_member_${family_member_ulid}_gender_text` );
 							let spouse = document.getElementById( `user_family_member_${family_member_ulid}_spouse` );
 
 							if ( window.USER[ "family_members" ][ i ].age ) {
@@ -179,23 +176,27 @@
 
 							if ( window.USER[ "family_members" ][ i ].sex ) {
 								if ( window.USER[ "family_members" ][ i ].sex === "male" ) {
-									male.checked = true;
+									gender_text.textContent = "Male";
 								} else {
-									female.checked = true;
+									gender_text.textContent = "Female";
 								}
 							}
 
 							if ( window.USER[ "family_members" ][ i ].age < 18 ) {
-								male_text = document.getElementById( `user_family_member_${family_member_ulid}_gender_label_male` );
-								male_text.textContent = "Boy";
-								female_text = document.getElementById( `user_family_member_${family_member_ulid}_gender_label_female` );
-								female_text.textContent = "Girl";
-
+								if ( window.USER[ "family_members" ][ i ].sex === "male" ) {
+									gender_text.textContent = "Boy";
+								} else {
+									gender_text.textContent = "Girl";
+								}
 								spouse.parentNode.parentNode.style.display = "none";
 							}
 
 							if ( window.USER[ "family_members" ][ i ].spouse ) {
-								spouse.checked = true;
+								console.log( "where spouse ????" );
+								console.log( spouse );
+								// spouse.style.display = "block";
+							} else {
+								// spouse.style.display = "none";
 							}
 
 						}
@@ -638,7 +639,10 @@
 					}
 				} else {
 					let sent_uuid = user_checkin_detect_uuid();
-					if ( !sent_uuid ) { return; }
+					if ( !sent_uuid ) {
+						window.UI.clear();
+						return;
+					}
 					let user = await api_get_user_from_uuid( sent_uuid );
 					window.USER = user;
 					document.getElementById( "user-search-input" ).value = sent_uuid;

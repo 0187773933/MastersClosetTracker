@@ -41,6 +41,17 @@
 	border-color: #913C67;
 }
 
+.bg-spouse {
+	color: #fff;
+	background-color: #913C67;
+	border-color: #913C67;
+}
+.bg-spouse:hover {
+	color: #fff;
+	background-color: #E599F7;
+	border-color: #E599F7;
+}
+
 .input-name {
 /*	max-width: 40ch;*/
 }
@@ -62,4 +73,14 @@
 }
 
 .floating-verified span {
+}
+
+.badge-custom {
+    padding-left: 1px; /* Adjust this value as needed */
+    padding-right: 1px; /* Adjust this value as needed */
+}
+
+.no-gutters-custom {
+    padding-right: 0;
+    padding-left: 0;
 }
