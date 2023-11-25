@@ -205,18 +205,6 @@
 						}
 					}
 
-					// let shopping_for_elem = document.getElementById( "shopping_for" );
-					// if ( !check_in_test.user.family_members ) { check_in_test.user.family_members = []; }
-					// let shopping_for_max = ( check_in_test.user.family_members.length + 1 );
-					// let shopping_for_value = ( check_in_test.user.family_members.length + 1 );
-					// $( "#shopping_for" ).val( shopping_for_value );
-					// const shopping_for_options_to_hide =  Array.from( shopping_for_elem.options ).filter( option => option.value > shopping_for_value );
-					// shopping_for_options_to_hide.forEach( option => { option.style.display = "none"; } );
-					// $( "#shopping_for" ).on( "change" , ( event ) => {
-					// 	console.log( `on_shopping_for_change( ${event.target.value} )` );
-					// 	populate_user_balance_table( event.target.value , check_in_test.user.balance , check_in_test.balance_config );
-					// });
-
 					let shopping_for_value = ( check_in_test.user.family_members.length + 1 );
 
 					// 4.) Populate Balance Table
@@ -385,7 +373,15 @@
 				let balance_table = document.getElementById( "user-balance-table-body" );
 				let balance_inputs = balance_table.querySelectorAll( "input" );
 				let shopping_for = parseInt( document.getElementById( "shopping_for" ).value );
-				let form_data = { "uuid": window.USER.uuid , "shopping_for": shopping_for };
+
+				let people = document.querySelectorAll( ".user-family-member" );
+				let people_list = [];
+				people.forEach( ( x , i ) => {
+					people_list.push( `${i}.) ${30} - Female - Spouse` );
+				});
+				console.log( people_list );
+
+				let form_data = { "uuid": window.USER.uuid , "shopping_for": shopping_for , "people_list": people_list };
 				for ( let i = 0; i < balance_inputs.length; ++i ) {
 					form_data[ balance_inputs[ i ].id ] = parseInt( balance_inputs[ i ].value );
 				}

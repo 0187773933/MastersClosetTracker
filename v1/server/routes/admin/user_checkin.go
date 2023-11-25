@@ -36,6 +36,7 @@ type CheckInBalanceForm struct {
 	AccessoriesLimit int `json:"balance_accessories_limit"`
 	AccessoriesUsed int `json:"balance_accessories_used"`
 	ShoppingFor int `json:"shopping_for"`
+	PeopleList []string `json:"people_list"`
 }
 
 // Refill If Empty , Subtract Check-In Ticket
@@ -149,6 +150,9 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 
 	family_name := viewed_user.NameString
 	// if len( family_name ) > 20 ? // TODO : Find max length of family string
+
+	// TODO : add people list ???
+	// change ticket design ????
 	print_job := printer.PrintJob{
 		FamilySize: balance_form.ShoppingFor ,
 		TotalClothingItems: total_clothing_items ,
