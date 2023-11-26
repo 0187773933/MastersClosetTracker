@@ -698,9 +698,8 @@ function on_add_family_member_display( event ) {
 	let family_member_id = `user_family_member_${family_member_ulid}`;
 	window.FAMILY_MEMBERS[ family_member_ulid ] = { "age": 0 , "spouse": false , "sex": "" };
 	let current_family_members = document.querySelectorAll( ".user-family-member" );
-	if ( current_family_members.length >= 5 ) { return; }
+	if ( current_family_members.length > 5 ) { return; }
 	let holder = document.getElementById( "user_family_members" ); // this is a bootstrap column
-
 	let new_row = document.createElement( "div" );
 	new_row.setAttribute( "id" , `user_family_member_row_${family_member_ulid}` );
 	new_row.className = "row no-gutters";

@@ -169,7 +169,7 @@
 
 					// Add Family Members
 					if ( window.USER[ "family_members" ] ) {
-						for ( let i = 0; i < window.USER[ "family_members" ].length; ++i ) {
+						for ( let i = 0; i < ( window.USER[ "family_members" ].length - 1 ); ++i ) {
 							let family_member_ulid = on_add_family_member_display();
 							window.FAMILY_MEMBERS[ family_member_ulid ] = window.USER[ "family_members" ][ i ];
 
