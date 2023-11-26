@@ -65,3 +65,15 @@ func Print( context *fiber.Ctx ) ( error ) {
 		"result": true ,
 	})
 }
+
+func PrintTwo( context *fiber.Ctx ) ( error ) {
+	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
+	var print_job printer.PrintJob
+	json.Unmarshal( []byte( context.Body() ) , &print_job )
+	fmt.Println( print_job )
+	printer.PrintTicket2( GlobalConfig.Printer , print_job )
+	return context.JSON( fiber.Map{
+		"route": "/admin/print2" ,
+		"result": true ,
+	})
+}

@@ -82,6 +82,11 @@ func print_pdf_windows( printer_name string , pdf_file_path string ) {
 	}
 }
 
+type CustomLine struct {
+	Text string `json:"text"`
+	Size float64 `json:"size"`
+	Y float64 `json:"page_height"`
+}
 type PrintJob struct {
 	FamilySize int `json:"family_size"`
 	TotalClothingItems int `json:"total_clothing_items"`
@@ -94,6 +99,7 @@ type PrintJob struct {
 	FamilyName string `json:"family_name"`
 	BarcodeNumber string `json:"barcode_number"`
 	Spanish bool `json:"spanish"`
+	Lines []CustomLine `json:"lines"`
 }
 
 func add_centered_text( pdf *gofpdf.Fpdf , text string , font_name string , font_size float64 , at_page_height float64 ) {
@@ -215,6 +221,92 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 		log.Error( err )
 		return
 	}
+	if runtime.GOOS == "windows" {
+		// clear_printer_que_windows( config.PrinterName )
+		print_pdf_windows( config.PrinterName , pdf_temp_file_path )
+	} else if runtime.GOOS == "darwin" {
+		clear_printer_que_mac_osx( config.PrinterName )
+		print_pdf_mac_osx( config.PrinterName , pdf_temp_file_path )
+	}
+}
+
+
+func PrintTicket2( config types.PrinterConfig , job PrintJob ) {
+
+	// 0.) Init PDF
+	pdf := gofpdf.NewCustom( &gofpdf.InitType{
+		UnitStr: "in" ,
+		Size: gofpdf.SizeType{ Wd: config.PageWidth , Ht: config.PageHeight } ,
+	})
+	pdf.SetMargins( 0.5 , 1 , 0.5 ) // left , top , right
+	pdf.AddPage()
+	pdf.AddUTF8Font( "ComicNeue" , "" , "./v1/printer/ComicNeue-Regular.ttf" )
+
+	// 1.) Logo
+	// ImageOptions(imageNameStr string, x, y, w, h float64, flow bool, options ImageOptions, link int, linkStr string)
+	pdf.ImageOptions(
+		config.LogoFilePath ,
+		0.5 , 0.25 ,
+		3 , 0 ,
+		false ,
+		gofpdf.ImageOptions{
+			ImageType: "PNG" ,
+			ReadDpi: true ,
+			AllowNegativePosition: false ,
+		} ,
+		0 , "" ,
+	)
+
+	// 2.) Family Size
+
+	// 4.)
+
+	// 3.) Sent Lines
+	//
+	// for line := range lines {
+	// 	add_centered_text( pdf , line.Text , config.FontName , line.Size , line.Y )
+	// }
+
+	// 4.) Family Name
+	add_centered_text( pdf , job.FamilyName , config.FontName , 16 , 4.4 )
+
+	// 5.) Barcode
+	barcode_temp_file , _ := ioutil.TempFile( "" , "barcode-*.png" )
+	defer barcode_temp_file.Close()
+	barcode_temp_file_path := barcode_temp_file.Name()
+	defer func() {
+		os.Remove( barcode_temp_file_path )
+	}()
+	to_write_barcode_number := "123456"
+	if job.BarcodeNumber != "" { to_write_barcode_number = job.BarcodeNumber }
+	write_barcode_image( barcode_temp_file_path , to_write_barcode_number )
+	pdf.ImageOptions(
+		barcode_temp_file_path ,
+		1.23 , 4.5 ,
+		1.5 , 0 ,
+		false ,
+		gofpdf.ImageOptions{
+			ImageType: "PNG" ,
+			ReadDpi: true ,
+			AllowNegativePosition: false ,
+		} ,
+		0 , "" ,
+	)
+
+	// 6.) Write Temp PDF File for Printer
+	pdf_temp_file , _ := ioutil.TempFile( "" , "ticket-*.pdf" )
+	defer pdf_temp_file.Close()
+	pdf_temp_file_path := pdf_temp_file.Name()
+	defer func() {
+		os.Remove( pdf_temp_file_path )
+	}()
+	err := pdf.OutputFileAndClose( pdf_temp_file_path )
+	if err != nil {
+		log.Error( err )
+		return
+	}
+
+	// 7.) Print PDF
 	if runtime.GOOS == "windows" {
 		// clear_printer_que_windows( config.PrinterName )
 		print_pdf_windows( config.PrinterName , pdf_temp_file_path )

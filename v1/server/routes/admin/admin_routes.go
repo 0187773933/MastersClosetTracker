@@ -80,6 +80,7 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	admin_route_group.Get( "/user/search/username/fuzzy/:username" , UserSearchFuzzy )
 	admin_route_group.Get( "/print-test" , PrintTest )
 	admin_route_group.Post( "/print" , Print )
+	admin_route_group.Post( "/print2" , PrintTwo )
 
 	admin_route_group.Get( "/user/reports/main" , GetReportMain )
 	admin_route_group.Get( "/user/reports/mail-chimp" , GetReportMailChimp )

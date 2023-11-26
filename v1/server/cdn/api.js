@@ -21,7 +21,8 @@ function api_check_in_uuid( uuid , balance_form_data ) {
 			if ( LocalHostURL.length > 3 ) {
 				console.log( "Sending Extra Print Request to Local Printer" );
 				console.log( response_json[ "check_in" ][ "print_job" ] );
-				let check_in_response_print = await fetch( `${LocalHostURL}/admin/print` , {
+				// let check_in_response_print = await fetch( `${LocalHostURL}/admin/print` , {
+				let check_in_response_print = await fetch( `${LocalHostURL}/admin/print2` , {
 					method: "POST" ,
 					headers: { "key": ServerAPIKey } ,
 					body: JSON.stringify( response_json[ "check_in" ][ "print_job" ] )

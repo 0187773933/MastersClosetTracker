@@ -173,35 +173,41 @@
 							let family_member_ulid = on_add_family_member_display();
 							window.FAMILY_MEMBERS[ family_member_ulid ] = window.USER[ "family_members" ][ i ];
 
-							let age = false;
+							let age = document.getElementById( `user_family_member_${family_member_ulid}_age` );
 							let gender_text = document.getElementById( `user_family_member_${family_member_ulid}_gender_text` );
 							let spouse = document.getElementById( `user_family_member_${family_member_ulid}_spouse` );
 
-							if ( window.USER[ "family_members" ][ i ].age ) {
-								age = document.getElementById( `user_family_member_${family_member_ulid}_age` );
-								age.textContent = window.USER[ "family_members" ][ i ].age;
-							}
-
-							if ( window.USER[ "family_members" ][ i ].sex ) {
-								if ( window.USER[ "family_members" ][ i ].sex === "male" ) {
-									gender_text.textContent = "Male";
-								} else {
-									gender_text.textContent = "Female";
+							if ( age ) {
+								if ( window.USER[ "family_members" ][ i ].age ) {
+									age.textContent = window.USER[ "family_members" ][ i ].age;
 								}
 							}
 
-							if ( window.USER[ "family_members" ][ i ].age < 18 ) {
-								if ( window.USER[ "family_members" ][ i ].sex === "male" ) {
-									gender_text.textContent = "Boy";
-								} else {
-									gender_text.textContent = "Girl";
+							if ( gender_text ) {
+								if ( window.USER[ "family_members" ][ i ].sex ) {
+									if ( window.USER[ "family_members" ][ i ].sex === "male" ) {
+										gender_text.textContent = "Male";
+									} else if ( window.USER[ "family_members" ][ i ].sex === "female" ) {
+										gender_text.textContent = "Female";
+									}
 								}
-								spouse.parentNode.parentNode.style.display = "none";
+
+								if ( window.USER[ "family_members" ][ i ].age < 18 ) {
+									if ( window.USER[ "family_members" ][ i ].sex === "male" ) {
+										gender_text.textContent = "Boy";
+									} else if ( window.USER[ "family_members" ][ i ].sex === "female" ) {
+										gender_text.textContent = "Girl";
+									}
+									spouse.parentNode.parentNode.style.display = "none";
+								}
 							}
 
-							if ( window.USER[ "family_members" ][ i ].spouse ) {
-								spouse.style.display = "block";
+							if ( spouse ) {
+								if ( window.USER[ "family_members" ][ i ].spouse ) {
+									spouse.style.display = "block";
+								}
 							}
+
 						}
 					}
 
