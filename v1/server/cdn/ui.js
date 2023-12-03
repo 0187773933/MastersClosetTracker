@@ -407,8 +407,8 @@ function _get_user_form() {
 
 					<div class="col-md-4">
 						<div class="form-floating">
-							<input id="user_birth_day" type="number" min="1" max="31" class="form-control" name="user_birth_day">
-							<label for="user_birth_day">Birth Day</label>
+							<input id="user_birth_day" type="number" min="1" max="31" class="form-control" name="user_birth_day_name">
+							<label for="user_birth_day_name">Birth Day</label>
 						</div>
 					</div>
 					<div class="col-md-4">
@@ -432,8 +432,8 @@ function _get_user_form() {
 					</div>
 					<div class="col-md-4">
 						<div class="form-floating">
-							<input id="user_birth_year" type="number" min="1900" max="2100" class="form-control" name="user_birth_year">
-							<label for="user_birth_year">Birth Year</label>
+							<input id="user_birth_year" type="number" min="1900" max="2100" class="form-control" name="user_birth_year_name">
+							<label for="user_birth_year_name">Birth Year</label>
 						</div>
 					</div>
 				</div>
@@ -512,7 +512,7 @@ function on_add_family_member( event ) {
 	console.log( "on_add_family_member()" );
 	let family_member_ulid = ULID.ulid();
 	let family_member_id = `user_family_member_${family_member_ulid}`;
-	window.FAMILY_MEMBERS[ family_member_ulid ] = { "age": 0 , "spouse": false , "sex": "" };
+	window.FAMILY_MEMBERS[ family_member_ulid ] = { "age": -1 , "spouse": false , "sex": "" };
 	let current_family_members = document.querySelectorAll( ".user-family-member" );
 	if ( current_family_members.length >= 5 ) { return; }
 	let holder = document.getElementById( "user_family_members" );
@@ -553,12 +553,10 @@ function on_add_family_member( event ) {
 		let female_text = document.getElementById( `user_family_member_${family_member_ulid}_gender_label_female` );
 		let spouse_button = document.getElementById( `user_family_member_${family_member_ulid}_spouse` );
 		if ( event.target.value < 18 ) {
-			console.log( "child" );
 			male_text.textContent = "Boy";
 			female_text.textContent = "Girl";
 			spouse_button.parentNode.parentNode.style.display = "none";
 		} else {
-			console.log( "adult" );
 			male_text.textContent = "Male";
 			female_text.textContent = "Female";
 			spouse_button.parentNode.parentNode.style.display = "block";
@@ -694,11 +692,11 @@ function on_add_family_member( event ) {
 function on_add_family_member_display( event ) {
 	if ( event ) { event.preventDefault(); }
 	console.log( "on_add_family_member_display()" );
-	let family_member_ulid = ULID.ulid();
-	let family_member_id = `user_family_member_${family_member_ulid}`;
-	window.FAMILY_MEMBERS[ family_member_ulid ] = { "age": 0 , "spouse": false , "sex": "" };
 	let current_family_members = document.querySelectorAll( ".user-family-member" );
 	if ( current_family_members.length >= 6 ) { return; }
+	let family_member_ulid = ULID.ulid();
+	let family_member_id = `user_family_member_${family_member_ulid}`;
+	window.FAMILY_MEMBERS[ family_member_ulid ] = { "age": -1 , "spouse": false , "sex": "" };
 	let holder = document.getElementById( "user_family_members" ); // this is a bootstrap column
 	let new_row = document.createElement( "div" );
 	new_row.setAttribute( "id" , `user_family_member_row_${family_member_ulid}` );
@@ -887,15 +885,15 @@ function populate_user_edit_form( user_info ) {
 	let zip_code_element = document.getElementById( "user_zip_code" );
 	zip_code_element.value = user_info[ "identity" ][ "address" ][ "zipcode" ];
 
-	if ( user_info[ "identity" ][ "date_of_birth" ][ "day" ] > 0 ) {
+	if ( user_info[ "identity" ][ "date_of_birth" ][ "day" ] ) {
 		let birth_day_element = document.getElementById( "user_birth_day" );
 		birth_day_element.value = user_info[ "identity" ][ "date_of_birth" ][ "day" ];
 	}
-	if ( user_info[ "identity" ][ "date_of_birth" ][ "month" ] !== "" ) {
+	if ( user_info[ "identity" ][ "date_of_birth" ][ "month" ] ) {
 		let birth_month_element = document.getElementById( "user_birth_month" );
 		birth_month_element.value = user_info[ "identity" ][ "date_of_birth" ][ "month" ];
 	}
-	if ( user_info[ "identity" ][ "date_of_birth" ][ "year" ] > 0 ) {
+	if ( user_info[ "identity" ][ "date_of_birth" ][ "year" ] ) {
 		let birth_year_element = document.getElementById( "user_birth_year" );
 		birth_year_element.value = user_info[ "identity" ][ "date_of_birth" ][ "year" ];
 	}
@@ -949,6 +947,7 @@ function populate_user_edit_form( user_info ) {
 	}
 
 	if ( user_info[ "barcodes" ] ) {
+		console.log( "barcodes" , user_info[ "barcodes" ] );
 		for ( let i = 0; i < user_info[ "barcodes" ].length; ++i ) {
 			let barcode_ulid = on_add_barcode(); // add barcode to DOM
 			let barcode_id = `user_barcode_${barcode_ulid}`;

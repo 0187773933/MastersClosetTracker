@@ -35,6 +35,7 @@ func ServeAuthenticatedPage( context *fiber.Ctx ) ( error ) {
 	url_key := strings.Split( x_path , "/admin" )
 	if len( url_key ) < 2 { return context.SendFile( "./v1/server/html/admin_login.html" ) }
 	// fmt.Println( "Sending -->" , url_key[ 1 ] , x_path )
+	context.Set( "Cache-Control" , "public, max-age=1" );
 	return context.SendFile( ui_html_pages[ url_key[ 1 ] ] )
 }
 

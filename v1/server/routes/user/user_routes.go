@@ -58,9 +58,9 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 
 	fiber_app.Get( "/" , public_limiter , RenderHomePage )
 	fiber_app.Get( "/logo.png" , public_limiter , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/logo.png" ) } )
-	fiber_app.Get( "/cdn/utils.js" , public_limiter , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/utils.js" ) } )
-	fiber_app.Get( "/cdn/ui.js" , public_limiter , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/ui.js" ) } )
-	fiber_app.Get( "/cdn/ui.css" , public_limiter , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/ui.css" ) } )
+	fiber_app.Get( "/cdn/utils.js" , public_limiter , func( context *fiber.Ctx ) ( error ) { context.Set( "Cache-Control" , "public, max-age=1" ); return context.SendFile( "./v1/server/cdn/utils.js" ) } )
+	fiber_app.Get( "/cdn/ui.js" , public_limiter , func( context *fiber.Ctx ) ( error ) { context.Set( "Cache-Control" , "public, max-age=1" ); return context.SendFile( "./v1/server/cdn/ui.js" ) } )
+	fiber_app.Get( "/cdn/ui.css" , public_limiter , func( context *fiber.Ctx ) ( error ) { context.Set( "Cache-Control" , "public, max-age=1" ); return context.SendFile( "./v1/server/cdn/ui.css" ) } )
 	fiber_app.Get( "/cdn/verified.png" , public_limiter , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/verified.png" ) } )
 	fiber_app.Get( "/favicon.ico" , public_limiter , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/favicon.ico" ) } )
 

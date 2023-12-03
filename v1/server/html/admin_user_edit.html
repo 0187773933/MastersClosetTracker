@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>User Edit</title>
@@ -21,17 +22,6 @@
 		</a>
 		<br>
 		<div class="container">
-<!-- 			<div class="row" id="search-row">
-				<div class="col-lg-2 col-md-1"></div>
-				<div class="col-lg-8 col-md-10">
-					<div class="input-group mb-3">
-						<span class="input-group-text" id="search-button">Search</span>
-						<input id="user-search-input" type="text" class="form-control flex-grow-1">
-						<button class="btn btn-outline-secondary" type="button" id="search-clear-button">Clear</button>
-					</div>
-				</div>
-				<div class="col-lg-2 col-md-1"></div>
-			</div> -->
 			<div class="row" id="buttons-row">
 				<center id="buttons-content"></center>
 			</div>
@@ -74,18 +64,6 @@
 					// this.clear();
 					this.render_buttons();
 				}
-				clear() {
-					set_url( `/admin/user/checkin` );
-					$( "#user-search-input" ).val( "" );
-					$( this.options.anchor ).html( "" );
-					$( "#user-search-input" ).focus();
-					window.USER = {};
-					window.BARCODES = {};
-					window.FAMILY_MEMBERS = {};
-					// $( this.options.buttons_anchor ).html( "" );
-					this.buttons_stack = this.options.buttons_stack;
-					this.render_buttons();
-				}
 				render_buttons() {
 					if ( this.buttons_stack.length < 1 ) { return; }
 					$( this.options.buttons_anchor ).html( "" );
@@ -126,62 +104,9 @@
 					this.render();
 					populate_user_search_table( search_results );
 				}
-				async render_active_user( user ) {
-					console.log( "render_active_user()" );
-
-					if ( !window.USER?.uuid ) {
-						this.clear();
-						return;
-					}
-
-					// 1.) Prep UI
-					this.buttons_stack = [ "check-in-print-button" , "edit-user-button" , "new-user-button" ];
-					this.render_buttons();
-					set_url( `/admin/user/checkin/${window.USER.uuid}` );
-
-					$( "#check-in-button" ).on( "click" , on_check_in_button_click );
-					$( "#edit-user-button" ).on( "click" , on_edit_button_click );
-					$( "#new-user-button" ).on( "click" , on_new_button_click );
-					this.stack = [ "active_user_info" , "shopping_for_selector" , "user_balance_table" ];
-					this.render();
-					$( "#active-username" ).text( window.USER.name_string );
-
-					// 2.) Pre-Check the Current Check-In Status of the User
-					console.log( window.USER );
-					let check_in_test = await api_check_in_uuid_test( window.USER.uuid );
-					console.log( check_in_test );
-
-					// 3.) Update Shopping-For Selector
-					let shopping_for_elem = document.getElementById( "shopping_for" );
-					if ( !check_in_test.user.family_members ) { check_in_test.user.family_members = []; }
-					let shopping_for_max = ( check_in_test.user.family_members.length + 1 );
-					let shopping_for_value = ( check_in_test.user.family_members.length + 1 );
-					$( "#shopping_for" ).val( shopping_for_value );
-					const shopping_for_options_to_hide =  Array.from( shopping_for_elem.options ).filter( option => option.value > shopping_for_value );
-					shopping_for_options_to_hide.forEach( option => { option.style.display = "none"; } );
-					$( "#shopping_for" ).on( "change" , ( event ) => {
-						console.log( `on_shopping_for_change( ${event.target.value} )` );
-						populate_user_balance_table( event.target.value , check_in_test.user.balance , check_in_test.balance_config );
-					});
-
-					// 4.) Populate Balance Table
-					populate_user_balance_table( shopping_for_value , check_in_test.user.balance , check_in_test.balance_config );
-					$( "#print-checkin-button" ).on( "click" , on_check_in_print_button_click );
-
-					// 5.) Stylize Table Based on Pre-Check-In Result
-					switch ( check_in_test.result.result ) {
-						case true:
-							$( "#user-balance-table" ).removeClass( "table-danger" );
-							$( "#user-balance-table" ).addClass( "table-success" );
-							break;
-						case false:
-							$( "#active-user-time-remaining" ).text( convert_milliseconds_to_time_string( check_in_test.result.time_remaining ) );
-							$( "#user-balance-table" ).removeClass( "table-success" );
-							$( "#user-balance-table" ).addClass( "table-danger" );
-							break;
-					}
-				}
 				render_edit_form() {
+					console.log( "render_edit_form()" );
+					window.STATE = "edit";
 					this.buttons_stack = [ "edit-user-save-button" , "edit-user-delete-button" , "show-handoff-qrc-button" , "sms-user-button" , "email-user-button" ];
 					this.render_buttons();
 					this.stack = [ "user_edit_form" , "user_qr_code" ];
@@ -193,11 +118,12 @@
 					$( "#user_email" ).on( "change" , ( event ) => { window.USER.email_address = event.target.value });
 					$( "#user_phone_number" ).on( "change" , ( event ) => { window.USER.phone_number = event.target.value });
 					$( "#user_street_number" ).on( "change" , ( event ) => { window.USER.identity.address.street_number = event.target.value });
+					$( "#user_street_name" ).on( "change" , ( event ) => { window.USER.identity.address.street_name = event.target.value });
 					$( "#user_address_two" ).on( "change" , ( event ) => { window.USER.identity.address.address_two = event.target.value });
 					$( "#user_city" ).on( "change" , ( event ) => { window.USER.identity.address.city = event.target.value });
 					$( "#user_state" ).on( "change" , ( event ) => { window.USER.identity.address.state = event.target.value });
 					$( "#user_zip_code" ).on( "change" , ( event ) => { window.USER.identity.address.zipcode = event.target.value });
-					$( "#user_birth_day" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.day = event.target.value });
+					$( "#user_birth_day" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.day = event.target.value; });
 					$( "#user_birth_month" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.month = event.target.value });
 					$( "#user_birth_year" ).on( "change" , ( event ) => { window.USER.identity.date_of_birth.year = event.target.value });
 					$( "#user_spanish" ).on( "change" , ( event ) => { window.USER.spanish = event.target.checked; });
@@ -213,33 +139,6 @@
 						// $( "#verified-button" ).removeClass( "btn-verified" );
 						$( "#verified-button" ).addClass( "btn-unverified" );
 					}
-				}
-				render_new_form() {
-					set_url( `/admin/user/checkin/new` );
-					this.buttons_stack = [ "new-user-save-button" , "new-user-cancel-button" ];
-					this.render_buttons();
-					this.stack = [ "user_new_form" , "user_qr_code" ];
-					this.render();
-					$( "#user-search-input" ).val( "" );
-					window.USER = {};
-					window.BARCODES = {};
-					window.FAMILY_MEMBERS = {};
-					$( "#user_first_name" ).on( "change" , ( event ) => { event.target.value = title_case( event.target.value ); set_nested_property( window.USER , [ "identity" , "first_name" ] , event.target.value ); });
-					$( "#user_middle_name" ).on( "change" , ( event ) => { event.target.value = title_case( event.target.value ); set_nested_property( window.USER , [ "identity" , "middle_name" ] , event.target.value ); });
-					$( "#user_last_name" ).on( "change" , ( event ) => { event.target.value = title_case( event.target.value ); set_nested_property( window.USER , [ "identity" , "last_name" ] , event.target.value ); });
-					$( "#user_email" ).on( "change" , ( event ) => { window.USER.email_address = event.target.value });
-					$( "#user_phone_number" ).on( "change" , ( event ) => { window.USER.phone_number = event.target.value });
-					$( "#user_street_number" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "address" , "street_number" ] , event.target.value ); });
-					$( "#user_address_two" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "address" , "address_two" ] , event.target.value ); });
-					$( "#user_city" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "address" , "city" ] , event.target.value ); });
-					$( "#user_state" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "address" , "state" ] , event.target.value ); });
-					$( "#user_zip_code" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "address" , "zipcode" ] , event.target.value ); });
-					$( "#user_birth_day" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "date_of_birth" , "day" ] , event.target.value ); });
-					$( "#user_birth_month" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "date_of_birth" , "month" ] , event.target.value ); });
-					$( "#user_birth_year" ).on( "change" , ( event ) => { set_nested_property( window.USER , [ "identity" , "date_of_birth" , "year" ] , event.target.value ); });
-					$( "#user_spanish" ).on( "change" , ( event ) => { window.USER.spanish = event.target.checked; });
-					$( "#verified-button" ).addClass( "btn-unverified" );
-					$( "#verified-button-text" ).show();
 				}
 			}
 
@@ -258,14 +157,18 @@
 			async function on_edit_save_button_click( event ) {
 				console.log( "on_edit_save_button_click()" );
 				if ( event ) { event.preventDefault(); }
-				// update dynamic form thing
+
 				window.USER.barcodes = Object.values( window.BARCODES );
 				window.USER.barcodes = window.USER.barcodes.filter( ( x ) => { return x !== ""; } );
-				window.USER.family_members = Object.values( window.FAMILY_MEMBERS );
-				window.USER.family_members.forEach( ( x ) => { x.age = parseInt( x.age ); } );
-				console.log( window.USER.family_members );
-				// window.USER.family_members = window.USER.family_members.filter( ( x ) => { return x !== ""; } );
-				// window.USER.family_members = window.USER.family_members.map( ( x ) => { return { "first_name": "" , "last_name": "" , "age": parseInt( x ) } } );
+
+				let x_family_members = Object.values( window.FAMILY_MEMBERS );
+				x_family_members = x_family_members.filter( ( x ) => { return x.age > -1; } );
+				x_family_members.forEach( ( x ) => { x.age = parseInt( x.age ); } )
+				window.USER.family_members = x_family_members;
+
+				window.USER.identity.date_of_birth.day = parseInt( window.USER.identity.date_of_birth.day );
+				window.USER.identity.date_of_birth.year = parseInt( window.USER.identity.date_of_birth.year );
+
 				let edit_result = await api_edit_user( window.USER );
 				console.log( edit_result );
 				window.USER = edit_result.user;
@@ -490,11 +393,6 @@
 							text: "New User" ,
 							color: "success" ,
 							on_click: on_new_button_click ,
-						} ,
-						"new-user-save-button": {
-							text: "Save" ,
-							color: "success" ,
-							on_click: on_new_save_button_click ,
 						} ,
 						"new-user-cancel-button": {
 							text: "Cancel" ,

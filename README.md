@@ -17,12 +17,7 @@
 ---
 
 ## TODO
-1. - sync user profile "family" section , live shopping-for , with ticket print-out :
-	- shopping-for population pools.
-	1. Boy/Girl - Age X
-	2. Adult - Age X
-		- spouse
-
+1. update user_new.html with new changes
 2. Just let a barcode check-in a user. Avoids an extra call
 	- GET /admin/user/get/barcode/:barcode
 	- GET /admin/user/checkin/test/:uuid

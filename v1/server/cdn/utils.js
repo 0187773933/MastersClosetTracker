@@ -71,24 +71,16 @@ function user_checkin_detect_uuid() {
 }
 
 function user_checkin_detect_state() {
-	console.log( "1" );
 	let url = window.location.href;
-	console.log( url );
 	if ( !url ) { return false; }
-	console.log( "2" );
 	let url_parts = window.location.href.split( "/" );
-	console.log( "3" );
 	if ( url_parts.length < 2 ) { return false; }
-	console.log( "4" );
 	if ( window.location.href.indexOf( "edit" ) > -1 ) {
-		console.log( "5" );
 		return "edit";
 	}
 	if ( window.location.href.indexOf( "new" ) > -1 ) {
-		console.log( "6" );
 		return "new";
 	}
-	console.log( "7" )
 	return false;
 }
 
