@@ -348,6 +348,13 @@
 				window.USER.family_members = x_family_members;
 				console.log( window.USER.family_members );
 
+				if ( window?.USER?.identity?.date_of_birth?.day ) {
+					window.USER.identity.date_of_birth.day = parseInt( window.USER.identity.date_of_birth.day );
+				}
+				if ( window?.USER?.identity?.date_of_birth?.year ) {
+					window.USER.identity.date_of_birth.year = parseInt( window.USER.identity.date_of_birth.year );
+				}
+
 				// save
 				let edit_result = await api_edit_user( window.USER );
 				console.log( edit_result );
@@ -428,8 +435,12 @@
 				window.USER.family_members = x_family_members;
 				console.log( window.USER.family_members );
 
-				window.USER.identity.date_of_birth.day = parseInt( window.USER.identity.date_of_birth.day );
-				window.USER.identity.date_of_birth.year = parseInt( window.USER.identity.date_of_birth.year );
+				if ( window?.USER?.identity?.date_of_birth?.day ) {
+					window.USER.identity.date_of_birth.day = parseInt( window.USER.identity.date_of_birth.day );
+				}
+				if ( window?.USER?.identity?.date_of_birth?.year ) {
+					window.USER.identity.date_of_birth.year = parseInt( window.USER.identity.date_of_birth.year );
+				}
 
 				let new_user_result = await api_new_user( window.USER );
 				if ( !new_user_result.result?.uuid ) { return false; }

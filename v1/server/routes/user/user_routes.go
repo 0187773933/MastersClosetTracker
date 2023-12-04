@@ -65,13 +65,14 @@ func RegisterRoutes( fiber_app *fiber.App , config *types.ConfigFile ) {
 	fiber_app.Get( "/favicon.ico" , public_limiter , func( context *fiber.Ctx ) ( error ) { return context.SendFile( "./v1/server/cdn/favicon.ico" ) } )
 
 	fiber_app.Get( "/join" , public_limiter , RenderJoinPage )
+	fiber_app.Get( "/join/display" , public_limiter , CheckInDisplay )
 	fiber_app.Post( "/user/new" , user_creation_limiter , HandleNewUserJoin )
 	fiber_app.Get( "/checkin" , public_limiter , CheckIn )
 
 	user_route_group := fiber_app.Group( "/user" )
 	user_route_group.Get( "/login/fresh/:uuid" , public_limiter , LoginFresh )
 	// user_route_group.Get( "/login/success/:uuid" , LoginSuccess )
-	user_route_group.Get( "/checkin/display/:uuid" , public_limiter , CheckInDisplay )
+	// user_route_group.Get( "/checkin/display/:uuid" , public_limiter , CheckInDisplay )
 	user_route_group.Get( "/checkin" , public_limiter , CheckIn )
 	user_route_group.Get( "/checkin/silent/:uuid" , public_limiter , CheckInSilentTest )
 

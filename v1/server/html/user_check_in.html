@@ -19,13 +19,14 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-sm">
-					<center><h1>Please Show This QR Code to the Front Desk</h1></center>
+					<center><img src="/logo.png" class="img-fluid logo" alt="logo"></center>
 				</div>
 			</div>
 			<br>
 			<div class="row">
 				<div class="col-sm">
-					<center><img src="/logo.png" class="img-fluid logo" alt="logo"></center>
+					<center><h1>User Info Saved !</h1></center><br>
+					<center><h1>Please Show QR Code to the Front Desk</h1></center>
 				</div>
 			</div>
 			<br>
@@ -47,6 +48,14 @@
 				if ( is_uuid( x_uuid ) === false ) { return false }
 				return x_uuid;
 			}
+			function get_sent_display_string() {
+				const current_url = window.location.search;
+				let display_parts = current_url.split( "?u=" );
+				console.log( display_parts );
+				if ( display_parts.length < 1 ) { return false }
+				let display = display_parts[ 1 ].trim();
+				return display;
+			}
 			function generate_qr_code( uuid ) {
 				let user_qrcode = new QRCode( document.getElementById( "qrcode-image" ) , {
 					text: uuid ,
@@ -58,9 +67,10 @@
 				});
 			}
 			function init() {
-				let sent_uuid = get_sent_uuid();
-				if ( !sent_uuid ) { alert( "Provided UUID Invalid !!!" ); return; }
-				generate_qr_code( sent_uuid );
+				// let sent_uuid = get_sent_uuid();
+				let sent_display_string = get_sent_display_string();
+				// if ( !sent_uuid ) { alert( "Provided UUID Invalid !!!" ); return; }
+				generate_qr_code( sent_display_string );
 			}
 			document.addEventListener( "DOMContentLoaded" , init );
 		</script>
