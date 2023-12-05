@@ -18,6 +18,17 @@
 
 ## TODO
 1. update user_new.html with new changes
+	- find max length eyoyo can scan qrc or aztec codes
+	```
+	Blah Blah Blah Blah Blah
+	blahasdfasdfhsadfhsasdfasdfsadf@sadfasdfsadfsadfa.com
+	+1937-535-3982
+	99MS-99FS-99MS-99FS-99MS
+	6135-asdfasdfasdfasdfasdfasdfasdf-asdfsadfasdfsadfasdfasdfasdfasdf
+	asdfasdfasdfasdfasdfasdfsadfasdfa-OH-45424
+	99-12-1969
+	T
+	```
 2. Just let a barcode check-in a user. Avoids an extra call
 	- GET /admin/user/get/barcode/:barcode
 	- GET /admin/user/checkin/test/:uuid

@@ -99,7 +99,10 @@ type PrintJob struct {
 	FamilyName string `json:"family_name"`
 	BarcodeNumber string `json:"barcode_number"`
 	Spanish bool `json:"spanish"`
-	Lines []CustomLine `json:"lines"`
+	Boys int `json:"boys"`
+	Girls int `json:"girls"`
+	Men int `json:"men"`
+	Women int `json:"women"`
 }
 
 func add_centered_text( pdf *gofpdf.Fpdf , text string , font_name string , font_size float64 , at_page_height float64 ) {
@@ -232,6 +235,9 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 
 
 func PrintTicket2( config types.PrinterConfig , job PrintJob ) {
+
+	fmt.Println( "PrintTicket2()" )
+	fmt.Println( job )
 
 	// 0.) Init PDF
 	pdf := gofpdf.NewCustom( &gofpdf.InitType{

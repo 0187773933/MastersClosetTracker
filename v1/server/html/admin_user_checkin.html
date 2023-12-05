@@ -398,14 +398,38 @@
 				let balance_inputs = balance_table.querySelectorAll( "input" );
 				let shopping_for = document.querySelectorAll( ".user-family-member.btn-primary" ).length;
 
-				let people = document.querySelectorAll( ".user-family-member" );
-				let people_list = [];
-				people.forEach( ( x , i ) => {
-					people_list.push( `${i}.) ${30} - Female - Spouse` );
+				let boys = 0;
+				let girls = 0;
+				let men = 0;
+				let women = 0;
+				Object.keys( window.FAMILY_MEMBERS ).forEach( ( i ) => {
+					const x = window.FAMILY_MEMBERS[ i ];
+					switch ( x.sex ) {
+						case "male":
+							if ( !x.age ) { break; }
+							if ( x.age > 17 ) {
+								men += 1;
+							} else {
+								boys += 1;
+							}
+							break;
+						case "female":
+							if ( !x.age ) { break; }
+							if ( x.age > 17 ) {
+								women += 1;
+							} else {
+								girls += 1;
+							}
+							break;
+					}
 				});
-				console.log( people_list );
-
-				let form_data = { "uuid": window.USER.uuid , "shopping_for": shopping_for , "people_list": people_list };
+				let form_data = {
+					"uuid": window.USER.uuid ,
+					"shopping_for": shopping_for ,
+					"boys": boys , "girls": girls ,
+					"men": men , "women": women
+				};
+				console.log( form_data );
 				for ( let i = 0; i < balance_inputs.length; ++i ) {
 					form_data[ balance_inputs[ i ].id ] = parseInt( balance_inputs[ i ].value );
 				}

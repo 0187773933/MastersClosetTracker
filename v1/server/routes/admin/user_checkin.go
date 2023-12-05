@@ -36,7 +36,10 @@ type CheckInBalanceForm struct {
 	AccessoriesLimit int `json:"balance_accessories_limit"`
 	AccessoriesUsed int `json:"balance_accessories_used"`
 	ShoppingFor int `json:"shopping_for"`
-	PeopleList []string `json:"people_list"`
+	Boys int `json:"boys"`
+	Girls int `json:"girls"`
+	Men int `json:"men"`
+	Women int `json:"women"`
 }
 
 // Refill If Empty , Subtract Check-In Ticket
@@ -165,6 +168,10 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 		FamilyName: family_name ,
 		BarcodeNumber: barcode_number ,
 		Spanish: viewed_user.Spanish ,
+		Boys: balance_form.Boys ,
+		Girls: balance_form.Girls ,
+		Men: balance_form.Men ,
+		Women: balance_form.Women ,
 	}
 
 	new_check_in.UUID = viewed_user.UUID
