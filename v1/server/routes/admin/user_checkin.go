@@ -1,7 +1,7 @@
 package adminroutes
 
 import (
-	// "fmt"
+	"fmt"
 	"time"
 	"strings"
 	"strconv"
@@ -63,7 +63,8 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 
 	var balance_form CheckInBalanceForm
 	json.Unmarshal( []byte( context.Body() ), &balance_form )
-	// fmt.Printf( "%+v\n" , balance_form )
+	fmt.Println( "hello ???" , "UserCheckIn()" )
+	fmt.Printf( "%+v\n" , balance_form )
 
 	// 1.) Prep
 	db , _ := bolt_api.Open( GlobalConfig.BoltDBPath , 0600 , &bolt_api.Options{ Timeout: ( 3 * time.Second ) } )
