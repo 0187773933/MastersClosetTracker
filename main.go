@@ -9,6 +9,7 @@ import (
 	server "github.com/0187773933/MastersClosetTracker/v1/server"
 	utils "github.com/0187773933/MastersClosetTracker/v1/utils"
 	log "github.com/0187773933/MastersClosetTracker/v1/log"
+	logger "github.com/0187773933/MastersClosetTracker/v1/logger"
 )
 
 var s server.Server
@@ -30,6 +31,8 @@ func SetupCloseHandler() {
 
 func main() {
 	// utils.GenerateNewKeys()
+	logger.Init()
+	logger.Log.Printf( "Hola" )
 	SetupCloseHandler()
 	config_file_path , _ := filepath.Abs( os.Args[ 1 ] )
 	fmt.Printf( "Loaded Config File From : %s\n" , config_file_path )

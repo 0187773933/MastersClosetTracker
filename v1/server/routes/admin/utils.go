@@ -68,6 +68,7 @@ func Print( context *fiber.Ctx ) ( error ) {
 }
 
 func PrintTwo( context *fiber.Ctx ) ( error ) {
+	fmt.Println( "PrintTwo()" )
 	if validate_admin_session( context ) == false { return serve_failed_attempt( context ) }
 	var print_job printer.PrintJob
 	json.Unmarshal( []byte( context.Body() ) , &print_job )

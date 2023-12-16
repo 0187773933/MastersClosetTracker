@@ -90,6 +90,7 @@ type CustomLine struct {
 type PrintJob struct {
 	FamilySize int `json:"family_size"`
 	TotalClothingItems int `json:"total_clothing_items"`
+	PantsLimit int `json:"pants_limit"`
 	Shoes int `json:"shoes"`
 	ShoesLimit int `json:"shoes_limit"`
 	Accessories int `json:"accessories"`
@@ -117,6 +118,25 @@ func add_centered_text( pdf *gofpdf.Fpdf , text string , font_name string , font
 	page_center_x := ( page_width / 2 )
 	starting_x := ( page_center_x - ( string_width / 2 ) )
 	pdf.Text( starting_x , at_page_height , text )
+}
+
+func add_plural_text( test int , singular string , plural string , x float64 , y float64 , pdf *gofpdf.Fpdf ) {
+	if test > 1 {
+		pdf.Text( x , y , fmt.Sprintf( "( %d ) %s" , test , plural ) )
+	} else {
+		pdf.Text( x , y , fmt.Sprintf( "( %d ) %s" , test , singular ) )
+	}
+}
+
+func get_plural_text( test int , singular string , plural string ) ( result string ) {
+	if test > 1 {
+		result = fmt.Sprintf( "( %d ) %s" , test , plural )
+	} else if test == 1 {
+		result = fmt.Sprintf( "( %d ) %s" , test , singular )
+	} else {
+		result = fmt.Sprintf( "( %d ) %s" , test , plural )
+	}
+	return
 }
 
 // https://pkg.go.dev/github.com/jung-kurt/gofpdf#example-Fpdf.PageSize
@@ -237,7 +257,8 @@ func PrintTicket( config types.PrinterConfig , job PrintJob ) {
 func PrintTicket2( config types.PrinterConfig , job PrintJob ) {
 
 	fmt.Println( "PrintTicket2()" )
-	fmt.Println( job )
+	fmt.Printf( "%+v\n" , config )
+	fmt.Printf( "%+v\n" , job )
 
 	// 0.) Init PDF
 	pdf := gofpdf.NewCustom( &gofpdf.InitType{
@@ -246,13 +267,13 @@ func PrintTicket2( config types.PrinterConfig , job PrintJob ) {
 	})
 	pdf.SetMargins( 0.5 , 1 , 0.5 ) // left , top , right
 	pdf.AddPage()
-	pdf.AddUTF8Font( "ComicNeue" , "" , "./v1/printer/ComicNeue-Regular.ttf" )
+	pdf.AddUTF8Font( config.FontName , "" , config.FontPath )
 
 	// 1.) Logo
 	// ImageOptions(imageNameStr string, x, y, w, h float64, flow bool, options ImageOptions, link int, linkStr string)
 	pdf.ImageOptions(
 		config.LogoFilePath ,
-		0.5 , 0.25 ,
+		0.5 , 0.10 ,
 		3 , 0 ,
 		false ,
 		gofpdf.ImageOptions{
@@ -264,19 +285,73 @@ func PrintTicket2( config types.PrinterConfig , job PrintJob ) {
 	)
 
 	// 2.) Family Size
+	family_size_y := 1.8
+	if job.Spanish == true {
+		add_centered_text( pdf , fmt.Sprintf( "Tamaño Familiar ( %d )" , job.FamilySize ) , config.FontName , 20 , family_size_y )
+	} else {
+		add_centered_text( pdf , fmt.Sprintf( "Family Size ( %d )" , job.FamilySize ) , config.FontName , 20 , family_size_y )
+	}
 
-	// 4.)
+	// 3.) Total Clothing Items
+	total_clothing_items_y := 2.1
+	if job.Spanish == true {
+		add_centered_text( pdf , fmt.Sprintf( "Total Vestir Para La Familia ( %d )" , job.TotalClothingItems ) , config.FontName , 16 , total_clothing_items_y )
+	} else {
+		add_centered_text( pdf , fmt.Sprintf( "Total Clothing Items for Family ( %d )" , job.TotalClothingItems ) , config.FontName , 16 , total_clothing_items_y )
+	}
 
-	// 3.) Sent Lines
-	//
-	// for line := range lines {
-	// 	add_centered_text( pdf , line.Text , config.FontName , line.Size , line.Y )
-	// }
+	// 4.) Per Person
+	pdf.SetFont( config.FontName , "" , 14 )
+	per_person_y_start := 2.5
+	per_person_y_step := 0.3
+	per_person_offset := 0.19
+	per_person_spacer := 0.25
+	per_person_offset_spacer := ( per_person_offset + per_person_spacer )
+	per_person_offset_spacer_level_two := ( per_person_offset + per_person_spacer + per_person_spacer )
+	pdf.SetFont( config.FontName , "" , 12 )
+	if job.Spanish == true {
+		pdf.Text( per_person_offset , per_person_y_start , "Por Persona :" )
+		pdf.Text( per_person_offset_spacer , ( per_person_y_start + ( per_person_y_step * 1 ) ) , fmt.Sprintf( "( %d ) Artículos de Ropa" , 6 ) )
+		pdf.Text( per_person_offset_spacer_level_two , ( per_person_y_start + ( per_person_y_step * 2 ) ) , fmt.Sprintf( "Límite ( %d ) Pantalones" , job.PantsLimit ) )
+		add_plural_text( job.ShoesLimit , "Par de Zapatos" , "Pares de Zapatos" , per_person_offset_spacer , ( per_person_y_start + ( per_person_y_step * 3 ) ) , pdf )
+		add_plural_text( job.AccessoriesLimit , "Accesorio" , "Accesorios" , per_person_offset_spacer , ( per_person_y_start + ( per_person_y_step * 4 ) ) , pdf )
+		add_plural_text( job.SeasonalLimit , "Artículo de Temporada" , "Artículos de Temporada" , per_person_offset_spacer , ( per_person_y_start + ( per_person_y_step * 5 ) ) , pdf )
+	} else {
+		pdf.Text( per_person_offset , per_person_y_start , "Per Person :" )
+		pdf.Text( per_person_offset_spacer , ( per_person_y_start + ( per_person_y_step * 1 ) ) , fmt.Sprintf( "( %d ) Clothing Items" , 6 ) )
+		pdf.Text( per_person_offset_spacer_level_two , ( per_person_y_start + ( per_person_y_step * 2 ) ) , fmt.Sprintf( "Limit ( %d ) Pants" , job.PantsLimit ) )
+		add_plural_text( job.ShoesLimit , "Pair of Shoes" , "Pairs of Shoes" , per_person_offset_spacer , ( per_person_y_start + ( per_person_y_step * 3 ) ) , pdf )
+		add_plural_text( job.AccessoriesLimit , "Accessory" , "Accessories" , per_person_offset_spacer , ( per_person_y_start + ( per_person_y_step * 4 ) ) , pdf )
+		add_plural_text( job.SeasonalLimit , "Seasonal Item" , "Seasonal Items" , per_person_offset_spacer , ( per_person_y_start + ( per_person_y_step * 5 ) ) , pdf )
+	}
 
-	// 4.) Family Name
-	add_centered_text( pdf , job.FamilyName , config.FontName , 16 , 4.4 )
+	// 5.) Shopping For Population
+	shopping_for_y1 := 4.6
+	shopping_for_y2 := 4.9
+	if job.Spanish == true {
+		boys := get_plural_text( job.Boys , "Niño" , "Niños" )
+		girls := get_plural_text( job.Girls , "Niña" , "Niñas" )
+		men := get_plural_text( job.Men , "Hombre" , "Hombres" )
+		women := get_plural_text( job.Women , "Mujer" , "Mujeres" )
+		shopping_for_children_text := fmt.Sprintf( "%s , %s" , girls , boys )
+		shopping_for_adults_text := fmt.Sprintf( "%s , %s" , women , men )
+		add_centered_text( pdf , shopping_for_children_text , config.FontName , 16 , shopping_for_y1 )
+		add_centered_text( pdf , shopping_for_adults_text , config.FontName , 16 , shopping_for_y2 )
+	} else {
+		boys := get_plural_text( job.Boys , "Boy" , "Boys" )
+		girls := get_plural_text( job.Girls , "Girl" , "Girls" )
+		men := get_plural_text( job.Men , "Man" , "Men" )
+		women := get_plural_text( job.Women , "Woman" , "Women" )
+		shopping_for_children_text := fmt.Sprintf( "%s , %s" , girls , boys )
+		shopping_for_adults_text := fmt.Sprintf( "%s , %s" , women , men )
+		add_centered_text( pdf , shopping_for_children_text , config.FontName , 16 , shopping_for_y1 )
+		add_centered_text( pdf , shopping_for_adults_text , config.FontName , 16 , shopping_for_y2 )
+	}
 
-	// 5.) Barcode
+	// 6.) Family Name
+	add_centered_text( pdf , job.FamilyName , config.FontName , 16 , 5.4 )
+
+	// 7.) Barcode
 	barcode_temp_file , _ := ioutil.TempFile( "" , "barcode-*.png" )
 	defer barcode_temp_file.Close()
 	barcode_temp_file_path := barcode_temp_file.Name()
@@ -288,7 +363,7 @@ func PrintTicket2( config types.PrinterConfig , job PrintJob ) {
 	write_barcode_image( barcode_temp_file_path , to_write_barcode_number )
 	pdf.ImageOptions(
 		barcode_temp_file_path ,
-		1.23 , 4.5 ,
+		1.23 , 5.5 ,
 		1.5 , 0 ,
 		false ,
 		gofpdf.ImageOptions{
@@ -299,7 +374,7 @@ func PrintTicket2( config types.PrinterConfig , job PrintJob ) {
 		0 , "" ,
 	)
 
-	// 6.) Write Temp PDF File for Printer
+	// 8.) Write Temp PDF File for Printer
 	pdf_temp_file , _ := ioutil.TempFile( "" , "ticket-*.pdf" )
 	defer pdf_temp_file.Close()
 	pdf_temp_file_path := pdf_temp_file.Name()
@@ -308,11 +383,23 @@ func PrintTicket2( config types.PrinterConfig , job PrintJob ) {
 	}()
 	err := pdf.OutputFileAndClose( pdf_temp_file_path )
 	if err != nil {
-		log.Error( err )
+		fmt.Println( err )
 		return
 	}
 
-	// 7.) Print PDF
+	// go func() {
+	// 	fmt.Println( pdf_temp_file_path )
+	// 	cmd2 := exec.Command( "open" , pdf_temp_file_path )
+	// 	cmd2.Run()
+	// 	bufio.NewReader( os.Stdin ).ReadBytes( '\n' )
+	// }()
+
+	// fmt.Println( pdf_temp_file_path )
+	// cmd2 := exec.Command( "open" , pdf_temp_file_path )
+	// cmd2.Run()
+	// bufio.NewReader( os.Stdin ).ReadBytes( '\n' )
+
+	// 9.) Print PDF
 	if runtime.GOOS == "windows" {
 		// clear_printer_que_windows( config.PrinterName )
 		print_pdf_windows( config.PrinterName , pdf_temp_file_path )

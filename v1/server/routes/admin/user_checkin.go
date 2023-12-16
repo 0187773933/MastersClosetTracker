@@ -22,6 +22,7 @@ type CheckInBalanceForm struct {
 	TopsUsed int `json:"balance_tops_used"`
 	BottomsAvailable int `json:"balance_bottoms_available"`
 	BottomsLimit int `json:"balance_bottoms_limit"`
+	PantsLimit int `json:"balance_pants_limit"`
 	BottomsUsed int `json:"balance_bottoms_used"`
 	DressesAvailable int `json:"balance_dresses_available"`
 	DressesLimit int `json:"balance_dresses_limit"`
@@ -161,6 +162,7 @@ func UserCheckIn( context *fiber.Ctx ) ( error ) {
 		TotalClothingItems: total_clothing_items ,
 		Shoes: balance_form.ShoesAvailable ,
 		ShoesLimit: GlobalConfig.Balance.Shoes ,
+		PantsLimit: GlobalConfig.Balance.General.Bottoms ,
 		Accessories: balance_form.AccessoriesAvailable ,
 		AccessoriesLimit: GlobalConfig.Balance.Accessories ,
 		Seasonal: balance_form.SeasonalsAvailable ,

@@ -29,6 +29,7 @@ type PrinterConfig struct {
 	PageWidth float64 `json:"page_width"`
 	PageHeight float64 `json:"page_height"`
 	FontName string `json:"font_name"`
+	FontPath string `json:"font_path"`
 	PrinterName string `json:"printer_name"`
 	LogoFilePath string `json:"logo_file_path"`
 }

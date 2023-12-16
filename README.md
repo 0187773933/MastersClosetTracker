@@ -56,6 +56,9 @@
 - https://offnova.com/pages/download
 - `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 - `brew install cups`
+- Windows 11 S-Mode ??
+	- https://support.microsoft.com/en-us/windows/switching-out-of-s-mode-in-windows-4f56d9be-99ec-6983-119f-031bfb28a307
+	- `ms-windows-store://pdp/?productid=BF712690PMLF&OCID=windowssmodesupportpage`
 
 - https://github.com/apple/cups/releases
 - `git clone https://github.com/apple/cups`
